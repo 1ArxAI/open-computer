@@ -1,466 +1,628 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Open Computer · Your Personal Open-Source AI Cloud Computer</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <title>Open Computer · Your Personal Self-Hosted AI Cloud Computer</title>
   <meta name="description" content="Turn any Linux VPS into an autonomous personal AI cloud computer with a native terminal, file explorer, 24/7 background agents, and scheduled automations.">
   <meta property="og:title" content="Open Computer · Personal AI Cloud Computer">
   <meta property="og:description" content="Self-hosted, open-source AI computer for any Linux VPS. Inspired by Zo Computer.">
   <meta property="og:image" content="images/home.png">
+
+  <!-- Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
   <style>
     :root {
-      --bg: #090a0d;
-      --card: #12141a;
-      --card-hover: #181b22;
-      --border: #232732;
-      --border-accent: rgba(59, 130, 246, 0.4);
-      --primary: #3b82f6;
-      --primary-hover: #60a5fa;
-      --text: #f3f4f6;
-      --text-muted: #9ca3af;
-      --text-dim: #6b7280;
-      --accent-green: #10b981;
-      --accent-purple: #8b5cf6;
-      --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
-      --font-mono: 'JetBrains Mono', monospace;
+      --zo-bg: #090a0f;
+      --zo-fg: #f3f4f6;
+      --zo-card: #12141c;
+      --zo-primary: #3b82f6;
+      --zo-primary-fg: #ffffff;
+      --zo-muted: #181b26;
+      --zo-fg-muted: #9ca3af;
+      --zo-accent: #1e2230;
+      --zo-border: #232736;
+      --zo-input: #151722;
+      --zo-sidebar: #0e1017;
+      --zo-sidebar-accent: #181b26;
+      --zo-destructive: #ef4444;
+      --radius-sm: 6px;
+      --radius-md: 10px;
+      --radius-lg: 14px;
+      --radius-pill: 9999px;
+      --font: 'Hanken Grotesk', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      --font-mono: "JetBrains Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
     }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: var(--font-sans);
-      line-height: 1.6;
-      overflow-x: hidden;
-      -webkit-font-smoothing: antialiased;
-    }
-    a { color: var(--primary); text-decoration: none; transition: color 0.2s; }
-    a:hover { color: var(--primary-hover); }
-    .container { max-width: 1180px; margin: 0 auto; padding: 0 24px; }
 
-    /* Header Nav */
-    header {
-      position: sticky;
-      top: 0;
-      z-index: 100;
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      background: rgba(9, 10, 13, 0.75);
-      border-bottom: 1px solid var(--border);
+    /* Theme Presets */
+    body[data-theme="garbanzo"] {
+      --zo-bg: oklch(0.2598 0.0306 262.6666);
+      --zo-fg: oklch(0.9219 0 0);
+      --zo-card: oklch(0.3106 0.0301 268.6365);
+      --zo-primary: oklch(0.6397 0.1720 36.4421);
+      --zo-muted: oklch(0.3095 0.0266 266.7132);
+      --zo-fg-muted: oklch(0.7155 0 0);
+      --zo-accent: oklch(0.3380 0.0589 267.5867);
+      --zo-border: oklch(0.4976 0.0366 269.3687);
+      --zo-sidebar: oklch(0.3100 0.0283 267.7408);
     }
-    .nav-inner {
+    body[data-theme="claude"] {
+      --zo-bg: oklch(0.2779 0.0062 78.2263);
+      --zo-fg: oklch(0.8074 0.0142 93.0137);
+      --zo-card: oklch(0.3069 0.0083 75.2677);
+      --zo-primary: oklch(0.6724 0.1308 38.7559);
+      --zo-muted: oklch(0.3069 0.0083 75.2677);
+      --zo-fg-muted: oklch(0.7168 0.0154 84.5906);
+      --zo-accent: oklch(0.3315 0.0154 79.6268);
+      --zo-border: oklch(0.3845 0.0128 81.7518);
+      --zo-sidebar: oklch(0.2523 0.0040 84.5846);
+    }
+    body[data-theme="zone"] {
+      --zo-bg: lab(17.8584% -.546753 -1.61707);
+      --zo-fg: lab(91.8792% -.430316 -1.2359);
+      --zo-card: lab(21.559% -.537768 -1.58297);
+      --zo-primary: lab(58.1591% -2.49425 -49.0636);
+      --zo-muted: lab(21.559% -.537768 -1.58297);
+      --zo-fg-muted: lab(65.52% -1.31929 -3.90199);
+      --zo-accent: lab(25.4204% -2.28751 -15.7596);
+      --zo-border: lab(30.3856% -.760198 -2.24963);
+      --zo-sidebar: lab(15.4918% -.556231 -1.65128);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html, body {
+      height: 100%;
+      width: 100%;
+      overflow: hidden;
+      background-color: var(--zo-bg);
+      color: var(--zo-fg);
+      font-family: var(--font);
+      -webkit-font-smoothing: antialiased;
+      transition: background-color 0.25s, color 0.25s;
+    }
+
+    /* Custom Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.12); border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+
+    /* App Container Layout */
+    #app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      width: 100vw;
+      overflow: hidden;
+    }
+
+    /* Top Global Header */
+    .global-header {
+      height: 48px;
+      background: var(--zo-sidebar);
+      border-bottom: 1px solid var(--zo-border);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      height: 64px;
+      padding: 0 16px;
+      flex-shrink: 0;
+      z-index: 100;
+      user-select: none;
     }
-    .logo {
+    .gh-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .gh-logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      cursor: pointer;
+    }
+    .gh-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid rgba(59, 130, 246, 0.35);
+      color: #93c5fd;
+      font-weight: 500;
+    }
+    .gh-center {
+      flex: 1;
+      max-width: 480px;
+      margin: 0 20px;
+    }
+    .gh-search-btn {
+      width: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: var(--zo-input);
+      border: 1px solid var(--zo-border);
+      border-radius: var(--radius-sm);
+      color: var(--zo-fg-muted);
+      padding: 6px 12px;
+      font-size: 12.5px;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .gh-search-btn:hover {
+      border-color: #3f4559;
+      color: var(--zo-fg);
+    }
+    .gh-kbd {
+      font-family: var(--font-mono);
+      font-size: 10.5px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      padding: 1px 5px;
+      border-radius: 4px;
+      color: #cbd5e1;
+    }
+    .gh-right {
       display: flex;
       align-items: center;
       gap: 10px;
-      font-size: 17px;
-      font-weight: 700;
-      color: #fff;
     }
-    .logo-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #2563eb, #7c3aed);
-      color: #fff;
-    }
-    .nav-links {
-      display: flex;
-      align-items: center;
-      gap: 24px;
-      font-size: 14px;
-    }
-    .nav-links a { color: var(--text-muted); }
-    .nav-links a:hover { color: #fff; }
-    .btn-github {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #1f232d;
-      color: #fff;
-      border: 1px solid var(--border);
-      padding: 7px 14px;
-      border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-    .btn-github:hover {
-      background: #2a303e;
-      border-color: #3b82f6;
-      color: #fff;
-    }
-
-    /* Hero Section */
-    .hero {
-      padding: 80px 0 60px;
-      text-align: center;
-      position: relative;
-    }
-    .hero-glow {
-      position: absolute;
-      top: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 600px;
-      height: 300px;
-      background: radial-gradient(circle, rgba(59, 130, 246, 0.15) 0%, rgba(139, 92, 246, 0.08) 50%, transparent 80%);
-      filter: blur(60px);
-      pointer-events: none;
-      z-index: 0;
-    }
-    .hero-content {
-      position: relative;
-      z-index: 1;
-      max-width: 820px;
-      margin: 0 auto;
-    }
-    .badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 4px 14px;
-      border-radius: 999px;
-      background: rgba(59, 130, 246, 0.1);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      color: #93c5fd;
-      font-size: 13px;
-      font-weight: 500;
-      margin-bottom: 24px;
-    }
-    .hero h1 {
-      font-size: 48px;
-      line-height: 1.15;
-      font-weight: 800;
-      letter-spacing: -0.03em;
-      margin-bottom: 20px;
-      background: linear-gradient(180deg, #ffffff 40%, #94a3b8 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-    }
-    .hero p {
-      font-size: 19px;
-      line-height: 1.5;
-      color: var(--text-muted);
-      margin-bottom: 32px;
-    }
-    .hero-actions {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 16px;
-      flex-wrap: wrap;
-    }
-    .btn-primary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: #2563eb;
-      color: #fff;
-      padding: 12px 24px;
-      border-radius: 9px;
-      font-size: 15px;
-      font-weight: 600;
-      transition: all 0.2s;
-      box-shadow: 0 4px 20px rgba(37, 99, 235, 0.35);
-    }
-    .btn-primary:hover {
-      background: #1d4ed8;
-      color: #fff;
-      transform: translateY(-1px);
-    }
-    .btn-secondary {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: var(--card);
-      color: var(--text);
-      border: 1px solid var(--border);
-      padding: 12px 24px;
-      border-radius: 9px;
-      font-size: 15px;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-    .btn-secondary:hover {
-      background: var(--card-hover);
-      border-color: #4b5563;
-      color: #fff;
-    }
-
-    /* Shoutout Alert */
-    .shoutout-box {
-      margin: 40px auto 0;
-      max-width: 820px;
-      background: linear-gradient(180deg, rgba(30, 41, 59, 0.6) 0%, rgba(15, 23, 42, 0.6) 100%);
-      border: 1px solid rgba(59, 130, 246, 0.3);
-      border-radius: 12px;
-      padding: 18px 24px;
-      text-align: left;
-      font-size: 14px;
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-    }
-    .shoutout-icon { font-size: 24px; line-height: 1; }
-    .shoutout-text strong { color: #fff; }
-    .shoutout-text p { color: #cbd5e1; margin-top: 4px; font-size: 13.5px; }
-
-    /* Showcase Carousel / Tab Viewer */
-    .showcase {
-      margin: 60px 0;
-    }
-    .showcase-tabs {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-    .tab-btn {
-      background: #161922;
-      border: 1px solid var(--border);
-      color: var(--text-muted);
-      padding: 8px 18px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .tab-btn:hover {
-      background: #1f2430;
-      color: #fff;
-    }
-    .tab-btn.active {
-      background: #2563eb;
-      border-color: #3b82f6;
-      color: #fff;
-    }
-    .screenshot-frame {
-      border: 1px solid var(--border);
-      border-radius: 14px;
-      overflow: hidden;
-      background: var(--card);
-      box-shadow: 0 25px 60px rgba(0, 0, 0, 0.7);
-    }
-    .frame-bar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 16px;
-      background: #161820;
-      border-bottom: 1px solid var(--border);
-    }
-    .dot { width: 11px; height: 11px; border-radius: 50%; }
-    .dot-red { background: #ef4444; }
-    .dot-yellow { background: #f59e0b; }
-    .dot-green { background: #10b981; }
-    .frame-title {
+    .hw-stat {
       font-family: var(--font-mono);
-      font-size: 12px;
-      color: var(--text-dim);
-      margin-left: 8px;
+      font-size: 11.5px;
+      color: var(--zo-fg-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
-    .screenshot-img {
-      width: 100%;
-      height: auto;
-      display: block;
+    .hw-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 8px #10b981;
     }
-
-    /* 2-Minute AI Setup Banner */
-    .ai-deploy-section {
-      margin: 80px 0;
-      background: radial-gradient(circle at top right, rgba(139, 92, 246, 0.12), transparent 40%),
-                  radial-gradient(circle at bottom left, rgba(37, 99, 235, 0.12), transparent 40%),
-                  var(--card);
-      border: 1px solid rgba(139, 92, 246, 0.3);
-      border-radius: 16px;
-      padding: 40px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+    .btn-theme-toggle {
+      background: var(--zo-muted);
+      border: 1px solid var(--zo-border);
+      color: var(--zo-fg);
+      padding: 4px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 11.5px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s;
     }
-    .ai-badge {
+    .btn-theme-toggle:hover {
+      background: var(--zo-accent);
+      border-color: #3b82f6;
+    }
+    .btn-gh-action {
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 3px 12px;
-      border-radius: 999px;
-      background: rgba(139, 92, 246, 0.2);
-      border: 1px solid rgba(139, 92, 246, 0.4);
-      color: #c4b5fd;
-      font-size: 12px;
-      font-weight: 600;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      margin-bottom: 12px;
-    }
-    .ai-deploy-title {
-      font-size: 28px;
-      font-weight: 700;
-      margin-bottom: 12px;
-    }
-    .ai-deploy-sub {
-      color: var(--text-muted);
-      font-size: 15px;
-      margin-bottom: 24px;
-      max-width: 680px;
-    }
-    .prompt-box {
-      background: #0b0c10;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 16px;
-      position: relative;
-      font-family: var(--font-mono);
-      font-size: 13.5px;
-      color: #e2e8f0;
-      line-height: 1.6;
-    }
-    .copy-btn {
-      position: absolute;
-      top: 12px;
-      right: 12px;
-      background: #232733;
-      border: 1px solid #374151;
-      color: #fff;
-      padding: 5px 12px;
-      border-radius: 6px;
-      font-size: 12px;
-      cursor: pointer;
-      font-family: var(--font-sans);
-      transition: background 0.2s;
-    }
-    .copy-btn:hover { background: #374151; }
-
-    /* Features Grid */
-    .section-title {
-      text-align: center;
-      font-size: 32px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      margin-bottom: 12px;
-    }
-    .section-sub {
-      text-align: center;
-      color: var(--text-muted);
-      font-size: 16px;
-      margin-bottom: 48px;
-      max-width: 620px;
-      margin-left: auto;
-      margin-right: auto;
-    }
-    .features-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(340px, 1fr));
-      gap: 24px;
-      margin-bottom: 80px;
-    }
-    .feature-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      padding: 28px;
-      transition: transform 0.2s, border-color 0.2s;
-    }
-    .feature-card:hover {
-      transform: translateY(-2px);
-      border-color: #3b82f6;
-    }
-    .feature-icon {
-      width: 44px;
-      height: 44px;
-      border-radius: 10px;
-      background: rgba(59, 130, 246, 0.12);
-      border: 1px solid rgba(59, 130, 246, 0.25);
-      color: var(--primary);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 18px;
-      font-size: 20px;
-    }
-    .feature-card h3 {
-      font-size: 18px;
-      font-weight: 600;
-      margin-bottom: 8px;
-    }
-    .feature-card p {
-      color: var(--text-muted);
-      font-size: 14px;
-      line-height: 1.55;
-    }
-
-    /* Step-by-Step Manual Guide */
-    .steps-container {
-      max-width: 780px;
-      margin: 0 auto 80px;
-    }
-    .step-item {
-      display: flex;
-      gap: 20px;
-      margin-bottom: 32px;
-    }
-    .step-num {
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
       background: #2563eb;
       color: #fff;
-      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: var(--radius-sm);
+      font-size: 12.5px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-decoration: none;
+    }
+    .btn-gh-action:hover {
+      background: #1d4ed8;
+      color: #fff;
+    }
+    .btn-gh-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--zo-muted);
+      border: 1px solid var(--zo-border);
+      color: var(--zo-fg);
+      padding: 5px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 12px;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.15s;
+    }
+    .btn-gh-link:hover {
+      background: var(--zo-accent);
+      border-color: #3b82f6;
+    }
+
+    /* Main Desktop Workspace Area */
+    .desktop-main {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* 1. Left Sidebar */
+    #sidebar {
+      width: 220px;
+      background: var(--zo-sidebar);
+      border-right: 1px solid var(--zo-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      user-select: none;
+      transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #sidebar.collapsed {
+      width: 60px;
+    }
+    .sb-nav-list {
+      padding: 10px 8px;
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      flex: 1;
+      overflow-y: auto;
+    }
+    .nav-btn {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: var(--radius-sm);
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--zo-fg-muted);
+      cursor: pointer;
+      background: transparent;
+      border: none;
+      width: 100%;
+      text-align: left;
+      transition: all 0.15s;
+      font-family: var(--font);
+      position: relative;
+    }
+    .nav-btn:hover {
+      background: var(--zo-sidebar-accent);
+      color: var(--zo-fg);
+    }
+    .nav-btn.active {
+      background: rgba(59, 130, 246, 0.15);
+      color: #60a5fa;
+      font-weight: 600;
+    }
+    .nav-btn.special-story {
+      color: #f472b6;
+    }
+    .nav-btn.special-story.active {
+      background: rgba(244, 63, 94, 0.15);
+      color: #fb7185;
+    }
+    .nav-btn.special-deploy {
+      color: #93c5fd;
+    }
+    .nav-btn.special-deploy.active {
+      background: rgba(37, 99, 235, 0.2);
+      color: #60a5fa;
+    }
+    .nav-ico {
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
-      margin-top: 2px;
+      width: 20px;
     }
-    .step-body h4 {
-      font-size: 18px;
-      margin-bottom: 6px;
+    .nav-label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      flex: 1;
     }
-    .step-body p {
-      color: var(--text-muted);
-      font-size: 14px;
-      margin-bottom: 10px;
+    #sidebar.collapsed .nav-label,
+    #sidebar.collapsed .nav-badge,
+    #sidebar.collapsed .sb-footer-text {
+      display: none;
     }
-    .code-block {
-      background: #0b0c10;
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 16px;
-      font-family: var(--font-mono);
-      font-size: 13px;
-      color: #a5f3fc;
-      overflow-x: auto;
+    .nav-badge {
+      font-size: 10.5px;
+      padding: 1px 6px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--zo-fg-muted);
+      margin-left: auto;
+    }
+    .nav-badge.alert {
+      background: rgba(239, 68, 68, 0.2);
+      color: #fca5a5;
+    }
+    .sb-divider {
+      height: 1px;
+      background: var(--zo-border);
+      margin: 8px 10px;
+    }
+    .sb-footer {
+      padding: 12px;
+      border-top: 1px solid var(--zo-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+    }
+    .sb-user-pill {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--zo-fg-muted);
+      overflow: hidden;
+    }
+    .user-avatar {
+      width: 24px;
+      height: 24px;
+      border-radius: 6px;
+      background: linear-gradient(135deg, #2563eb, #7c3aed);
+      color: #fff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 11px;
+      font-weight: 700;
+      flex-shrink: 0;
+    }
+    .sb-collapse-btn {
+      background: transparent;
+      border: none;
+      color: var(--zo-fg-muted);
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .sb-collapse-btn:hover {
+      background: var(--zo-accent);
+      color: var(--zo-fg);
     }
 
-    /* Story Section */
-    .story-section {
-      margin: 80px auto;
-      max-width: 960px;
+    /* 2. Middle Workspace Card */
+    #workspace-pane {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--zo-bg);
+      overflow: hidden;
+      min-width: 0;
     }
-    .story-card {
-      background: radial-gradient(circle at 85% 15%, rgba(244, 63, 94, 0.12) 0%, transparent 45%),
-                  radial-gradient(circle at 15% 85%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
-                  linear-gradient(180deg, #13151c 0%, #0d0e14 100%);
-      border: 1px solid rgba(244, 63, 94, 0.28);
-      border-radius: 18px;
-      padding: 48px;
-      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+    .tabstrip {
+      height: 38px;
+      background: var(--zo-sidebar);
+      border-bottom: 1px solid var(--zo-border);
+      display: flex;
+      align-items: center;
+      padding: 0 8px;
+      gap: 4px;
+      overflow-x: auto;
+      flex-shrink: 0;
+      user-select: none;
+    }
+    .tab {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: transparent;
+      border: 1px solid transparent;
+      border-bottom: none;
+      padding: 6px 12px;
+      border-radius: 6px 6px 0 0;
+      font-size: 12.5px;
+      color: var(--zo-fg-muted);
+      cursor: pointer;
+      white-space: nowrap;
+      transition: all 0.15s;
+    }
+    .tab:hover {
+      color: var(--zo-fg);
+      background: rgba(255, 255, 255, 0.03);
+    }
+    .tab.active {
+      background: var(--zo-bg);
+      border-color: var(--zo-border);
+      border-bottom-color: var(--zo-bg);
+      color: var(--zo-fg);
+      font-weight: 500;
+    }
+    .tab-close {
+      width: 14px;
+      height: 14px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      color: var(--zo-fg-muted);
+      cursor: pointer;
+      margin-left: 4px;
+    }
+    .tab-close:hover {
+      background: rgba(255, 255, 255, 0.15);
+      color: #fff;
+    }
+    .tab-new-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      background: transparent;
+      border: none;
+      color: var(--zo-fg-muted);
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+    .tab-new-btn:hover {
+      background: var(--zo-accent);
+      color: var(--zo-fg);
+    }
+
+    /* Workspace Content Views */
+    .view-content {
+      flex: 1;
+      overflow-y: auto;
+      display: none;
+      flex-direction: column;
+    }
+    .view-content.active {
+      display: flex;
+    }
+
+    /* --- HOME VIEW (ZO COMPOSER CARD) --- */
+    .home-view-inner {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 30px 20px;
+      max-width: 820px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .home-title-box {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+    .home-title-box h1 {
+      font-size: 32px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+    }
+    .home-title-box p {
+      color: var(--zo-fg-muted);
+      font-size: 15px;
+    }
+    .zo-composer-card {
+      width: 100%;
+      background: var(--zo-card);
+      border: 1px solid var(--zo-border);
+      border-radius: var(--radius-lg);
+      padding: 20px;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
       position: relative;
     }
-    .story-badge {
+    .composer-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: var(--zo-fg);
+      font-family: var(--font);
+      font-size: 15px;
+      resize: none;
+      min-height: 80px;
+      outline: none;
+      line-height: 1.5;
+    }
+    .composer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding-top: 12px;
+      border-top: 1px solid rgba(255, 255, 255, 0.05);
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+    .composer-controls {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .control-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--zo-muted);
+      border: 1px solid var(--zo-border);
+      border-radius: var(--radius-pill);
+      padding: 4px 10px;
+      font-size: 12px;
+      color: var(--zo-fg-muted);
+    }
+    .control-select {
+      background: transparent;
+      border: none;
+      color: var(--zo-fg);
+      font-size: 12px;
+      outline: none;
+      cursor: pointer;
+      font-family: var(--font);
+    }
+    .control-select option {
+      background: var(--zo-card);
+      color: var(--zo-fg);
+    }
+    .btn-send {
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-pill);
+      padding: 7px 18px;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .btn-send:hover {
+      background: #1d4ed8;
+    }
+    .quick-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 16px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .chip-btn {
+      background: var(--zo-muted);
+      border: 1px solid var(--zo-border);
+      border-radius: var(--radius-pill);
+      padding: 6px 14px;
+      font-size: 12.5px;
+      color: var(--zo-fg-muted);
+      cursor: pointer;
+      transition: all 0.15s;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .chip-btn:hover {
+      border-color: #3b82f6;
+      color: #fff;
+      background: var(--zo-accent);
+      transform: translateY(-1px);
+    }
+
+    /* --- THE STORY VIEW --- */
+    .story-doc-container {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 40px 24px;
+      width: 100%;
+    }
+    .story-hero-badge {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -472,338 +634,1345 @@
       font-size: 12px;
       font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.06em;
+      letter-spacing: 0.05em;
       margin-bottom: 20px;
     }
-    .story-title {
-      font-size: 32px;
+    .story-h1 {
+      font-size: 34px;
       font-weight: 800;
-      line-height: 1.25;
+      line-height: 1.2;
       letter-spacing: -0.02em;
       margin-bottom: 20px;
       color: #fff;
     }
-    .story-quote {
+    .story-quote-block {
       border-left: 3px solid #f43f5e;
-      padding-left: 20px;
-      font-size: 17.5px;
+      padding: 12px 20px;
+      font-size: 18px;
       font-style: italic;
       color: #fda4af;
+      background: rgba(244, 63, 94, 0.06);
+      border-radius: 0 8px 8px 0;
       margin-bottom: 28px;
       line-height: 1.55;
     }
-    .story-body p {
+    .story-p {
       font-size: 15.5px;
       line-height: 1.75;
       color: #cbd5e1;
       margin-bottom: 20px;
     }
-    .story-body strong {
+    .story-p strong {
       color: #fff;
     }
-    .story-pillars {
+    .story-pillars-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
       gap: 20px;
-      margin-top: 32px;
+      margin: 32px 0;
     }
-    .pillar-card {
-      background: rgba(10, 11, 16, 0.65);
-      border: 1px solid var(--border);
+    .pillar-box {
+      background: var(--zo-card);
+      border: 1px solid var(--zo-border);
       border-radius: 12px;
-      padding: 22px;
+      padding: 24px;
       transition: all 0.2s;
     }
-    .pillar-card:hover {
-      border-color: rgba(59, 130, 246, 0.5);
+    .pillar-box:hover {
+      border-color: #3b82f6;
       transform: translateY(-2px);
     }
-    .pillar-icon {
+    .pillar-box-icon {
       font-size: 26px;
       margin-bottom: 12px;
     }
-    .pillar-card h4 {
-      font-size: 16.5px;
+    .pillar-box h4 {
+      font-size: 17px;
+      font-weight: 700;
       color: #fff;
       margin-bottom: 8px;
     }
-    .pillar-card p {
-      font-size: 13.8px;
-      color: var(--text-muted);
+    .pillar-box p {
+      font-size: 14px;
+      color: var(--zo-fg-muted);
       line-height: 1.55;
-      margin-bottom: 0;
     }
 
-    /* Footer */
-    footer {
-      border-top: 1px solid var(--border);
-      padding: 40px 0;
-      text-align: center;
-      color: var(--text-dim);
+    /* --- TERMINAL VIEW --- */
+    .terminal-view-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #050608;
+      overflow: hidden;
+      font-family: var(--font-mono);
+    }
+    .term-window {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px 20px;
       font-size: 13.5px;
+      line-height: 1.6;
+      color: #e2e8f0;
     }
-    footer a { color: var(--text-muted); }
-    footer a:hover { color: #fff; }
+    .term-line {
+      margin-bottom: 4px;
+      white-space: pre-wrap;
+      word-break: break-all;
+    }
+    .term-prompt {
+      color: #34d399;
+      font-weight: 600;
+    }
+    .term-input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-top: 4px;
+    }
+    .term-cli-input {
+      background: transparent;
+      border: none;
+      color: #f8fafc;
+      font-family: var(--font-mono);
+      font-size: 13.5px;
+      flex: 1;
+      outline: none;
+    }
+    /* Terminal Trash Bar */
+    .term-trash-bar {
+      height: 38px;
+      background: #0e1118;
+      border-top: 1px solid var(--zo-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      font-size: 12px;
+      user-select: none;
+    }
+    .tb-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--zo-fg-muted);
+    }
+    .tb-pill-badge {
+      background: rgba(239, 68, 68, 0.15);
+      color: #f87171;
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      padding: 1px 7px;
+      border-radius: 999px;
+      font-size: 11px;
+    }
+    .tb-right {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-term-action {
+      background: #181c26;
+      border: 1px solid var(--zo-border);
+      color: var(--zo-fg);
+      padding: 3px 10px;
+      border-radius: 4px;
+      font-size: 11.5px;
+      cursor: pointer;
+    }
+    .btn-term-action:hover {
+      background: #232836;
+      border-color: #3b82f6;
+    }
+    .term-trash-drawer {
+      height: 160px;
+      background: #10121a;
+      border-top: 1px solid var(--zo-border);
+      display: none;
+      flex-direction: column;
+      overflow-y: auto;
+      padding: 10px 16px;
+      font-size: 12.5px;
+    }
 
-    @media (max-width: 768px) {
-      .hero h1 { font-size: 34px; }
-      .hero p { font-size: 16px; }
-      .ai-deploy-section { padding: 24px; }
-      .nav-links { display: none; }
+    /* --- FILES VIEW --- */
+    .files-view-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: var(--zo-bg);
+      overflow: hidden;
+    }
+    .files-toolbar {
+      height: 42px;
+      border-bottom: 1px solid var(--zo-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+    }
+    .files-crumb {
+      font-size: 13px;
+      color: var(--zo-fg-muted);
+      font-family: var(--font-mono);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .files-crumb span { color: var(--zo-fg); font-weight: 600; }
+    .files-table {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px 16px;
+    }
+    .file-row {
+      display: flex;
+      align-items: center;
+      padding: 8px 12px;
+      border-radius: 6px;
+      font-size: 13px;
+      color: var(--zo-fg);
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    .file-row:hover {
+      background: var(--zo-muted);
+    }
+    .file-ico { margin-right: 12px; font-size: 16px; }
+    .file-name { flex: 1; font-weight: 500; }
+    .file-meta { color: var(--zo-fg-muted); font-size: 12px; font-family: var(--font-mono); }
+
+    /* --- CODE EDITOR VIEW --- */
+    .editor-view-wrap {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      background: #0d0f17;
+      overflow: hidden;
+      font-family: var(--font-mono);
+    }
+    .editor-tabs {
+      height: 36px;
+      background: #090a10;
+      border-bottom: 1px solid var(--zo-border);
+      display: flex;
+      align-items: center;
+      padding: 0 10px;
+      gap: 4px;
+    }
+    .ed-tab {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--zo-fg-muted);
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+    }
+    .ed-tab.active {
+      background: #141724;
+      color: #fff;
+    }
+    .editor-code-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      font-size: 13px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      white-space: pre;
+    }
+
+    /* --- AUTOMATIONS VIEW --- */
+    .auto-view-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      max-width: 860px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .auto-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 20px;
+    }
+    .auto-card {
+      background: var(--zo-card);
+      border: 1px solid var(--zo-border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      margin-bottom: 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: border-color 0.15s;
+    }
+    .auto-card:hover { border-color: #3b82f6; }
+    .auto-info h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: #fff; }
+    .auto-info p { font-size: 12.5px; color: var(--zo-fg-muted); }
+    .auto-cron-badge {
+      display: inline-block;
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: #181d2a;
+      border: 1px solid rgba(59, 130, 246, 0.3);
+      color: #93c5fd;
+      padding: 2px 6px;
+      border-radius: 4px;
+      margin-top: 6px;
+    }
+    .toggle-switch {
+      width: 44px;
+      height: 24px;
+      background: #374151;
+      border-radius: 999px;
+      position: relative;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .toggle-switch.on { background: #10b981; }
+    .toggle-dot {
+      width: 18px;
+      height: 18px;
+      background: #fff;
+      border-radius: 50%;
+      position: absolute;
+      top: 3px;
+      left: 3px;
+      transition: transform 0.2s;
+    }
+    .toggle-switch.on .toggle-dot { transform: translateX(20px); }
+
+    /* --- DEPLOY / SETUP VIEW --- */
+    .deploy-view-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 30px 24px;
+      max-width: 860px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .ai-banner-card {
+      background: radial-gradient(circle at 90% 10%, rgba(139, 92, 246, 0.15) 0%, transparent 40%),
+                  radial-gradient(circle at 10% 90%, rgba(37, 99, 235, 0.15) 0%, transparent 40%),
+                  var(--zo-card);
+      border: 1px solid rgba(139, 92, 246, 0.35);
+      border-radius: 16px;
+      padding: 32px;
+      margin-bottom: 36px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+    .ai-prompt-box {
+      background: #090a10;
+      border: 1px solid var(--zo-border);
+      border-radius: 8px;
+      padding: 16px;
+      font-family: var(--font-mono);
+      font-size: 13px;
+      line-height: 1.6;
+      color: #e2e8f0;
+      position: relative;
+      margin-top: 16px;
+    }
+    .btn-copy-prompt {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: #2563eb;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-copy-prompt:hover { background: #1d4ed8; }
+    .manual-steps-list {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+    .step-row {
+      display: flex;
+      gap: 16px;
+    }
+    .step-circle {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: #2563eb;
+      color: #fff;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 14px;
+    }
+    .step-content h4 { font-size: 16px; font-weight: 600; margin-bottom: 6px; color: #fff; }
+    .step-content p { font-size: 13.5px; color: var(--zo-fg-muted); margin-bottom: 8px; }
+    .code-snippet {
+      background: #090a10;
+      border: 1px solid var(--zo-border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      color: #67e8f9;
+      overflow-x: auto;
+    }
+
+    /* 3. Right Collapsible Chat Pane */
+    #chat-pane {
+      width: 340px;
+      background: var(--zo-sidebar);
+      border-left: 1px solid var(--zo-border);
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+      transition: width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    #chat-pane.collapsed {
+      width: 0;
+      border-left: none;
+      overflow: hidden;
+    }
+    .chat-header {
+      height: 42px;
+      border-bottom: 1px solid var(--zo-border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 14px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .msg-bubble {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      max-width: 90%;
+    }
+    .msg-bubble.assistant { align-self: flex-start; }
+    .msg-bubble.user { align-self: flex-end; }
+    .bubble-content {
+      padding: 10px 14px;
+      border-radius: 12px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+    .msg-bubble.assistant .bubble-content {
+      background: var(--zo-card);
+      border: 1px solid var(--zo-border);
+      color: #e2e8f0;
+    }
+    .msg-bubble.user .bubble-content {
+      background: #2563eb;
+      color: #fff;
+    }
+    .chat-input-box {
+      padding: 12px;
+      border-top: 1px solid var(--zo-border);
+      display: flex;
+      gap: 8px;
+    }
+    .chat-input {
+      flex: 1;
+      background: var(--zo-input);
+      border: 1px solid var(--zo-border);
+      border-radius: var(--radius-sm);
+      color: #fff;
+      padding: 7px 10px;
+      font-size: 13px;
+      outline: none;
+      font-family: var(--font);
+    }
+    .btn-chat-send {
+      background: #2563eb;
+      border: none;
+      color: #fff;
+      border-radius: var(--radius-sm);
+      padding: 0 12px;
+      font-size: 12px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Modal Command Palette */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(6px);
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 15vh;
+      z-index: 1000;
+    }
+    .modal-overlay.active { display: flex; }
+    .modal-box {
+      width: 540px;
+      background: var(--zo-card);
+      border: 1px solid var(--zo-border);
+      border-radius: 14px;
+      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .palette-input {
+      width: 100%;
+      background: transparent;
+      border: none;
+      border-bottom: 1px solid var(--zo-border);
+      padding: 16px 20px;
+      font-size: 15px;
+      color: #fff;
+      outline: none;
+      font-family: var(--font);
+    }
+    .palette-list {
+      padding: 8px;
+      max-height: 320px;
+      overflow-y: auto;
+    }
+    .palette-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 14px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--zo-fg-muted);
+      font-size: 13.5px;
+      transition: all 0.15s;
+    }
+    .palette-item:hover, .palette-item.selected {
+      background: var(--zo-muted);
+      color: #fff;
+    }
+
+    /* Responsive */
+    @media (max-width: 900px) {
+      #chat-pane { display: none; }
+      .gh-center { display: none; }
     }
   </style>
 </head>
 <body>
 
-  <!-- Header Navigation -->
-  <header>
-    <div class="container nav-inner">
-      <div class="logo">
-        <div class="logo-icon">🖥️</div>
-        <span>Open Computer</span>
-      </div>
-      <nav class="nav-links">
-        <a href="#story">The Story</a>
-        <a href="#showcase">Showcase</a>
-        <a href="#ai-deploy">2-Min AI Setup</a>
-        <a href="#features">Features</a>
-        <a href="#quickstart">Quickstart</a>
-        <a href="https://zo.computer" target="_blank" rel="noopener">Zo.computer ↗</a>
-      </nav>
-      <a href="https://github.com/shieldspprt/open-computer" target="_blank" rel="noopener" class="btn-github">
-        <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-        <span>Star on GitHub</span>
-      </a>
-    </div>
-  </header>
+  <div id="app">
 
-  <!-- Hero -->
-  <section class="hero">
-    <div class="hero-glow"></div>
-    <div class="container hero-content">
-      <div class="badge">✨ Open-Source Personal AI Cloud Computer</div>
-      <h1>Turn Any $5 Linux VPS into Your Personal AI Computer</h1>
-      <p>A self-hosted, autonomous personal computer with a native Linux terminal, file explorer, 24/7 background supervisors, and scheduled automations. Controlled from any browser.</p>
-      
-      <div class="hero-actions">
-        <a href="https://github.com/shieldspprt/open-computer" target="_blank" rel="noopener" class="btn-primary">
-          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
-          <span>View Source on GitHub</span>
+    <!-- Top Global Header -->
+    <header class="global-header">
+      <div class="gh-left">
+        <div class="gh-logo" onclick="openTab('home')">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#2563eb"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" font-family="inherit">OC</text></svg>
+          <span>Open Computer</span>
+        </div>
+        <span class="gh-badge">⚡ Live Web Preview</span>
+      </div>
+
+      <div class="gh-center">
+        <button class="gh-search-btn" onclick="openPalette()">
+          <span style="display:flex; align-items:center; gap:8px;">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            Search commands, files, automations...
+          </span>
+          <span class="gh-kbd">⌘K</span>
+        </button>
+      </div>
+
+      <div class="gh-right">
+        <div class="hw-stat">
+          <span class="hw-dot"></span>
+          <span>VPS: 99.9% Up · 1.4GB RAM</span>
+        </div>
+
+        <button class="btn-theme-toggle" onclick="cycleTheme()" title="Switch Zo Theme">
+          <span>🎨</span>
+          <span id="themeLabel">Dark</span>
+        </button>
+
+        <a href="https://zo.computer" target="_blank" rel="noopener" class="btn-gh-link" title="Visit Zo Computer">
+          Zo.computer ↗
         </a>
-        <a href="#ai-deploy" class="btn-secondary">
-          <span>⚡ 2-Minute AI Setup</span>
+        <a href="https://github.com/shieldspprt/open-computer" target="_blank" rel="noopener" class="btn-gh-link">
+          <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+          <span>Star</span>
         </a>
+        <button class="btn-gh-action" onclick="openTab('deploy')">
+          <span>⚡ Deploy (2 Min)</span>
+        </button>
       </div>
+    </header>
 
-      <!-- Zo Computer Credit Box -->
-      <div class="shoutout-box">
-        <div class="shoutout-icon">💡</div>
-        <div class="shoutout-text">
-          <strong>Inspired by Zo Computer</strong>
-          <p>Credit to the team at <a href="https://zo.computer" target="_blank" rel="noopener"><strong>zo.computer</strong></a> for pioneering the cloud AI computer category. If you want a fully managed cloud solution with zero server setup, we warmly recommend visiting <strong><a href="https://zo.computer" target="_blank" rel="noopener">zo.computer</a></strong>. Open Computer is an independent open-source implementation for developers hosting on their own VPS.</p>
-        </div>
-      </div>
+    <!-- Main Desktop Layout -->
+    <div class="desktop-main">
 
-    </div>
-  </section>
+      <!-- 1. Left Sidebar -->
+      <aside id="sidebar">
+        <nav class="sb-nav-list">
+          <button class="nav-btn active" data-tab="home" onclick="openTab('home')">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg></span>
+            <span class="nav-label">Home</span>
+          </button>
 
-  <!-- Interactive Screenshot Showcase -->
-  <section class="container showcase" id="showcase">
-    <div class="showcase-tabs">
-      <button class="tab-btn active" onclick="switchTab('home', 'AI Home & Chat Workspace', this)">AI Home</button>
-      <button class="tab-btn" onclick="switchTab('terminal', 'Native Arch/Ubuntu Linux PTY Terminal', this)">Linux Terminal</button>
-      <button class="tab-btn" onclick="switchTab('files', 'File Explorer & Integrated Recycle Bin', this)">My Files & Trash</button>
-      <button class="tab-btn" onclick="switchTab('editor', 'Tabbed In-Browser Code & Document Editor', this)">Code Editor</button>
-      <button class="tab-btn" onclick="switchTab('automations', 'Natural Language & Cron Scheduled Automations', this)">Automations</button>
-      <button class="tab-btn" onclick="switchTab('integrations', 'Model Context Protocol (MCP) & Integrations Hub', this)">Integrations</button>
-    </div>
+          <button class="nav-btn special-story" data-tab="story" onclick="openTab('story')">
+            <span class="nav-ico">❤️</span>
+            <span class="nav-label">The Story</span>
+            <span class="nav-badge" style="background:rgba(244,63,94,0.2); color:#fda4af;">Read</span>
+          </button>
 
-    <div class="screenshot-frame">
-      <div class="frame-bar">
-        <div class="dot dot-red"></div>
-        <div class="dot dot-yellow"></div>
-        <div class="dot dot-green"></div>
-        <span class="frame-title" id="frameTitle">AI Home & Chat Workspace</span>
-      </div>
-      <img id="screenshotImg" src="images/home.png" alt="Open Computer Interface" class="screenshot-img">
-    </div>
-  </section>
+          <button class="nav-btn" data-tab="terminal" onclick="openTab('terminal')">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m4 17 6-6-6-6M12 19h8"/></svg></span>
+            <span class="nav-label">Terminal</span>
+          </button>
 
-  <!-- The Story & Philosophy -->
-  <section class="container story-section" id="story">
-    <div class="story-card">
-      <div class="story-badge">❤️ The Story & The Vision</div>
-      <h2 class="story-title">Recreating My Favorite Tool in the World</h2>
-      
-      <div class="story-quote">
-        "Once you experience what it feels like to have a real personal computer powered by an AI API, there is simply no coming back."
-      </div>
+          <button class="nav-btn" data-tab="files" onclick="openTab('files')">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg></span>
+            <span class="nav-label">My Files</span>
+          </button>
 
-      <div class="story-body">
-        <p>I'll be completely honest: <strong>I really love <a href="https://zo.computer" target="_blank" rel="noopener" style="color: #fda4af; text-decoration: underline;">Zo Computer</a>.</strong></p>
+          <button class="nav-btn" data-tab="trash" onclick="openTab('trash')">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg></span>
+            <span class="nav-label">Recycle Bin</span>
+            <span class="nav-badge alert">2</span>
+          </button>
 
-        <p>The first time I discovered Zo, something profound clicked. If you already have an AI API key (Anthropic Claude, OpenAI, Google Gemini), Zo is the last thing you will ever need. It isn't just another chat box tucked into a tiny sidebar—it is a <strong>pure superpower</strong>. It transforms an AI model from a passive text generator into an active, autonomous companion running on a real computer in the cloud that never sleeps.</p>
+          <button class="nav-btn" data-tab="editor" onclick="openTab('editor')">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m18 16 4-4-4-4M6 8l-4 4 4 4M14.5 4l-5 16"/></svg></span>
+            <span class="nav-label">Code Editor</span>
+          </button>
 
-        <p>Once you start using a tool like this in your daily workflow, your standard for what a computer should be changes forever. Going back to isolated local scripts, manual SSH tabs, and dead local terminal sessions feels like stepping back a decade. <strong>There is simply no coming back.</strong></p>
+          <button class="nav-btn" data-tab="automations" onclick="openTab('automations')">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
+            <span class="nav-label">Automations</span>
+            <span class="nav-badge">3</span>
+          </button>
 
-        <p>So I decided to recreate my favorite product from the ground up. Part of it was pure homage and love. Part of it was the sheer thrill and fun of hacking from first principles. And part of it was the deep desire to own this superpower 100% self-hosted on my own VPS hardware for maximum productivity and freedom.</p>
+          <div class="sb-divider"></div>
 
-        <p style="margin-top: 32px; margin-bottom: 12px; font-size: 18px; font-weight: 700; color: #fff;">
-          🌊 The Emerging Wave: Why GUI + Global Tops Agentic OSes
-        </p>
+          <button class="nav-btn special-deploy" data-tab="deploy" onclick="openTab('deploy')">
+            <span class="nav-ico">⚡</span>
+            <span class="nav-label">2-Min Setup</span>
+          </button>
+        </nav>
 
-        <p>The tech world is catching fire with this trend. Exciting new operating systems like <strong>Omarchy</strong> are proving that an OS with an AI agent as master is the next computing frontier. The industry is realizing that autonomous agents need their own native environment.</p>
-
-        <p>Yet, as remarkable as raw terminal-only agent experiments are, <strong>Zo and Open Computer still top the paradigm for two reasons: a true visual GUI, and global reach.</strong></p>
-
-        <div class="story-pillars">
-          <div class="pillar-card">
-            <div class="pillar-icon">🖥️</div>
-            <h4>1. A True Visual GUI</h4>
-            <p>Terminal-only agent systems can feel isolating and opaque. Humans are visual beings. We want to see our files, watch live streaming code in a tabbed editor, inspect visual system metrics, configure scheduled tasks visually, and easily recover files from a Recycle Bin. Open Computer preserves human agency alongside autonomous AI power.</p>
+        <div class="sb-footer">
+          <div class="sb-user-pill">
+            <div class="user-avatar">OC</div>
+            <span class="sb-footer-text">suop@demo</span>
           </div>
+          <button class="sb-collapse-btn" onclick="toggleSidebar()" title="Toggle Sidebar">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6"/></svg>
+          </button>
+        </div>
+      </aside>
 
-          <div class="pillar-card">
-            <div class="pillar-icon">🌍</div>
-            <h4>2. Global & Everywhere</h4>
-            <p>Not locked to a single local machine or desktop partition. It lives in the cloud, accessible instantly from any browser on earth—your laptop, desktop, iPad at a coffee shop, or phone on the go. Your files, background bots, terminal sessions, and AI companion travel with you everywhere.</p>
+      <!-- 2. Middle Workspace Pane -->
+      <main id="workspace-pane">
+
+        <!-- Top Tab Strip -->
+        <div class="tabstrip" id="tabStrip">
+          <div class="tab active" id="tab-pill-home" onclick="openTab('home')">
+            <span>Home</span>
+          </div>
+          <div class="tab" id="tab-pill-story" onclick="openTab('story')">
+            <span>❤️ The Story</span>
+          </div>
+          <div class="tab" id="tab-pill-terminal" onclick="openTab('terminal')">
+            <span>Terminal</span>
+          </div>
+          <div class="tab" id="tab-pill-deploy" onclick="openTab('deploy')">
+            <span>⚡ Deploy</span>
+          </div>
+          <button class="tab-new-btn" onclick="openPalette()" title="Open View">+</button>
+        </div>
+
+        <!-- VIEW 1: HOME (ZO COMPOSER) -->
+        <section class="view-content active" id="view-home">
+          <div class="home-view-inner">
+            <div class="home-title-box">
+              <h1>What should we do today?</h1>
+              <p>Your self-hosted, autonomous personal computer with native Linux tools.</p>
+            </div>
+
+            <div class="zo-composer-card">
+              <textarea class="composer-input" id="composerInput" placeholder="Ask your agent to write code, schedule a task, or run shell commands..." rows="3"></textarea>
+              
+              <div class="composer-bottom">
+                <div class="composer-controls">
+                  <div class="control-pill">
+                    <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="4" y="4" width="16" height="16" rx="2"/><circle cx="12" cy="12" r="3"/></svg>
+                    <select class="control-select">
+                      <option>Claude 3.7 Sonnet</option>
+                      <option>Gemini 2.0 Flash</option>
+                      <option>GPT-4o</option>
+                      <option>DeepSeek R1</option>
+                      <option>Local Ollama</option>
+                    </select>
+                  </div>
+
+                  <div class="control-pill">
+                    <select class="control-select">
+                      <option>Auto (Agent Mode)</option>
+                      <option>Chat Only</option>
+                      <option>Terminal Only</option>
+                    </select>
+                  </div>
+                </div>
+
+                <button class="btn-send" onclick="submitHomeComposer()">Send</button>
+              </div>
+            </div>
+
+            <div class="quick-chips">
+              <button class="chip-btn" onclick="openTab('deploy')">⚡ 2-Minute AI Setup (Zero Commands)</button>
+              <button class="chip-btn" onclick="openTab('story')">❤️ Read the Story & Zo Inspiration</button>
+              <button class="chip-btn" onclick="openTab('terminal')">💻 Launch Terminal (neofetch)</button>
+              <button class="chip-btn" onclick="openTab('automations')">⏰ View 24/7 Automations</button>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 2: THE STORY & PHILOSOPHY -->
+        <section class="view-content" id="view-story">
+          <div class="story-doc-container">
+            <div class="story-hero-badge">❤️ The Story & The Vision</div>
+            <h2 class="story-h1">Recreating My Favorite Tool in the World</h2>
+
+            <div class="story-quote-block">
+              "Once you experience what it feels like to have a real personal computer powered by an AI API, there is simply no coming back."
+            </div>
+
+            <p class="story-p">
+              I'll be completely honest: <strong>I really love <a href="https://zo.computer" target="_blank" rel="noopener" style="color:#fda4af; text-decoration:underline;">Zo Computer</a>.</strong>
+            </p>
+
+            <p class="story-p">
+              The first time I used Zo, something deep clicked for me. If you have an AI API key (from Anthropic, Google, or OpenAI), Zo is the last thing you will ever need. It isn't just another chat interface or a plugin squeezed into an editor sidebar—it is a <strong>pure superpower</strong>. It gives you a living, autonomous computer in the cloud that never sleeps. A companion that can write code, run background scrapers, manage files, execute shell commands, and do real work for you while you're away.
+            </p>
+
+            <p class="story-p">
+              Once you start using a tool like this in your daily workflow, your entire standard for computing changes. Going back to isolated local scripts, manual SSH sessions, and fragmented browser tabs feels like stepping back a decade. <strong>There is simply no coming back.</strong>
+            </p>
+
+            <p class="story-p">
+              So I decided to recreate my favorite product—out of sheer love, homage, the deep fun of hacking from scratch, and the practical need to have this superpower running 24/7 on my own VPS hardware for maximum productivity and freedom.
+            </p>
+
+            <h3 style="font-size: 20px; font-weight: 700; color: #fff; margin: 32px 0 16px;">
+              🌊 The Emerging Trend: Why GUI + Global Tops the Agentic OS Wave
+            </h3>
+
+            <p class="story-p">
+              The world is waking up to this new era. Projects like <strong>Omarchy</strong> are proving that an OS with an AI agent as master is the next frontier of operating systems. The developer ecosystem is moving at breakneck speed toward autonomous environments.
+            </p>
+
+            <p class="story-p">
+              Yet, as exciting as terminal-only or raw agentic OS experiments are, <strong>Zo and Open Computer still top the paradigm for two fundamental reasons: it is a true visual GUI, and it is Global.</strong>
+            </p>
+
+            <div class="story-pillars-grid">
+              <div class="pillar-box">
+                <div class="pillar-box-icon">🖥️</div>
+                <h4>1. A True Visual GUI</h4>
+                <p>Terminal-only agent systems can feel isolating and opaque. Humans are visual beings. We want to see our workspace—a dual-pane file explorer, live tabbed code editing with syntax highlighting, visual system metrics, scheduled automations cards, and a dedicated Recycle Bin. Open Computer preserves full human agency alongside autonomous AI power.</p>
+              </div>
+
+              <div class="pillar-box">
+                <div class="pillar-box-icon">🌍</div>
+                <h4>2. Global & Everywhere</h4>
+                <p>Not locked to a single local machine or desktop partition. It lives in the cloud, accessible instantly from any browser on earth—your laptop, desktop, iPad at a coffee shop, or phone on the go. Your files, background bots, terminal sessions, and AI companion travel with you everywhere.</p>
+              </div>
+            </div>
+
+            <div style="background:rgba(30,41,59,0.5); border:1px solid var(--zo-border); border-radius:12px; padding:20px; text-align:center; margin-top:20px;">
+              <p style="font-size:14px; color:#cbd5e1; margin-bottom:12px;">
+                Want this experience hosted for you with zero setup? Check out the original creators:
+              </p>
+              <a href="https://zo.computer" target="_blank" rel="noopener" class="btn-gh-action" style="display:inline-flex;">
+                Visit zo.computer ↗
+              </a>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 3: TERMINAL (INTERACTIVE PTY) -->
+        <section class="view-content" id="view-terminal">
+          <div class="terminal-view-wrap">
+            <div class="term-window" id="termWindow" onclick="document.getElementById('termInput').focus()">
+              <div class="term-line" style="color:#94a3b8;">Open Computer OS (Ubuntu 24.04 LTS x86_64) - Web PTY Session</div>
+              <div class="term-line" style="color:#94a3b8;">Type <span style="color:#67e8f9;">help</span> or <span style="color:#67e8f9;">neofetch</span> to start.</div>
+              <div class="term-line">&nbsp;</div>
+              <div id="termHistory"></div>
+              <div class="term-input-row">
+                <span class="term-prompt">suop@opencomputer:~$</span>
+                <input type="text" class="term-cli-input" id="termInput" autocomplete="off" spellcheck="false" onkeydown="handleTermKey(event)">
+              </div>
+            </div>
+
+            <!-- Real Terminal Trash Bar -->
+            <div class="term-trash-bar">
+              <div class="tb-left">
+                <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M10 11v6M14 11v6"/></svg>
+                <span style="font-weight: 500; color: #fff;">Recycle Bin</span>
+                <span class="tb-pill-badge">2 items</span>
+              </div>
+              <div class="tb-right">
+                <button class="btn-term-action" onclick="toggleTermTrashDrawer()">Quick View</button>
+                <button class="btn-term-action" onclick="openTab('trash')">Open Tab</button>
+              </div>
+            </div>
+
+            <!-- Collapsible Drawer -->
+            <div class="term-trash-drawer" id="termTrashDrawer">
+              <div style="display:flex; justify-content:space-between; margin-bottom:8px; color:#94a3b8;">
+                <span>Recent deleted files</span>
+                <span style="cursor:pointer;" onclick="toggleTermTrashDrawer()">✕</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:4px 0; border-bottom:1px solid #1e2433;">
+                <span>📄 old_deploy_script.sh (1.2 KB)</span>
+                <span style="color:#60a5fa; cursor:pointer;" onclick="alert('Restored file to ~ / Projects / old_deploy_script.sh')">Restore</span>
+              </div>
+              <div style="display:flex; justify-content:space-between; padding:4px 0;">
+                <span>📄 temp_scrape_data.json (48.5 KB)</span>
+                <span style="color:#60a5fa; cursor:pointer;" onclick="alert('Restored file to ~ / temp_scrape_data.json')">Restore</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 4: MY FILES -->
+        <section class="view-content" id="view-files">
+          <div class="files-view-wrap">
+            <div class="files-toolbar">
+              <div class="files-crumb">
+                <span>~ / home / suop / open-computer</span>
+              </div>
+              <div style="display:flex; gap:8px;">
+                <button class="btn-gh-link" onclick="openTab('editor')">Open in Editor</button>
+                <button class="btn-gh-link" onclick="openTab('trash')">Recycle Bin (2)</button>
+              </div>
+            </div>
+
+            <div class="files-table">
+              <div class="file-row" onclick="openEditorFile('install.sh')">
+                <span class="file-ico">📜</span>
+                <span class="file-name">install.sh</span>
+                <span class="file-meta">5.2 KB · 1-Command Installer</span>
+              </div>
+              <div class="file-row" onclick="openEditorFile('agent.py')">
+                <span class="file-ico">🐍</span>
+                <span class="file-name">agent.py</span>
+                <span class="file-meta">14.8 KB · Core Agentic Engine</span>
+              </div>
+              <div class="file-row" onclick="openEditorFile('main.py')">
+                <span class="file-ico">⚡</span>
+                <span class="file-name">server/main.py</span>
+                <span class="file-meta">28.4 KB · FastAPI & WebSocket Gateway</span>
+              </div>
+              <div class="file-row" onclick="openEditorFile('README.md')">
+                <span class="file-ico">📖</span>
+                <span class="file-name">README.md</span>
+                <span class="file-meta">8.1 KB · Documentation</span>
+              </div>
+              <div class="file-row" onclick="openTab('automations')">
+                <span class="file-ico">📁</span>
+                <span class="file-name">automations/</span>
+                <span class="file-meta">3 items · Background Tasks</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 5: CODE EDITOR -->
+        <section class="view-content" id="view-editor">
+          <div class="editor-view-wrap">
+            <div class="editor-tabs">
+              <div class="ed-tab active" id="edTabName">install.sh</div>
+            </div>
+            <div class="editor-code-body" id="editorCodeBody">#!/usr/bin/env bash
+# Open Computer - Autonomous AI Personal Computer Installer
+set -euo pipefail
+
+echo "=================================================="
+echo "  🖥️  Installing Open Computer on Ubuntu Linux   "
+echo "=================================================="
+
+# 1. Update packages & install system dependencies
+sudo apt-get update -y
+sudo apt-get install -y python3 python3-venv python3-pip git curl ripgrep
+
+# 2. Setup Python virtual environment
+python3 -m venv venv
+source venv/bin/activate
+pip install --upgrade pip
+pip install -r requirements.txt
+
+# 3. Configure systemd background service
+echo "Configuring su.service for 24/7 background operation..."
+sudo systemctl daemon-reload
+sudo systemctl enable --now su.service
+
+echo "✓ Open Computer is live at http://127.0.0.1:8000"
+echo "✓ Sign in with user 'suop' and your Linux password."
+</div>
+          </div>
+        </section>
+
+        <!-- VIEW 6: AUTOMATIONS -->
+        <section class="view-content" id="view-automations">
+          <div class="auto-view-wrap">
+            <div class="auto-head">
+              <div>
+                <h2 style="font-size:22px; font-weight:700; color:#fff;">24/7 Scheduled Automations</h2>
+                <p style="color:var(--zo-fg-muted); font-size:13.5px;">Set tasks in natural language or standard cron schedules.</p>
+              </div>
+              <button class="btn-gh-action" onclick="alert('In your live Open Computer, you can create automations by simply prompting the agent!')">+ New Automation</button>
+            </div>
+
+            <div class="auto-card">
+              <div class="auto-info">
+                <h4>Daily Hacker News & AI Digest</h4>
+                <p>Scrape frontpage AI developments, summarize key insights, and save to Documents/daily_brief.md</p>
+                <span class="auto-cron-badge">0 8 * * * (Every morning at 8:00 AM)</span>
+              </div>
+              <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                <div class="toggle-dot"></div>
+              </div>
+            </div>
+
+            <div class="auto-card">
+              <div class="auto-info">
+                <h4>VPS Health & Disk Space Sentinel</h4>
+                <p>Monitor RAM, CPU spikes, and verify available disk space every 30 minutes.</p>
+                <span class="auto-cron-badge">*/30 * * * * (Every 30 minutes)</span>
+              </div>
+              <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                <div class="toggle-dot"></div>
+              </div>
+            </div>
+
+            <div class="auto-card">
+              <div class="auto-info">
+                <h4>Crypto Sentiment & Arbitrage Watcher</h4>
+                <p>Fetch orderbook spreads across exchanges and send notification on 2%+ discrepancies.</p>
+                <span class="auto-cron-badge">* * * * * (Every minute)</span>
+              </div>
+              <div class="toggle-switch" onclick="toggleSwitch(this)">
+                <div class="toggle-dot"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 7: RECYCLE BIN -->
+        <section class="view-content" id="view-trash">
+          <div class="auto-view-wrap">
+            <div class="auto-head">
+              <div>
+                <h2 style="font-size:22px; font-weight:700; color:#fff;">Recycle Bin</h2>
+                <p style="color:var(--zo-fg-muted); font-size:13.5px;">Safely restore files deleted from the file explorer or terminal.</p>
+              </div>
+              <button class="btn-gh-link" onclick="alert('Recycle Bin emptied.')">Empty Recycle Bin</button>
+            </div>
+
+            <div class="files-table">
+              <div class="file-row">
+                <span class="file-ico">📄</span>
+                <span class="file-name">old_deploy_script.sh</span>
+                <span class="file-meta" style="margin-right:16px;">Deleted 2 hours ago · 1.2 KB</span>
+                <button class="btn-term-action" onclick="alert('Restored file to ~ / Projects / old_deploy_script.sh')">Restore</button>
+              </div>
+              <div class="file-row">
+                <span class="file-ico">📄</span>
+                <span class="file-name">temp_scrape_data.json</span>
+                <span class="file-meta" style="margin-right:16px;">Deleted yesterday · 48.5 KB</span>
+                <button class="btn-term-action" onclick="alert('Restored file to ~ / temp_scrape_data.json')">Restore</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 8: 2-MINUTE DEPLOY & QUICKSTART -->
+        <section class="view-content" id="view-deploy">
+          <div class="deploy-view-wrap">
+            <div class="ai-banner-card">
+              <span style="font-size:12px; font-weight:700; color:#c4b5fd; text-transform:uppercase; letter-spacing:0.05em;">⚡ Zero Manual Commands</span>
+              <h2 style="font-size:26px; font-weight:700; margin:8px 0 10px; color:#fff;">The 2-Minute AI Setup</h2>
+              <p style="color:#cbd5e1; font-size:14.5px; line-height:1.5;">
+                Don't want to run Linux commands manually? You don't have to! Copy this prompt and paste it into your favorite AI coding assistant (we strongly recommend <strong>Antigravity</strong> or <strong>Claude Code</strong>):
+              </p>
+
+              <div class="ai-prompt-box">
+                <button class="btn-copy-prompt" id="copyPromptBtn" onclick="copyDeployPrompt()">Copy Prompt</button>
+                <div id="deployPromptText">Here is my Ubuntu VPS (IP: &lt;YOUR_SERVER_IP&gt;, user: suop, password: &lt;YOUR_PASSWORD&gt;).
+
+Please connect to my server via SSH, clone https://github.com/shieldspprt/open-computer.git, run bash install.sh, and set up Open Computer for me.</div>
+              </div>
+            </div>
+
+            <h3 style="font-size:20px; font-weight:700; color:#fff; margin-bottom:16px;">Manual 4-Step Guide</h3>
+            <div class="manual-steps-list">
+              <div class="step-row">
+                <div class="step-circle">1</div>
+                <div class="step-content">
+                  <h4>Create a Dedicated User</h4>
+                  <p>Log in as root on your server and create a dedicated non-root user:</p>
+                  <div class="code-snippet">adduser suop && usermod -aG sudo suop && su - suop</div>
+                </div>
+              </div>
+
+              <div class="step-row">
+                <div class="step-circle">2</div>
+                <div class="step-content">
+                  <h4>Clone and Run Installer</h4>
+                  <p>Run the automated 1-command installer script:</p>
+                  <div class="code-snippet">git clone https://github.com/shieldspprt/open-computer.git && cd open-computer && bash install.sh</div>
+                </div>
+              </div>
+
+              <div class="step-row">
+                <div class="step-circle">3</div>
+                <div class="step-content">
+                  <h4>Open in Your Browser</h4>
+                  <p>Connect via local SSH port forwarding:</p>
+                  <div class="code-snippet">ssh -L 8000:127.0.0.1:8000 suop@your-server-ip</div>
+                  <p style="margin-top:6px; font-size:12.5px;">Then visit <strong>http://localhost:8000</strong> (or attach a free Cloudflare Tunnel for a public HTTPS domain).</p>
+                </div>
+              </div>
+
+              <div class="step-row">
+                <div class="step-circle">4</div>
+                <div class="step-content">
+                  <h4>Add Your Model Key & Start Creating</h4>
+                  <p>Sign in with your Linux username and password, enter your API key (Claude, Gemini, OpenAI, or Ollama) in Settings, and launch!</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+      </main>
+
+      <!-- 3. Right Collapsible Chat Pane -->
+      <aside id="chat-pane">
+        <div class="chat-header">
+          <div style="display:flex; align-items:center; gap:8px;">
+            <span>AI Assistant</span>
+            <span style="font-size:11px; padding:1px 6px; border-radius:999px; background:rgba(59,130,246,0.2); color:#93c5fd;">Online</span>
+          </div>
+          <button class="sb-collapse-btn" onclick="toggleChatPane()" title="Collapse Chat">✕</button>
+        </div>
+
+        <div class="chat-messages" id="chatMsgs">
+          <div class="msg-bubble assistant">
+            <div class="bubble-content">
+              👋 Hey there! Welcome to <strong>Open Computer</strong>.
+              <br><br>
+              You're looking at a live interactive preview of the web OS. Feel free to click through the <strong>Terminal</strong>, <strong>Files</strong>, <strong>Automations</strong>, or read <strong>The Story</strong> on the left!
+            </div>
           </div>
         </div>
 
-        <p style="margin-top: 32px; text-align: center; font-size: 14.5px; color: #94a3b8; font-style: italic;">
-          Open Computer is an open-source labor of love: 100% self-hosted, 100% hackable, and free forever for anyone with a Linux box.
-        </p>
-      </div>
-    </div>
-  </section>
-
-  <!-- 2-Minute AI Assisted Deployment -->
-  <section class="container" id="ai-deploy">
-    <div class="ai-deploy-section">
-      <div class="ai-badge">⚡ Fastest Path · 2 Minutes</div>
-      <h2 class="ai-deploy-title">Let an AI Agent Set It Up For You</h2>
-      <p class="ai-deploy-sub">Don't want to type Linux commands manually? You don't have to! Copy this prompt and paste it into your favorite AI coding assistant (like <strong>Antigravity</strong> [recommended] or <strong>Claude Code</strong>):</p>
-
-      <div class="prompt-box">
-        <button class="copy-btn" onclick="copyPrompt()" id="copyBtn">Copy Prompt</button>
-        <div id="promptText">Here is my Ubuntu VPS (IP: &lt;YOUR_SERVER_IP&gt;, user: suop, password: &lt;YOUR_PASSWORD&gt;).<br><br>Please connect to my server via SSH, clone https://github.com/shieldspprt/open-computer.git, run bash install.sh, and set up Open Computer for me.</div>
-      </div>
-    </div>
-  </section>
-
-  <!-- Core Features -->
-  <section class="container" id="features">
-    <h2 class="section-title">Everything You Need In An AI Computer</h2>
-    <p class="section-sub">A complete suite of developer and sysadmin tools integrated directly into your autonomous AI agent.</p>
-
-    <div class="features-grid">
-      <div class="feature-card">
-        <div class="feature-icon">💻</div>
-        <h3>Native Linux PTY Terminal</h3>
-        <p>A true xterm.js terminal with bidirectional WebSocket streaming, window resize detection, ANSI colors, and direct root/user execution.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">📁</div>
-        <h3>File Manager & Recycle Bin</h3>
-        <p>Browse directories, upload files, edit source code in a tabbed editor modal, and safely recover trashed files from the Recycle Bin.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">⏰</div>
-        <h3>Scheduled Automations</h3>
-        <p>Automate recurring tasks with simple plain English or cron expressions (e.g. "check crypto prices every hour and email me summary").</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">🔄</div>
-        <h3>24/7 Process Supervisor</h3>
-        <p>Keep web scrapers, bots, and background daemons alive permanently with auto-restart, crash detection, and real-time logs.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">🧠</div>
-        <h3>Model Agnostic</h3>
-        <p>Switch between Claude 3.7, GPT-4o, Gemini 2.0 Flash, DeepSeek R1, or run 100% offline with local Ollama or vLLM models.</p>
-      </div>
-
-      <div class="feature-card">
-        <div class="feature-icon">🛡️</div>
-        <h3>Hardened Defense Architecture</h3>
-        <p>Enterprise-grade safety against SSRF, indirect prompt injection, directory traversal, and server reconnaissance.</p>
-      </div>
-    </div>
-  </section>
-
-  <!-- Manual Step-by-Step Quickstart -->
-  <section class="container" id="quickstart">
-    <h2 class="section-title">Manual Step-by-Step Setup</h2>
-    <p class="section-sub">Prefer running it yourself? Follow these 4 easy steps on Ubuntu 22.04 / 24.04.</p>
-
-    <div class="steps-container">
-      <div class="step-item">
-        <div class="step-num">1</div>
-        <div class="step-body">
-          <h4>Create a Dedicated User</h4>
-          <p>Log in as root on your server and create a standard user:</p>
-          <div class="code-block">adduser suop && usermod -aG sudo suop && su - suop</div>
+        <div class="chat-input-box">
+          <input type="text" class="chat-input" id="chatInput" placeholder="Message assistant..." onkeydown="if(event.key==='Enter') sendChatMessage()">
+          <button class="btn-chat-send" onclick="sendChatMessage()">Send</button>
         </div>
-      </div>
+      </aside>
 
-      <div class="step-item">
-        <div class="step-num">2</div>
-        <div class="step-body">
-          <h4>Clone and Run the Installer</h4>
-          <p>Run the 1-command installer script as your new user:</p>
-          <div class="code-block">git clone https://github.com/shieldspprt/open-computer.git && cd open-computer && bash install.sh</div>
-        </div>
-      </div>
+    </div>
+  </div>
 
-      <div class="step-item">
-        <div class="step-num">3</div>
-        <div class="step-body">
-          <h4>Open in Your Browser</h4>
-          <p>Forward port 8000 to your local machine via SSH:</p>
-          <div class="code-block">ssh -L 8000:127.0.0.1:8000 suop@your-server-ip</div>
-          <p style="margin-top: 8px; font-size: 13px;">Then visit <strong>http://localhost:8000</strong> (or connect a free Cloudflare Tunnel for public domain access).</p>
-        </div>
-      </div>
-
-      <div class="step-item">
-        <div class="step-num">4</div>
-        <div class="step-body">
-          <h4>Add Model Key & Start Chatting</h4>
-          <p>Sign in with your Linux username and password, paste your OpenRouter/Anthropic/OpenAI key in Settings, and you're ready!</p>
-        </div>
+  <!-- Command Palette Modal -->
+  <div class="modal-overlay" id="paletteModal" onclick="if(event.target===this) closePalette()">
+    <div class="modal-box">
+      <input type="text" class="palette-input" id="paletteInput" placeholder="Type a command or jump to view..." oninput="filterPalette(this.value)">
+      <div class="palette-list" id="paletteList">
+        <div class="palette-item" onclick="openTab('home'); closePalette();">🏠 Go to Home Composer</div>
+        <div class="palette-item" onclick="openTab('story'); closePalette();">❤️ Read The Story (Zo homage & vision)</div>
+        <div class="palette-item" onclick="openTab('terminal'); closePalette();">💻 Open Linux Terminal</div>
+        <div class="palette-item" onclick="openTab('files'); closePalette();">📁 Browse My Files</div>
+        <div class="palette-item" onclick="openTab('trash'); closePalette();">🗑️ Open Recycle Bin</div>
+        <div class="palette-item" onclick="openTab('editor'); closePalette();">✏️ Open Code Editor</div>
+        <div class="palette-item" onclick="openTab('automations'); closePalette();">⏰ View Scheduled Automations</div>
+        <div class="palette-item" onclick="openTab('deploy'); closePalette();">⚡ 2-Minute AI Setup Guide</div>
       </div>
     </div>
-  </section>
-
-  <!-- Footer -->
-  <footer>
-    <div class="container">
-      <p>Open Computer is open-source software licensed under the <a href="https://github.com/shieldspprt/open-computer/blob/main/LICENSE" target="_blank" rel="noopener">MIT License</a>.</p>
-      <p style="margin-top: 6px;">Inspired by <a href="https://zo.computer" target="_blank" rel="noopener">Zo Computer</a> · Not officially affiliated with Zo.</p>
-      <p style="margin-top: 14px;"><a href="https://github.com/shieldspprt/open-computer" target="_blank" rel="noopener">GitHub Repository</a> · <a href="https://github.com/shieldspprt/open-computer/blob/main/SECURITY.md" target="_blank" rel="noopener">Security</a> · <a href="https://github.com/shieldspprt/open-computer/blob/main/CONTRIBUTING.md" target="_blank" rel="noopener">Contributing</a></p>
-    </div>
-  </footer>
+  </div>
 
   <script>
-    function switchTab(name, title, btn) {
-      document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-      if (btn) btn.classList.add('active');
-      document.getElementById('screenshotImg').src = 'images/' + name + '.png';
-      document.getElementById('frameTitle').textContent = title;
+    const TAB_LABELS = {
+      home: 'Home',
+      story: '❤️ The Story',
+      terminal: 'Terminal',
+      files: 'My Files',
+      trash: 'Recycle Bin',
+      editor: 'Code Editor',
+      automations: 'Automations',
+      deploy: '⚡ Deploy'
+    };
+
+    // Navigation & Tabs
+    function openTab(tabId) {
+      document.querySelectorAll('.view-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.nav-btn').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab').forEach(el => el.classList.remove('active'));
+
+      const targetView = document.getElementById('view-' + tabId);
+      if (targetView) targetView.classList.add('active');
+
+      const navBtn = document.querySelector(`.nav-btn[data-tab="${tabId}"]`);
+      if (navBtn) navBtn.classList.add('active');
+
+      let tabPill = document.getElementById('tab-pill-' + tabId);
+      if (!tabPill) {
+        const tabstrip = document.getElementById('tabStrip');
+        tabPill = document.createElement('div');
+        tabPill.className = 'tab active';
+        tabPill.id = 'tab-pill-' + tabId;
+        tabPill.innerHTML = `<span>${TAB_LABELS[tabId] || tabId}</span><span class="tab-close" onclick="closeTab('${tabId}', event)">✕</span>`;
+        tabPill.onclick = (e) => { if (!e.target.classList.contains('tab-close')) openTab(tabId); };
+        tabstrip.insertBefore(tabPill, tabstrip.querySelector('.tab-new-btn'));
+      } else {
+        tabPill.classList.add('active');
+      }
+
+      if (tabId === 'terminal') {
+        setTimeout(() => document.getElementById('termInput').focus(), 50);
+      }
     }
 
-    function copyPrompt() {
-      const text = 'Here is my Ubuntu VPS (IP: <YOUR_SERVER_IP>, user: suop, password: <YOUR_PASSWORD>).\n\nPlease connect to my server via SSH, clone https://github.com/shieldspprt/open-computer.git, run bash install.sh, and set up Open Computer for me.';
+    function closeTab(tabId, e) {
+      if (e) e.stopPropagation();
+      const tabPill = document.getElementById('tab-pill-' + tabId);
+      if (tabPill) tabPill.remove();
+      const remainingTabs = document.querySelectorAll('.tab');
+      if (remainingTabs.length > 0) {
+        const nextTabId = remainingTabs[0].id.replace('tab-pill-', '');
+        openTab(nextTabId);
+      } else {
+        openTab('home');
+      }
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('collapsed');
+    }
+
+    function toggleChatPane() {
+      document.getElementById('chat-pane').classList.toggle('collapsed');
+    }
+
+    function toggleTermTrashDrawer() {
+      const drawer = document.getElementById('termTrashDrawer');
+      drawer.style.display = drawer.style.display === 'flex' ? 'none' : 'flex';
+    }
+
+    function toggleSwitch(el) {
+      el.classList.toggle('on');
+    }
+
+    // Theme Switcher (Signature Zo Palettes)
+    const THEMES = [
+      { id: 'default', name: 'Dark' },
+      { id: 'garbanzo', name: 'Garbanzo' },
+      { id: 'claude', name: 'Claude Zo' },
+      { id: 'zone', name: 'In the Zone' }
+    ];
+    let currentThemeIdx = 0;
+    function cycleTheme() {
+      currentThemeIdx = (currentThemeIdx + 1) % THEMES.length;
+      const t = THEMES[currentThemeIdx];
+      if (t.id === 'default') {
+        document.body.removeAttribute('data-theme');
+      } else {
+        document.body.setAttribute('data-theme', t.id);
+      }
+      document.getElementById('themeLabel').textContent = t.name;
+    }
+
+    // Terminal Emulator
+    const termHistory = document.getElementById('termHistory');
+    function handleTermKey(e) {
+      if (e.key === 'Enter') {
+        const cmd = e.target.value.trim();
+        e.target.value = '';
+        executeTermCmd(cmd);
+      }
+    }
+
+    function executeTermCmd(cmd) {
+      addTermLine('<span class="term-prompt">suop@opencomputer:~$</span> ' + escapeHtml(cmd));
+      const lower = cmd.toLowerCase();
+
+      if (!lower) return;
+
+      if (lower === 'help') {
+        addTermLine('Available demo commands:');
+        addTermLine('  <span style="color:#67e8f9">neofetch</span>     - Show system and OS specs');
+        addTermLine('  <span style="color:#67e8f9">ls</span> / <span style="color:#67e8f9">ls -la</span>  - List workspace files');
+        addTermLine('  <span style="color:#67e8f9">cat story.txt</span> - Read the project vision & Zo homage');
+        addTermLine('  <span style="color:#67e8f9">deploy</span>       - View the 1-command installer');
+        addTermLine('  <span style="color:#67e8f9">status</span>       - Check systemd su.service state');
+        addTermLine('  <span style="color:#67e8f9">clear</span>        - Clear the terminal screen');
+      } else if (lower === 'neofetch') {
+        const art = 
+`  <span style="color:#38bdf8;">       /\         </span> <span style="color:#38bdf8; font-weight:bold;">suop@opencomputer</span>
+  <span style="color:#38bdf8;">      /  \        </span> -----------------
+  <span style="color:#38bdf8;">     /\   \       </span> <span style="color:#e2e8f0;">OS:</span> Open Computer Linux (Ubuntu 24.04 LTS)
+  <span style="color:#38bdf8;">    /      \      </span> <span style="color:#e2e8f0;">Host:</span> VPS Cloud Instance (4 vCPU)
+  <span style="color:#38bdf8;">   /   ,,   \     </span> <span style="color:#e2e8f0;">Kernel:</span> 6.8.0-45-generic
+  <span style="color:#38bdf8;">  /   |  |  -\    </span> <span style="color:#e2e8f0;">Uptime:</span> 14 days, 3 hours
+  <span style="color:#38bdf8;"> /_-''    ''-_\   </span> <span style="color:#e2e8f0;">Memory:</span> 1420MiB / 4096MiB (34%)
+                    <span style="color:#e2e8f0;">Agent:</span> Open Computer Engine v1.0`;
+        addTermLine(art);
+      } else if (lower === 'ls' || lower === 'ls -la') {
+        addTermLine('drwxr-xr-x 4 suop suop 4096 Sep 12 18:40 .');
+        addTermLine('drwxr-xr-x 8 suop suop 4096 Sep 12 18:40 ..');
+        addTermLine('-rwxr-xr-x 1 suop suop 5231 Sep 12 18:40 install.sh');
+        addTermLine('-rw-r--r-- 1 suop suop 14812 Sep 12 18:40 agent.py');
+        addTermLine('-rw-r--r-- 1 suop suop 8124 Sep 12 18:40 README.md');
+        addTermLine('-rw-r--r-- 1 suop suop 1980 Sep 12 18:40 story.txt');
+        addTermLine('drwxr-xr-x 2 suop suop 4096 Sep 12 18:40 automations');
+        addTermLine('drwxr-xr-x 2 suop suop 4096 Sep 12 18:40 server');
+      } else if (lower === 'cat story.txt') {
+        addTermLine('<span style="color:#f472b6;">"Once you experience what it feels like to have a real personal computer powered by an AI API, there is simply no coming back."</span>');
+        addTermLine('Open Computer is an open-source homage to Zo Computer, combining a rich visual GUI with global cloud reach.');
+      } else if (lower === 'deploy') {
+        addTermLine('<span style="color:#34d399;">git clone https://github.com/shieldspprt/open-computer.git && cd open-computer && bash install.sh</span>');
+      } else if (lower === 'status') {
+        addTermLine('<span style="color:#34d399;">● su.service - Open Computer Daemon</span>');
+        addTermLine('     Loaded: loaded (/etc/systemd/system/su.service; enabled)');
+        addTermLine('     Active: <span style="color:#34d399; font-weight:bold;">active (running)</span> since Fri 2026-09-12 14:20:10 UTC');
+        addTermLine('   Main PID: 1428 (python3)');
+      } else if (lower === 'clear') {
+        termHistory.innerHTML = '';
+      } else {
+        addTermLine('bash: ' + escapeHtml(cmd) + ': command not found. Type <span style="color:#67e8f9">help</span> for available commands.');
+      }
+      const win = document.getElementById('termWindow');
+      win.scrollTop = win.scrollHeight;
+    }
+
+    function addTermLine(html) {
+      const div = document.createElement('div');
+      div.className = 'term-line';
+      div.innerHTML = html;
+      termHistory.appendChild(div);
+    }
+
+    function escapeHtml(str) {
+      return str.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    // Editor file switcher
+    function openEditorFile(fname) {
+      openTab('editor');
+      document.getElementById('edTabName').textContent = fname;
+      if (fname === 'agent.py') {
+        document.getElementById('editorCodeBody').textContent = `import os, sys, asyncio\nfrom fastapi import FastAPI\n\n# Open Computer Core Agent Subsystem\nclass AgentEngine:\n    def __init__(self, model="claude-3-7-sonnet"):\n        self.model = model\n        print(f"[+] Initialized agent engine with {model}")\n\n    async def execute_task(self, prompt: str):\n        print(f"[*] Processing user prompt: {prompt}")\n        # Executes shell tools, file operations, and scheduled automations\n        return {"status": "success", "result": "Task completed autonomously"}`;
+      } else if (fname === 'README.md') {
+        document.getElementById('editorCodeBody').textContent = `# 🖥️ Open Computer\n\nYour personal, self-hosted AI cloud computer.\nTurn any Linux VPS into an autonomous personal computer with a web desktop.\n\nInspired by zo.computer · Built for hackers, developers & self-hosters.`;
+      } else if (fname === 'install.sh') {
+        document.getElementById('editorCodeBody').textContent = `#!/usr/bin/env bash\n# Open Computer - Autonomous AI Personal Computer Installer\nset -euo pipefail\n\necho "=================================================="\necho "  🖥️  Installing Open Computer on Ubuntu Linux   "\necho "=================================================="\n\n# 1. Update packages & install system dependencies\nsudo apt-get update -y\nsudo apt-get install -y python3 python3-venv python3-pip git curl ripgrep\n\n# 2. Setup Python virtual environment\npython3 -m venv venv\nsource venv/bin/activate\npip install --upgrade pip\npip install -r requirements.txt\n\n# 3. Configure systemd background service\necho "Configuring su.service for 24/7 background operation..."\nsudo systemctl daemon-reload\nsudo systemctl enable --now su.service\n\necho "✓ Open Computer is live at http://127.0.0.1:8000"\necho "✓ Sign in with user 'suop' and your Linux password."`;
+      } else if (fname === 'main.py') {
+        document.getElementById('editorCodeBody').textContent = `from fastapi import FastAPI, WebSocket\nfrom server.agent import agent\n\napp = FastAPI(title="Open Computer Gateway")\n\n@app.get("/health")\nasync def health():\n    return {"status": "ok", "system": "Open Computer"}\n\n@app.websocket("/api/terminal/ws")\nasync def terminal_ws(websocket: WebSocket):\n    await websocket.accept()\n    # Bidirectional PTY WebSocket stream with resize detection`;
+      }
+    }
+
+    // Chat Simulator
+    function submitHomeComposer() {
+      const input = document.getElementById('composerInput');
+      const val = input.value.trim();
+      if (!val) return;
+      input.value = '';
+      sendChatMessage(val);
+    }
+
+    function sendChatMessage(text) {
+      const chatInput = document.getElementById('chatInput');
+      const msg = text || chatInput.value.trim();
+      if (!msg) return;
+      chatInput.value = '';
+
+      // Append user bubble
+      appendChatMsg(msg, 'user');
+
+      // Expand chat if collapsed
+      document.getElementById('chat-pane').classList.remove('collapsed');
+
+      // Simulated typing response
+      setTimeout(() => {
+        let reply = "Got it! In a self-hosted Open Computer deployment, I can execute shell commands, edit code in your files, or schedule this as a background automation. Try switching to the **Terminal** or **Automations** tab!";
+        if (msg.toLowerCase().includes('deploy')) {
+          reply = "🚀 To deploy on your VPS, check out the **⚡ 2-Min Setup** tab! You can simply give the copy-paste prompt to Antigravity or Claude Code to deploy automatically.";
+        } else if (msg.toLowerCase().includes('story') || msg.toLowerCase().includes('zo')) {
+          reply = "❤️ We deeply love Zo Computer! Click the **The Story** tab to read why this project was created as an open-source homage.";
+        }
+        appendChatMsg(reply, 'assistant');
+      }, 700);
+    }
+
+    function appendChatMsg(text, sender) {
+      const container = document.getElementById('chatMsgs');
+      const bubble = document.createElement('div');
+      bubble.className = 'msg-bubble ' + sender;
+      bubble.innerHTML = `<div class="bubble-content">${text}</div>`;
+      container.appendChild(bubble);
+      container.scrollTop = container.scrollHeight;
+    }
+
+    // Copy Prompt
+    function copyDeployPrompt() {
+      const text = document.getElementById('deployPromptText').innerText;
       navigator.clipboard.writeText(text).then(() => {
-        const btn = document.getElementById('copyBtn');
+        const btn = document.getElementById('copyPromptBtn');
         btn.textContent = 'Copied! ✓';
         setTimeout(() => btn.textContent = 'Copy Prompt', 2500);
       });
     }
+
+    // Command Palette
+    function openPalette() {
+      document.getElementById('paletteModal').classList.add('active');
+      document.getElementById('paletteInput').focus();
+    }
+    function closePalette() {
+      document.getElementById('paletteModal').classList.remove('active');
+    }
+    function filterPalette(q) {
+      const items = document.querySelectorAll('.palette-item');
+      items.forEach(item => {
+        item.style.display = item.textContent.toLowerCase().includes(q.toLowerCase()) ? 'flex' : 'none';
+      });
+    }
+
+    // Keyboard Shortcuts
+    document.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+        e.preventDefault();
+        openPalette();
+      }
+      if (e.key === 'Escape') {
+        closePalette();
+      }
+    });
   </script>
 </body>
 </html>
