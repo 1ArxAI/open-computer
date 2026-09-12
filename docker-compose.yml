@@ -1,0 +1,26 @@
+# Optional helpers. Start with:  docker compose up -d
+services:
+  browserless:
+    # Headless Chromium for JavaScript-heavy pages and screenshots. Set BROWSERLESS_URL=http://127.0.0.1:3000 in .env.
+    image: ghcr.io/browserless/chromium:latest
+    container_name: su_browser
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    mem_limit: 3g
+    environment:
+      - CONCURRENT=2
+      - QUEUE_LENGTH=5
+      - KEEP_ALIVE=true
+      - TIMEOUT=60000
+
+  cloudflared:
+    # Public HTTPS without opening ports. Create a tunnel in Cloudflare Zero Trust > Networks > Tunnels,
+    # point its public hostname at http://localhost:8000, and put the token in .env as CLOUDFLARE_TUNNEL_TOKEN.
+    image: cloudflare/cloudflared:latest
+    container_name: su_tunnel
+    restart: unless-stopped
+    network_mode: host
+    command: tunnel --no-autoupdate run
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN}

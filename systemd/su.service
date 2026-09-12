@@ -1,0 +1,17 @@
+[Unit]
+Description=SU gateway (self-hosted AI operator)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__HOME__/server
+Environment=SU_HOME=__HOME__
+EnvironmentFile=-__HOME__/.env
+ExecStart=__HOME__/server/venv/bin/uvicorn main:app --host ${SU_HOST} --port ${SU_PORT} --no-server-header
+Restart=always
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target

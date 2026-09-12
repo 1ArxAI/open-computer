@@ -1,0 +1,13 @@
+.env
+server/venv/
+server/settings.json
+server/__pycache__/
+data/
+workspace/*
+!workspace/SU.md
+!workspace/RULES.example.md
+!workspace/Skills/
+!workspace/Skills/automation-builder/
+*.log
+.DS_Store
+._*
