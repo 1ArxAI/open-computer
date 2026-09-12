@@ -2,6 +2,8 @@
 
 **Your personal, self-hosted AI cloud computer.** Turn any Linux VPS into an autonomous personal computer with a web desktop, native Linux terminal, file explorer, 24/7 background agents, and scheduled automations.
 
+[🌐 **Live Website & Interactive Showcase**](https://shieldspprt.github.io/open-computer/) · [⭐ **GitHub Repository**](https://github.com/shieldspprt/open-computer)
+
 ---
 
 > [!NOTE]
@@ -42,9 +44,26 @@
 
 ---
 
-## 🚀 Beginner-Friendly Step-by-Step Guide
+## ⚡ The 2-Minute AI Setup (Zero Manual Commands)
 
-You don't need to be a Linux expert to set this up. Follow these 4 easy steps:
+> [!TIP]
+> **Don't want to type Linux commands manually? You don't have to!**
+> 
+> Simply copy this prompt, fill in your server details, and paste it into your favorite AI coding assistant (we strongly recommend **Antigravity** or Claude Code):
+> 
+> ```text
+> Here is my Ubuntu VPS (IP: <YOUR_SERVER_IP>, user: suop, password: <YOUR_PASSWORD>).
+> 
+> Please connect to my server via SSH, clone https://github.com/shieldspprt/open-computer.git, run bash install.sh, and set up Open Computer for me.
+> ```
+> 
+> Your AI assistant will handle package installations, virtual environment creation, systemd service configuration, and security checks automatically. You'll be ready to log in and chat in **2 minutes flat!**
+
+---
+
+## 🚀 Manual Beginner-Friendly Step-by-Step Guide
+
+Prefer running the commands yourself? Follow these 4 easy steps:
 
 ### Prerequisites
 - A Linux server or VPS running **Ubuntu 22.04 or 24.04** (e.g. Hetzner, Contabo, DigitalOcean, Linode, or a spare PC/Raspberry Pi). A $4–$6/month box with 2GB+ RAM is plenty!
