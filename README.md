@@ -16,6 +16,31 @@
 
 ---
 
+## ❤️ The Story: Recreating My Favorite Tool in the World
+
+> *"Once you experience what it feels like to have a real personal computer powered by an AI API, there is simply no coming back."*
+
+I'll be completely honest: **I really love [Zo Computer](https://zo.computer).**
+
+The first time I used Zo, something deep clicked for me. If you have an AI API key (from Anthropic, Google, or OpenAI), Zo is the last thing you will ever need. It isn't just another chat interface or a plugin squeezed into an editor sidebar—it is a **pure superpower**. It gives you a living, autonomous computer in the cloud that never sleeps. A companion that can write code, run background scrapers, manage files, execute shell commands, and do real work for you while you're offline.
+
+Once you start using a tool like this in your daily workflow, your entire standard for computing changes. Going back to isolated local scripts, manual SSH sessions, and fragmented browser tabs feels like stepping back a decade. **There is simply no coming back.**
+
+So I decided to recreate my favorite product—out of sheer love, homage, the deep fun of hacking from scratch, and the practical need to have this superpower running 24/7 on my own VPS hardware for maximum productivity and freedom.
+
+### 🌊 The Emerging Trend: Why GUI + Global Tops the Agentic OS Wave
+
+The world is waking up to this new era. Projects like **Omarchy** are proving that an OS with an AI agent as master is the next frontier of operating systems. The developer ecosystem is moving at breakneck speed toward autonomous environments.
+
+Yet, as exciting as terminal-only or raw agentic OS experiments are, **Zo and Open Computer still top the paradigm for two fundamental reasons: it is a true visual GUI, and it is Global.**
+
+1. **A True Visual GUI (Human + AI in Harmony)**: Purely headless or terminal-bound agent OSes can feel isolating and opaque. Humans are visual creatures. We want to see our workspace—a dual-pane file explorer, live tabbed code editing with syntax highlighting, visual system metrics, scheduled automations cards, and a dedicated Recycle Bin. Open Computer preserves full human agency alongside autonomous AI power. You are in the cockpit, with the AI as your tireless co-pilot.
+2. **Global & Everywhere**: It lives in the cloud, accessible instantly from any browser on earth. Whether you're on a dual-monitor desktop at your desk, typing on a cheap Chromebook, holding an iPad at a coffee shop, or checking a task from your phone on the train—your entire environment, terminal sessions, background daemons, and AI agent travel with you anywhere in the world.
+
+Open Computer is a labor of love: 100% self-hosted, 100% open-source, and free forever for anyone with a Linux server.
+
+---
+
 ## 📸 Screenshots
 
 | **AI Workspace & Home** | **Native Linux Terminal** |
