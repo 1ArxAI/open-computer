@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <title>Open Computer · Your Personal Self-Hosted AI Cloud Computer</title>
-  <meta name="description" content="Turn any Linux VPS into an autonomous personal AI cloud computer with a native terminal, file explorer, 24/7 background agents, and scheduled automations.">
+  <meta name="description" content="Turn any Linux VPS into an autonomous personal AI cloud computer with a native terminal, file explorer, 24/7 background agents, social media automations, and GTM email pipelines.">
   <meta property="og:title" content="Open Computer · Personal AI Cloud Computer">
   <meta property="og:description" content="Self-hosted, open-source AI computer for any Linux VPS. Inspired by Zo Computer.">
   <meta property="og:image" content="images/home.png">
@@ -37,41 +37,6 @@
       --font-mono: "JetBrains Mono", ui-monospace, Menlo, Monaco, Consolas, monospace;
     }
 
-    /* Theme Presets */
-    body[data-theme="garbanzo"] {
-      --zo-bg: oklch(0.2598 0.0306 262.6666);
-      --zo-fg: oklch(0.9219 0 0);
-      --zo-card: oklch(0.3106 0.0301 268.6365);
-      --zo-primary: oklch(0.6397 0.1720 36.4421);
-      --zo-muted: oklch(0.3095 0.0266 266.7132);
-      --zo-fg-muted: oklch(0.7155 0 0);
-      --zo-accent: oklch(0.3380 0.0589 267.5867);
-      --zo-border: oklch(0.4976 0.0366 269.3687);
-      --zo-sidebar: oklch(0.3100 0.0283 267.7408);
-    }
-    body[data-theme="claude"] {
-      --zo-bg: oklch(0.2779 0.0062 78.2263);
-      --zo-fg: oklch(0.8074 0.0142 93.0137);
-      --zo-card: oklch(0.3069 0.0083 75.2677);
-      --zo-primary: oklch(0.6724 0.1308 38.7559);
-      --zo-muted: oklch(0.3069 0.0083 75.2677);
-      --zo-fg-muted: oklch(0.7168 0.0154 84.5906);
-      --zo-accent: oklch(0.3315 0.0154 79.6268);
-      --zo-border: oklch(0.3845 0.0128 81.7518);
-      --zo-sidebar: oklch(0.2523 0.0040 84.5846);
-    }
-    body[data-theme="zone"] {
-      --zo-bg: lab(17.8584% -.546753 -1.61707);
-      --zo-fg: lab(91.8792% -.430316 -1.2359);
-      --zo-card: lab(21.559% -.537768 -1.58297);
-      --zo-primary: lab(58.1591% -2.49425 -49.0636);
-      --zo-muted: lab(21.559% -.537768 -1.58297);
-      --zo-fg-muted: lab(65.52% -1.31929 -3.90199);
-      --zo-accent: lab(25.4204% -2.28751 -15.7596);
-      --zo-border: lab(30.3856% -.760198 -2.24963);
-      --zo-sidebar: lab(15.4918% -.556231 -1.65128);
-    }
-
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body {
       height: 100%;
@@ -81,7 +46,6 @@
       color: var(--zo-fg);
       font-family: var(--font);
       -webkit-font-smoothing: antialiased;
-      transition: background-color 0.25s, color 0.25s;
     }
 
     /* Custom Scrollbars */
@@ -99,7 +63,7 @@
       overflow: hidden;
     }
 
-    /* Top Global Header */
+    /* Top Global Header (Cleaned: No web preview badge, no search bar, no dark toggle) */
     .global-header {
       height: 48px;
       background: var(--zo-sidebar);
@@ -107,7 +71,7 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 0 16px;
+      padding: 0 18px;
       flex-shrink: 0;
       z-index: 100;
       user-select: none;
@@ -120,57 +84,16 @@
     .gh-logo {
       display: flex;
       align-items: center;
-      gap: 8px;
-      font-size: 14px;
+      gap: 9px;
+      font-size: 15px;
       font-weight: 700;
       color: #fff;
       cursor: pointer;
     }
-    .gh-badge {
-      font-size: 11px;
-      padding: 2px 8px;
-      border-radius: 999px;
-      background: rgba(59, 130, 246, 0.15);
-      border: 1px solid rgba(59, 130, 246, 0.35);
-      color: #93c5fd;
-      font-weight: 500;
-    }
-    .gh-center {
-      flex: 1;
-      max-width: 480px;
-      margin: 0 20px;
-    }
-    .gh-search-btn {
-      width: 100%;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      background: var(--zo-input);
-      border: 1px solid var(--zo-border);
-      border-radius: var(--radius-sm);
-      color: var(--zo-fg-muted);
-      padding: 6px 12px;
-      font-size: 12.5px;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .gh-search-btn:hover {
-      border-color: #3f4559;
-      color: var(--zo-fg);
-    }
-    .gh-kbd {
-      font-family: var(--font-mono);
-      font-size: 10.5px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      padding: 1px 5px;
-      border-radius: 4px;
-      color: #cbd5e1;
-    }
     .gh-right {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
     .hw-stat {
       font-family: var(--font-mono);
@@ -186,23 +109,6 @@
       border-radius: 50%;
       background: #10b981;
       box-shadow: 0 0 8px #10b981;
-    }
-    .btn-theme-toggle {
-      background: var(--zo-muted);
-      border: 1px solid var(--zo-border);
-      color: var(--zo-fg);
-      padding: 4px 10px;
-      border-radius: var(--radius-sm);
-      font-size: 11.5px;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      gap: 5px;
-      transition: all 0.15s;
-    }
-    .btn-theme-toggle:hover {
-      background: var(--zo-accent);
-      border-color: #3b82f6;
     }
     .btn-gh-action {
       display: inline-flex;
@@ -455,23 +361,6 @@
     .tab-close:hover {
       background: rgba(255, 255, 255, 0.15);
       color: #fff;
-    }
-    .tab-new-btn {
-      width: 24px;
-      height: 24px;
-      border-radius: 4px;
-      background: transparent;
-      border: none;
-      color: var(--zo-fg-muted);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-    }
-    .tab-new-btn:hover {
-      background: var(--zo-accent);
-      color: var(--zo-fg);
     }
 
     /* Workspace Content Views */
@@ -889,7 +778,7 @@
       flex: 1;
       overflow-y: auto;
       padding: 24px;
-      max-width: 860px;
+      max-width: 880px;
       margin: 0 auto;
       width: 100%;
     }
@@ -897,22 +786,25 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
     }
     .auto-card {
       background: var(--zo-card);
       border: 1px solid var(--zo-border);
       border-radius: 12px;
-      padding: 18px 20px;
-      margin-bottom: 14px;
+      padding: 20px;
+      margin-bottom: 16px;
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
       transition: border-color 0.15s;
+      gap: 16px;
     }
     .auto-card:hover { border-color: #3b82f6; }
-    .auto-info h4 { font-size: 15px; font-weight: 600; margin-bottom: 4px; color: #fff; }
-    .auto-info p { font-size: 12.5px; color: var(--zo-fg-muted); }
+    .auto-info { flex: 1; }
+    .auto-info h4 { font-size: 16px; font-weight: 700; margin-bottom: 6px; color: #fff; display: flex; align-items: center; gap: 8px; }
+    .auto-agent-tag { font-size: 12px; font-weight: 500; color: #93c5fd; background: rgba(59, 130, 246, 0.12); padding: 2px 8px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.25); }
+    .auto-info p { font-size: 13.5px; color: var(--zo-fg-muted); line-height: 1.55; }
     .auto-cron-badge {
       display: inline-block;
       font-family: var(--font-mono);
@@ -920,9 +812,9 @@
       background: #181d2a;
       border: 1px solid rgba(59, 130, 246, 0.3);
       color: #93c5fd;
-      padding: 2px 6px;
+      padding: 3px 8px;
       border-radius: 4px;
-      margin-top: 6px;
+      margin-top: 10px;
     }
     .toggle-switch {
       width: 44px;
@@ -932,6 +824,8 @@
       position: relative;
       cursor: pointer;
       transition: background 0.2s;
+      flex-shrink: 0;
+      margin-top: 4px;
     }
     .toggle-switch.on { background: #10b981; }
     .toggle-dot {
@@ -945,6 +839,116 @@
       transition: transform 0.2s;
     }
     .toggle-switch.on .toggle-dot { transform: translateX(20px); }
+
+    /* --- TASKS VIEW (LIVE DAEMONS & WORKERS) --- */
+    .tasks-view-wrap {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+      max-width: 880px;
+      margin: 0 auto;
+      width: 100%;
+    }
+    .task-card {
+      background: var(--zo-card);
+      border: 1px solid var(--zo-border);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 16px;
+      transition: border-color 0.15s;
+    }
+    .task-card:hover { border-color: #3b82f6; }
+    .task-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .task-id {
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: var(--zo-fg-muted);
+    }
+    .task-status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+      padding: 2px 9px;
+      border-radius: 999px;
+    }
+    .task-status-badge.running {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34d399;
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+    .task-status-badge.idle {
+      background: rgba(245, 158, 11, 0.15);
+      color: #fbbf24;
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+    .task-title {
+      font-size: 16px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .task-agent {
+      font-size: 12.5px;
+      color: #93c5fd;
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .task-desc {
+      font-size: 13.5px;
+      color: var(--zo-fg-muted);
+      line-height: 1.55;
+      margin-bottom: 12px;
+    }
+    .task-progress-wrap {
+      background: rgba(255, 255, 255, 0.06);
+      border-radius: 999px;
+      height: 6px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .task-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #2563eb, #38bdf8);
+      border-radius: 999px;
+      transition: width 0.3s;
+    }
+    .task-metrics-chips {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+    }
+    .metric-chip {
+      font-family: var(--font-mono);
+      font-size: 11px;
+      background: #181d2a;
+      border: 1px solid var(--zo-border);
+      color: #cbd5e1;
+      padding: 3px 8px;
+      border-radius: 4px;
+    }
+    .task-log-snippet {
+      background: #090a10;
+      border: 1px solid var(--zo-border);
+      border-radius: 6px;
+      padding: 8px 12px;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      color: #94a3b8;
+      line-height: 1.5;
+      margin-top: 10px;
+      white-space: pre-wrap;
+    }
 
     /* --- DEPLOY / SETUP VIEW --- */
     .deploy-view-wrap {
@@ -1110,65 +1114,9 @@
       cursor: pointer;
     }
 
-    /* Modal Command Palette */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.7);
-      backdrop-filter: blur(6px);
-      display: none;
-      align-items: flex-start;
-      justify-content: center;
-      padding-top: 15vh;
-      z-index: 1000;
-    }
-    .modal-overlay.active { display: flex; }
-    .modal-box {
-      width: 540px;
-      background: var(--zo-card);
-      border: 1px solid var(--zo-border);
-      border-radius: 14px;
-      box-shadow: 0 25px 60px rgba(0,0,0,0.8);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-    }
-    .palette-input {
-      width: 100%;
-      background: transparent;
-      border: none;
-      border-bottom: 1px solid var(--zo-border);
-      padding: 16px 20px;
-      font-size: 15px;
-      color: #fff;
-      outline: none;
-      font-family: var(--font);
-    }
-    .palette-list {
-      padding: 8px;
-      max-height: 320px;
-      overflow-y: auto;
-    }
-    .palette-item {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      padding: 10px 14px;
-      border-radius: 8px;
-      cursor: pointer;
-      color: var(--zo-fg-muted);
-      font-size: 13.5px;
-      transition: all 0.15s;
-    }
-    .palette-item:hover, .palette-item.selected {
-      background: var(--zo-muted);
-      color: #fff;
-    }
-
     /* Responsive */
     @media (max-width: 900px) {
       #chat-pane { display: none; }
-      .gh-center { display: none; }
     }
   </style>
 </head>
@@ -1176,24 +1124,13 @@
 
   <div id="app">
 
-    <!-- Top Global Header -->
+    <!-- Top Global Header (Cleaned: No web preview badge, no search bar, no dark toggle) -->
     <header class="global-header">
       <div class="gh-left">
         <div class="gh-logo" onclick="openTab('home')">
           <svg viewBox="0 0 24 24" width="22" height="22" fill="none"><rect x="2" y="2" width="20" height="20" rx="6" fill="#2563eb"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="#fff" font-family="inherit">OC</text></svg>
           <span>Open Computer</span>
         </div>
-        <span class="gh-badge">⚡ Live Web Preview</span>
-      </div>
-
-      <div class="gh-center">
-        <button class="gh-search-btn" onclick="openPalette()">
-          <span style="display:flex; align-items:center; gap:8px;">
-            <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
-            Search commands, files, automations...
-          </span>
-          <span class="gh-kbd">⌘K</span>
-        </button>
       </div>
 
       <div class="gh-right">
@@ -1201,11 +1138,6 @@
           <span class="hw-dot"></span>
           <span>VPS: 99.9% Up · 1.4GB RAM</span>
         </div>
-
-        <button class="btn-theme-toggle" onclick="cycleTheme()" title="Switch Zo Theme">
-          <span>🎨</span>
-          <span id="themeLabel">Dark</span>
-        </button>
 
         <a href="https://zo.computer" target="_blank" rel="noopener" class="btn-gh-link" title="Visit Zo Computer">
           Zo.computer ↗
@@ -1261,7 +1193,13 @@
           <button class="nav-btn" data-tab="automations" onclick="openTab('automations')">
             <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg></span>
             <span class="nav-label">Automations</span>
-            <span class="nav-badge">3</span>
+            <span class="nav-badge">5</span>
+          </button>
+
+          <button class="nav-btn" data-tab="tasks" onclick="openTab('tasks')">
+            <span class="nav-ico"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></span>
+            <span class="nav-label">Tasks</span>
+            <span class="nav-badge" style="background:rgba(16,185,129,0.2); color:#34d399;">4 running</span>
           </button>
 
           <div class="sb-divider"></div>
@@ -1291,6 +1229,12 @@
           <div class="tab active" id="tab-pill-home" onclick="openTab('home')">
             <span>Home</span>
           </div>
+          <div class="tab" id="tab-pill-automations" onclick="openTab('automations')">
+            <span>Automations</span>
+          </div>
+          <div class="tab" id="tab-pill-tasks" onclick="openTab('tasks')">
+            <span>Tasks</span>
+          </div>
           <div class="tab" id="tab-pill-story" onclick="openTab('story')">
             <span>❤️ The Story</span>
           </div>
@@ -1300,7 +1244,6 @@
           <div class="tab" id="tab-pill-deploy" onclick="openTab('deploy')">
             <span>⚡ Deploy</span>
           </div>
-          <button class="tab-new-btn" onclick="openPalette()" title="Open View">+</button>
         </div>
 
         <!-- VIEW 1: HOME (ZO COMPOSER) -->
@@ -1312,7 +1255,7 @@
             </div>
 
             <div class="zo-composer-card">
-              <textarea class="composer-input" id="composerInput" placeholder="Ask your agent to write code, schedule a task, or run shell commands..." rows="3"></textarea>
+              <textarea class="composer-input" id="composerInput" placeholder="Ask your agent to schedule YouTube repurposing, run an X posting daemon, or start a GTM email sequence..." rows="3"></textarea>
               
               <div class="composer-bottom">
                 <div class="composer-controls">
@@ -1341,10 +1284,11 @@
             </div>
 
             <div class="quick-chips">
+              <button class="chip-btn" onclick="openTab('automations')">🎬 YouTube Video Repurposing Pipeline</button>
+              <button class="chip-btn" onclick="openTab('tasks')">🐦 Autonomous X (Twitter) Poster Task</button>
+              <button class="chip-btn" onclick="openTab('tasks')">✉️ GTM Outbound Cold Email Agent</button>
+              <button class="chip-btn" onclick="openTab('story')">❤️ Read Why I Recreated Zo Computer</button>
               <button class="chip-btn" onclick="openTab('deploy')">⚡ 2-Minute AI Setup (Zero Commands)</button>
-              <button class="chip-btn" onclick="openTab('story')">❤️ Read the Story & Zo Inspiration</button>
-              <button class="chip-btn" onclick="openTab('terminal')">💻 Launch Terminal (neofetch)</button>
-              <button class="chip-btn" onclick="openTab('automations')">⏰ View 24/7 Automations</button>
             </div>
           </div>
         </section>
@@ -1412,7 +1356,191 @@
           </div>
         </section>
 
-        <!-- VIEW 3: TERMINAL (INTERACTIVE PTY) -->
+        <!-- VIEW 3: AUTOMATIONS (SCHEDULED RECURRING PIPELINES) -->
+        <section class="view-content" id="view-automations">
+          <div class="auto-view-wrap">
+            <div class="auto-head">
+              <div>
+                <h2 style="font-size:22px; font-weight:700; color:#fff;">24/7 Scheduled Automations</h2>
+                <p style="color:var(--zo-fg-muted); font-size:13.5px;">Social media growth, YouTube repurposing, GTM email sequences, and recurring cron agents.</p>
+              </div>
+              <button class="btn-gh-action" onclick="alert('In your live Open Computer, you can create automations by simply chatting with the agent!')">+ New Automation</button>
+            </div>
+
+            <!-- YouTube Automation -->
+            <div class="auto-card">
+              <div class="auto-info">
+                <h4>🎬 YouTube Multi-Format Repurposing Pipeline <span class="auto-agent-tag">YouTube Specialist Agent</span></h4>
+                <p>Monitors channel RSS & uploads. When a new video drops, it downloads audio, transcribes via local Whisper, uses Claude 3.7 to extract 3 viral Shorts scripts with timestamps, and generates SEO title, tags, and description.</p>
+                <span class="auto-cron-badge">*/15 * * * * (Checks every 15 minutes)</span>
+              </div>
+              <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                <div class="toggle-dot"></div>
+              </div>
+            </div>
+
+            <!-- X / Twitter Automation -->
+            <div class="auto-card">
+              <div class="auto-info">
+                <h4>🐦 Autonomous X (Twitter) Growth & Thread Poster <span class="auto-agent-tag">X Social Media Agent</span></h4>
+                <p>Scans AI & developer trends across TechTwitter, synthesizes insights, drafts high-retention educational threads, engages with community mentions, and posts via official X API during peak engagement windows.</p>
+                <span class="auto-cron-badge">0 */4 * * * (Every 4 hours)</span>
+              </div>
+              <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                <div class="toggle-dot"></div>
+              </div>
+            </div>
+
+            <!-- GTM Cold Email Prospecting -->
+            <div class="auto-card">
+              <div class="auto-info">
+                <h4>✉️ GTM Outbound B2B Lead Prospecting & Emailer <span class="auto-agent-tag">GTM SDR Agent</span></h4>
+                <p>Takes ICP lead lists from Apollo/CSV, fetches recent company blog posts, hiring signals, and GitHub repos. Drafts hyper-personalized cold outreach emails and stages them in your sender sequence.</p>
+                <span class="auto-cron-badge">0 9 * * 1-5 (Weekdays at 9:00 AM)</span>
+              </div>
+              <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                <div class="toggle-dot"></div>
+              </div>
+            </div>
+
+            <!-- GTM Inbound Lead Qualifier -->
+            <div class="auto-card">
+              <div class="auto-info">
+                <h4>🎯 GTM Inbound Lead Qualifier & Instant Responder <span class="auto-agent-tag">GTM Inbound Agent</span></h4>
+                <p>Listens for inbound website contact emails and demo requests, looks up prospect domain info, calculates ICP match score (1-100), drafts a custom tailored response in under 60 seconds, and alerts via Slack/Telegram.</p>
+                <span class="auto-cron-badge">* * * * * (Continuous webhook / IMAP listener)</span>
+              </div>
+              <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                <div class="toggle-dot"></div>
+              </div>
+            </div>
+
+            <!-- Omnichannel Social Media -->
+            <div class="auto-card">
+              <div class="auto-info">
+                <h4>📱 Omnichannel Social Media Sync (LinkedIn + Reddit) <span class="auto-agent-tag">Distribution Agent</span></h4>
+                <p>Repurposes long-form markdown articles and code updates into 5-slide LinkedIn carousel summaries, Reddit discussion posts in r/programming and r/selfhosted, and Telegram channel updates.</p>
+                <span class="auto-cron-badge">0 10 * * 1,3,5 (Mon, Wed, Fri at 10:00 AM)</span>
+              </div>
+              <div class="toggle-switch on" onclick="toggleSwitch(this)">
+                <div class="toggle-dot"></div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 4: TASKS (LIVE SUPERVISED DAEMONS & WORKERS) -->
+        <section class="view-content" id="view-tasks">
+          <div class="tasks-view-wrap">
+            <div class="auto-head">
+              <div>
+                <h2 style="font-size:22px; font-weight:700; color:#fff;">Background Tasks & Live Daemons</h2>
+                <p style="color:var(--zo-fg-muted); font-size:13.5px;">Supervised 24/7 worker processes running autonomously on your Linux server.</p>
+              </div>
+              <span class="task-status-badge running" style="font-size:12.5px; padding:4px 12px;">● 4 Active Workers</span>
+            </div>
+
+            <!-- Task 1: YouTube Video Pipeline -->
+            <div class="task-card">
+              <div class="task-top">
+                <span class="task-id">TASK #1042 · PID 4912 · UPTIME 2h 45m</span>
+                <span class="task-status-badge running">● Running (CPU 18.4% · RAM 420MB)</span>
+              </div>
+              <div class="task-title">YouTube Long-to-Shorts Video Pipeline</div>
+              <div class="task-agent">
+                <span>🤖 Agent: YouTube Content Specialist</span>
+                <span>·</span>
+                <span>Target: "Building an Autonomous Cloud AI Computer with Python"</span>
+              </div>
+              <div class="task-desc">
+                Transcribing video audio using local Whisper model... Claude 3.7 identified 3 viral hook segments. Currently rendering vertical short #1 with auto-captions and audio ducking.
+              </div>
+              <div class="task-progress-wrap">
+                <div class="task-progress-bar" style="width: 68%;"></div>
+              </div>
+              <div class="task-metrics-chips">
+                <span class="metric-chip">Audio: 18m 42s Processed</span>
+                <span class="metric-chip">Clips: 3 Hooks Selected</span>
+                <span class="metric-chip">Resolution: 1080x1920 (9:16)</span>
+                <span class="metric-chip">ETA: 4 mins</span>
+              </div>
+              <div class="task-log-snippet">[19:20:11] Extracted audio stream (1080p source)
+[19:22:04] Transcribed 18m 42s audio via whisper-base model
+[19:23:15] Claude 3.7 selected clips: 01:14-02:05, 06:30-07:22, 12:10-13:00
+[19:24:00] Rendering vertical clip #1 (68% complete)...</div>
+            </div>
+
+            <!-- Task 2: X (Twitter) Poster Daemon -->
+            <div class="task-card">
+              <div class="task-top">
+                <span class="task-id">TASK #1038 · PID 3810 · UPTIME 3d 12h</span>
+                <span class="task-status-badge running">● Running (CPU 2.1% · RAM 165MB)</span>
+              </div>
+              <div class="task-title">Autonomous X (Twitter) Engagement & Thread Daemon</div>
+              <div class="task-agent">
+                <span>🤖 Agent: X / Twitter Co-Pilot</span>
+                <span>·</span>
+                <span>Account: @opencomputer_ai</span>
+              </div>
+              <div class="task-desc">
+                Streaming timeline events for #AI, #OpenSource, #AgenticOS. Auto-responded to 4 community mentions with helpful documentation links. Next educational thread queued for 20:00 UTC.
+              </div>
+              <div class="task-metrics-chips">
+                <span class="metric-chip">12 Tweets Posted Today</span>
+                <span class="metric-chip">14.8k Impressions</span>
+                <span class="metric-chip">42 New Followers</span>
+                <span class="metric-chip">API Rate: Healthy</span>
+              </div>
+            </div>
+
+            <!-- Task 3: GTM Outbound Email Agent -->
+            <div class="task-card">
+              <div class="task-top">
+                <span class="task-id">TASK #1029 · PID 2941 · UPTIME 1d 8h</span>
+                <span class="task-status-badge running">● Running (CPU 5.8% · RAM 210MB)</span>
+              </div>
+              <div class="task-title">GTM Outbound Cold Email Prospector & Sequencer</div>
+              <div class="task-agent">
+                <span>🤖 Agent: GTM Outbound SDR</span>
+                <span>·</span>
+                <span>Campaign: "AI Engineers & Cloud Architects"</span>
+              </div>
+              <div class="task-desc">
+                Enriching batch #4 of 50 target prospect accounts. Web fetcher researched target engineering blogs and GitHub releases. Generated 38 tailored personalized icebreaker drafts.
+              </div>
+              <div class="task-metrics-chips">
+                <span class="metric-chip">150 Leads Researched</span>
+                <span class="metric-chip">42 Emails Dispatched</span>
+                <span class="metric-chip">31% Open Rate</span>
+                <span class="metric-chip">12% Reply Rate</span>
+              </div>
+            </div>
+
+            <!-- Task 4: GTM Inbound Lead Sentinel -->
+            <div class="task-card">
+              <div class="task-top">
+                <span class="task-id">TASK #1015 · PID 1802 · UPTIME 5d 1h</span>
+                <span class="task-status-badge running">● Listening (CPU 0.4% · RAM 95MB)</span>
+              </div>
+              <div class="task-title">GTM Inbound Lead Sentinel & Telegram Alerter</div>
+              <div class="task-agent">
+                <span>🤖 Agent: Inbound Form Webhook Listener</span>
+                <span>·</span>
+                <span>Channel: Telegram @founder_alerts</span>
+              </div>
+              <div class="task-desc">
+                Monitoring inbound demo requests. Enriches company domain with headcount & tech stack, scores ICP criteria, and alerts Telegram channel with one-click reply draft.
+              </div>
+              <div class="task-metrics-chips">
+                <span class="metric-chip">14 Inquiries Qualified Today</span>
+                <span class="metric-chip">Avg Response Time: 42s</span>
+                <span class="metric-chip">0 Spam False Positives</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- VIEW 5: TERMINAL (INTERACTIVE PTY) -->
         <section class="view-content" id="view-terminal">
           <div class="terminal-view-wrap">
             <div class="term-window" id="termWindow" onclick="document.getElementById('termInput').focus()">
@@ -1457,7 +1585,7 @@
           </div>
         </section>
 
-        <!-- VIEW 4: MY FILES -->
+        <!-- VIEW 6: MY FILES -->
         <section class="view-content" id="view-files">
           <div class="files-view-wrap">
             <div class="files-toolbar">
@@ -1471,6 +1599,21 @@
             </div>
 
             <div class="files-table">
+              <div class="file-row" onclick="openEditorFile('youtube_agent.py')">
+                <span class="file-ico">🎬</span>
+                <span class="file-name">automations/youtube_agent.py</span>
+                <span class="file-meta">8.4 KB · Video Transcriber & Shorts Pipeline</span>
+              </div>
+              <div class="file-row" onclick="openEditorFile('x_poster.py')">
+                <span class="file-ico">🐦</span>
+                <span class="file-name">automations/x_poster.py</span>
+                <span class="file-meta">6.1 KB · Autonomous Twitter Threads</span>
+              </div>
+              <div class="file-row" onclick="openEditorFile('gtm_emails.py')">
+                <span class="file-ico">✉️</span>
+                <span class="file-name">automations/gtm_emails.py</span>
+                <span class="file-meta">11.2 KB · Lead Enrichment & Cold Emailer</span>
+              </div>
               <div class="file-row" onclick="openEditorFile('install.sh')">
                 <span class="file-ico">📜</span>
                 <span class="file-name">install.sh</span>
@@ -1481,107 +1624,47 @@
                 <span class="file-name">agent.py</span>
                 <span class="file-meta">14.8 KB · Core Agentic Engine</span>
               </div>
-              <div class="file-row" onclick="openEditorFile('main.py')">
-                <span class="file-ico">⚡</span>
-                <span class="file-name">server/main.py</span>
-                <span class="file-meta">28.4 KB · FastAPI & WebSocket Gateway</span>
-              </div>
               <div class="file-row" onclick="openEditorFile('README.md')">
                 <span class="file-ico">📖</span>
                 <span class="file-name">README.md</span>
                 <span class="file-meta">8.1 KB · Documentation</span>
               </div>
-              <div class="file-row" onclick="openTab('automations')">
-                <span class="file-ico">📁</span>
-                <span class="file-name">automations/</span>
-                <span class="file-meta">3 items · Background Tasks</span>
-              </div>
             </div>
           </div>
         </section>
 
-        <!-- VIEW 5: CODE EDITOR -->
+        <!-- VIEW 7: CODE EDITOR -->
         <section class="view-content" id="view-editor">
           <div class="editor-view-wrap">
             <div class="editor-tabs">
-              <div class="ed-tab active" id="edTabName">install.sh</div>
+              <div class="ed-tab active" id="edTabName">youtube_agent.py</div>
             </div>
-            <div class="editor-code-body" id="editorCodeBody">#!/usr/bin/env bash
-# Open Computer - Autonomous AI Personal Computer Installer
-set -euo pipefail
+            <div class="editor-code-body" id="editorCodeBody"># automations/youtube_agent.py
+import os, asyncio
+from server.agent import agent
 
-echo "=================================================="
-echo "  🖥️  Installing Open Computer on Ubuntu Linux   "
-echo "=================================================="
-
-# 1. Update packages & install system dependencies
-sudo apt-get update -y
-sudo apt-get install -y python3 python3-venv python3-pip git curl ripgrep
-
-# 2. Setup Python virtual environment
-python3 -m venv venv
-source venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-
-# 3. Configure systemd background service
-echo "Configuring su.service for 24/7 background operation..."
-sudo systemctl daemon-reload
-sudo systemctl enable --now su.service
-
-echo "✓ Open Computer is live at http://127.0.0.1:8000"
-echo "✓ Sign in with user 'suop' and your Linux password."
+async def process_latest_youtube_upload(channel_id: str):
+    print(f"[*] Checking uploads for channel {channel_id}...")
+    # 1. Fetch latest video & extract audio
+    audio_path = await agent.tools.youtube.fetch_audio(channel_id)
+    
+    # 2. Transcribe via Whisper
+    transcript = await agent.tools.transcribe.whisper(audio_path)
+    
+    # 3. Agent identifies high-retention viral segments
+    prompt = f"Analyze this transcript and identify 3 high-impact shorts hooks (under 60s):
+{transcript}"
+    shorts_plan = await agent.complete(prompt, model="claude-3-7-sonnet")
+    
+    # 4. Render vertical clips with auto-captions
+    clips = await agent.tools.video.render_shorts(audio_path, shorts_plan)
+    print(f"[✓] Generated {len(clips)} YouTube Shorts ready for staging.")
+    return clips
 </div>
           </div>
         </section>
 
-        <!-- VIEW 6: AUTOMATIONS -->
-        <section class="view-content" id="view-automations">
-          <div class="auto-view-wrap">
-            <div class="auto-head">
-              <div>
-                <h2 style="font-size:22px; font-weight:700; color:#fff;">24/7 Scheduled Automations</h2>
-                <p style="color:var(--zo-fg-muted); font-size:13.5px;">Set tasks in natural language or standard cron schedules.</p>
-              </div>
-              <button class="btn-gh-action" onclick="alert('In your live Open Computer, you can create automations by simply prompting the agent!')">+ New Automation</button>
-            </div>
-
-            <div class="auto-card">
-              <div class="auto-info">
-                <h4>Daily Hacker News & AI Digest</h4>
-                <p>Scrape frontpage AI developments, summarize key insights, and save to Documents/daily_brief.md</p>
-                <span class="auto-cron-badge">0 8 * * * (Every morning at 8:00 AM)</span>
-              </div>
-              <div class="toggle-switch on" onclick="toggleSwitch(this)">
-                <div class="toggle-dot"></div>
-              </div>
-            </div>
-
-            <div class="auto-card">
-              <div class="auto-info">
-                <h4>VPS Health & Disk Space Sentinel</h4>
-                <p>Monitor RAM, CPU spikes, and verify available disk space every 30 minutes.</p>
-                <span class="auto-cron-badge">*/30 * * * * (Every 30 minutes)</span>
-              </div>
-              <div class="toggle-switch on" onclick="toggleSwitch(this)">
-                <div class="toggle-dot"></div>
-              </div>
-            </div>
-
-            <div class="auto-card">
-              <div class="auto-info">
-                <h4>Crypto Sentiment & Arbitrage Watcher</h4>
-                <p>Fetch orderbook spreads across exchanges and send notification on 2%+ discrepancies.</p>
-                <span class="auto-cron-badge">* * * * * (Every minute)</span>
-              </div>
-              <div class="toggle-switch" onclick="toggleSwitch(this)">
-                <div class="toggle-dot"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <!-- VIEW 7: RECYCLE BIN -->
+        <!-- VIEW 8: RECYCLE BIN -->
         <section class="view-content" id="view-trash">
           <div class="auto-view-wrap">
             <div class="auto-head">
@@ -1609,7 +1692,7 @@ echo "✓ Sign in with user 'suop' and your Linux password."
           </div>
         </section>
 
-        <!-- VIEW 8: 2-MINUTE DEPLOY & QUICKSTART -->
+        <!-- VIEW 9: 2-MINUTE DEPLOY & QUICKSTART -->
         <section class="view-content" id="view-deploy">
           <div class="deploy-view-wrap">
             <div class="ai-banner-card">
@@ -1685,7 +1768,7 @@ Please connect to my server via SSH, clone https://github.com/shieldspprt/open-c
             <div class="bubble-content">
               👋 Hey there! Welcome to <strong>Open Computer</strong>.
               <br><br>
-              You're looking at a live interactive preview of the web OS. Feel free to click through the <strong>Terminal</strong>, <strong>Files</strong>, <strong>Automations</strong>, or read <strong>The Story</strong> on the left!
+              You're looking at your autonomous personal cloud computer. Check out the active <strong>YouTube Repurposing</strong> and <strong>X Posting</strong> tasks in the <strong>Tasks</strong> tab, or explore our <strong>GTM Email</strong> automations!
             </div>
           </div>
         </div>
@@ -1699,32 +1782,16 @@ Please connect to my server via SSH, clone https://github.com/shieldspprt/open-c
     </div>
   </div>
 
-  <!-- Command Palette Modal -->
-  <div class="modal-overlay" id="paletteModal" onclick="if(event.target===this) closePalette()">
-    <div class="modal-box">
-      <input type="text" class="palette-input" id="paletteInput" placeholder="Type a command or jump to view..." oninput="filterPalette(this.value)">
-      <div class="palette-list" id="paletteList">
-        <div class="palette-item" onclick="openTab('home'); closePalette();">🏠 Go to Home Composer</div>
-        <div class="palette-item" onclick="openTab('story'); closePalette();">❤️ Read The Story (Zo homage & vision)</div>
-        <div class="palette-item" onclick="openTab('terminal'); closePalette();">💻 Open Linux Terminal</div>
-        <div class="palette-item" onclick="openTab('files'); closePalette();">📁 Browse My Files</div>
-        <div class="palette-item" onclick="openTab('trash'); closePalette();">🗑️ Open Recycle Bin</div>
-        <div class="palette-item" onclick="openTab('editor'); closePalette();">✏️ Open Code Editor</div>
-        <div class="palette-item" onclick="openTab('automations'); closePalette();">⏰ View Scheduled Automations</div>
-        <div class="palette-item" onclick="openTab('deploy'); closePalette();">⚡ 2-Minute AI Setup Guide</div>
-      </div>
-    </div>
-  </div>
-
   <script>
     const TAB_LABELS = {
       home: 'Home',
+      automations: 'Automations',
+      tasks: 'Tasks',
       story: '❤️ The Story',
       terminal: 'Terminal',
       files: 'My Files',
       trash: 'Recycle Bin',
       editor: 'Code Editor',
-      automations: 'Automations',
       deploy: '⚡ Deploy'
     };
 
@@ -1748,7 +1815,7 @@ Please connect to my server via SSH, clone https://github.com/shieldspprt/open-c
         tabPill.id = 'tab-pill-' + tabId;
         tabPill.innerHTML = `<span>${TAB_LABELS[tabId] || tabId}</span><span class="tab-close" onclick="closeTab('${tabId}', event)">✕</span>`;
         tabPill.onclick = (e) => { if (!e.target.classList.contains('tab-close')) openTab(tabId); };
-        tabstrip.insertBefore(tabPill, tabstrip.querySelector('.tab-new-btn'));
+        tabstrip.appendChild(tabPill);
       } else {
         tabPill.classList.add('active');
       }
@@ -1788,25 +1855,6 @@ Please connect to my server via SSH, clone https://github.com/shieldspprt/open-c
       el.classList.toggle('on');
     }
 
-    // Theme Switcher (Signature Zo Palettes)
-    const THEMES = [
-      { id: 'default', name: 'Dark' },
-      { id: 'garbanzo', name: 'Garbanzo' },
-      { id: 'claude', name: 'Claude Zo' },
-      { id: 'zone', name: 'In the Zone' }
-    ];
-    let currentThemeIdx = 0;
-    function cycleTheme() {
-      currentThemeIdx = (currentThemeIdx + 1) % THEMES.length;
-      const t = THEMES[currentThemeIdx];
-      if (t.id === 'default') {
-        document.body.removeAttribute('data-theme');
-      } else {
-        document.body.setAttribute('data-theme', t.id);
-      }
-      document.getElementById('themeLabel').textContent = t.name;
-    }
-
     // Terminal Emulator
     const termHistory = document.getElementById('termHistory');
     function handleTermKey(e) {
@@ -1826,6 +1874,7 @@ Please connect to my server via SSH, clone https://github.com/shieldspprt/open-c
       if (lower === 'help') {
         addTermLine('Available demo commands:');
         addTermLine('  <span style="color:#67e8f9">neofetch</span>     - Show system and OS specs');
+        addTermLine('  <span style="color:#67e8f9">tasks</span>        - Show active YouTube, X & GTM background daemons');
         addTermLine('  <span style="color:#67e8f9">ls</span> / <span style="color:#67e8f9">ls -la</span>  - List workspace files');
         addTermLine('  <span style="color:#67e8f9">cat story.txt</span> - Read the project vision & Zo homage');
         addTermLine('  <span style="color:#67e8f9">deploy</span>       - View the 1-command installer');
@@ -1842,13 +1891,17 @@ Please connect to my server via SSH, clone https://github.com/shieldspprt/open-c
   <span style="color:#38bdf8;"> /_-''    ''-_\   </span> <span style="color:#e2e8f0;">Memory:</span> 1420MiB / 4096MiB (34%)
                     <span style="color:#e2e8f0;">Agent:</span> Open Computer Engine v1.0`;
         addTermLine(art);
+      } else if (lower === 'tasks') {
+        addTermLine('<span style="color:#34d399;">PID 4912: YouTube Video Pipeline (running, CPU 18.4%)</span>');
+        addTermLine('<span style="color:#34d399;">PID 3810: X (Twitter) Engagement Daemon (running, CPU 2.1%)</span>');
+        addTermLine('<span style="color:#34d399;">PID 2941: GTM Outbound Email Agent (running, CPU 5.8%)</span>');
+        addTermLine('<span style="color:#34d399;">PID 1802: GTM Inbound Lead Sentinel (listening, CPU 0.4%)</span>');
       } else if (lower === 'ls' || lower === 'ls -la') {
         addTermLine('drwxr-xr-x 4 suop suop 4096 Sep 12 18:40 .');
         addTermLine('drwxr-xr-x 8 suop suop 4096 Sep 12 18:40 ..');
         addTermLine('-rwxr-xr-x 1 suop suop 5231 Sep 12 18:40 install.sh');
         addTermLine('-rw-r--r-- 1 suop suop 14812 Sep 12 18:40 agent.py');
         addTermLine('-rw-r--r-- 1 suop suop 8124 Sep 12 18:40 README.md');
-        addTermLine('-rw-r--r-- 1 suop suop 1980 Sep 12 18:40 story.txt');
         addTermLine('drwxr-xr-x 2 suop suop 4096 Sep 12 18:40 automations');
         addTermLine('drwxr-xr-x 2 suop suop 4096 Sep 12 18:40 server');
       } else if (lower === 'cat story.txt') {
@@ -1885,14 +1938,63 @@ Please connect to my server via SSH, clone https://github.com/shieldspprt/open-c
     function openEditorFile(fname) {
       openTab('editor');
       document.getElementById('edTabName').textContent = fname;
-      if (fname === 'agent.py') {
-        document.getElementById('editorCodeBody').textContent = `import os, sys, asyncio\nfrom fastapi import FastAPI\n\n# Open Computer Core Agent Subsystem\nclass AgentEngine:\n    def __init__(self, model="claude-3-7-sonnet"):\n        self.model = model\n        print(f"[+] Initialized agent engine with {model}")\n\n    async def execute_task(self, prompt: str):\n        print(f"[*] Processing user prompt: {prompt}")\n        # Executes shell tools, file operations, and scheduled automations\n        return {"status": "success", "result": "Task completed autonomously"}`;
-      } else if (fname === 'README.md') {
-        document.getElementById('editorCodeBody').textContent = `# 🖥️ Open Computer\n\nYour personal, self-hosted AI cloud computer.\nTurn any Linux VPS into an autonomous personal computer with a web desktop.\n\nInspired by zo.computer · Built for hackers, developers & self-hosters.`;
+      if (fname === 'youtube_agent.py') {
+        document.getElementById('editorCodeBody').textContent = `# automations/youtube_agent.py
+import os, asyncio
+from server.agent import agent
+
+async def process_latest_youtube_upload(channel_id: str):
+    print(f"[*] Checking uploads for channel {channel_id}...")
+    audio_path = await agent.tools.youtube.fetch_audio(channel_id)
+    transcript = await agent.tools.transcribe.whisper(audio_path)
+    
+    prompt = f"Extract 3 viral short scripts (<60s) from this transcript:\n{transcript}"
+    shorts = await agent.complete(prompt, model="claude-3-7-sonnet")
+    
+    clips = await agent.tools.video.render_shorts(audio_path, shorts)
+    print(f"[✓] Rendered {len(clips)} YouTube Shorts ready to publish.")
+    return clips`;
+      } else if (fname === 'x_poster.py') {
+        document.getElementById('editorCodeBody').textContent = `# automations/x_poster.py
+import os, asyncio
+from server.agent import agent
+
+async def run_x_growth_daemon():
+    trends = await agent.tools.web.scrape_trends("#AI", "#AgenticOS")
+    thread = await agent.complete(f"Write a 5-tweet educational thread about: {trends}")
+    post_ids = await agent.tools.twitter.post_thread(thread)
+    print(f"[✓] Dispatched thread to X: {post_ids}")`;
+      } else if (fname === 'gtm_emails.py') {
+        document.getElementById('editorCodeBody').textContent = `# automations/gtm_emails.py
+import os, asyncio
+from server.agent import agent
+
+async def enrich_and_draft_gtm_emails(prospect_list: list):
+    for prospect in prospect_list:
+        company_info = await agent.tools.web.fetch_company_signals(prospect["domain"])
+        email_draft = await agent.complete(f"Draft hyper-tailored email for {prospect['name']} based on {company_info}")
+        await agent.tools.email.queue_draft(prospect["email"], email_draft)
+    print("[✓] Processed GTM batch.")`;
       } else if (fname === 'install.sh') {
-        document.getElementById('editorCodeBody').textContent = `#!/usr/bin/env bash\n# Open Computer - Autonomous AI Personal Computer Installer\nset -euo pipefail\n\necho "=================================================="\necho "  🖥️  Installing Open Computer on Ubuntu Linux   "\necho "=================================================="\n\n# 1. Update packages & install system dependencies\nsudo apt-get update -y\nsudo apt-get install -y python3 python3-venv python3-pip git curl ripgrep\n\n# 2. Setup Python virtual environment\npython3 -m venv venv\nsource venv/bin/activate\npip install --upgrade pip\npip install -r requirements.txt\n\n# 3. Configure systemd background service\necho "Configuring su.service for 24/7 background operation..."\nsudo systemctl daemon-reload\nsudo systemctl enable --now su.service\n\necho "✓ Open Computer is live at http://127.0.0.1:8000"\necho "✓ Sign in with user 'suop' and your Linux password."`;
-      } else if (fname === 'main.py') {
-        document.getElementById('editorCodeBody').textContent = `from fastapi import FastAPI, WebSocket\nfrom server.agent import agent\n\napp = FastAPI(title="Open Computer Gateway")\n\n@app.get("/health")\nasync def health():\n    return {"status": "ok", "system": "Open Computer"}\n\n@app.websocket("/api/terminal/ws")\nasync def terminal_ws(websocket: WebSocket):\n    await websocket.accept()\n    # Bidirectional PTY WebSocket stream with resize detection`;
+        document.getElementById('editorCodeBody').textContent = `#!/usr/bin/env bash
+# Open Computer Installer
+sudo apt-get update -y && sudo apt-get install -y python3 python3-venv git curl ripgrep
+python3 -m venv venv && source venv/bin/activate
+pip install -r requirements.txt
+sudo systemctl enable --now su.service`;
+      } else if (fname === 'agent.py') {
+        document.getElementById('editorCodeBody').textContent = `import os, sys, asyncio
+from fastapi import FastAPI
+
+class AgentEngine:
+    def __init__(self, model="claude-3-7-sonnet"):
+        self.model = model
+        print(f"[+] Initialized agent engine with {model}")`;
+      } else if (fname === 'README.md') {
+        document.getElementById('editorCodeBody').textContent = `# 🖥️ Open Computer
+
+Your personal, self-hosted AI cloud computer.
+Inspired by zo.computer · Built for hackers & self-hosters.`;
       }
     }
 
@@ -1919,10 +2021,17 @@ Please connect to my server via SSH, clone https://github.com/shieldspprt/open-c
 
       // Simulated typing response
       setTimeout(() => {
-        let reply = "Got it! In a self-hosted Open Computer deployment, I can execute shell commands, edit code in your files, or schedule this as a background automation. Try switching to the **Terminal** or **Automations** tab!";
-        if (msg.toLowerCase().includes('deploy')) {
+        let reply = "Got it! In a self-hosted Open Computer deployment, I can execute shell commands, edit code in your files, or schedule this as a background automation. Try switching to the **Tasks** or **Automations** tab!";
+        const lower = msg.toLowerCase();
+        if (lower.includes('youtube')) {
+          reply = "🎬 Our YouTube automation worker (PID 4912) is currently transcribing the latest video and extracting 3 high-retention Shorts! Head over to the **Tasks** tab to inspect the real-time progress and logs.";
+        } else if (lower.includes('x') || lower.includes('twitter') || lower.includes('post')) {
+          reply = "🐦 The X engagement daemon (PID 3810) is active! It posted 12 tweets today, generated 14.8k impressions, and has an educational thread queued for 20:00 UTC. Check it out under **Tasks**.";
+        } else if (lower.includes('email') || lower.includes('gtm')) {
+          reply = "✉️ The GTM SDR Agent (PID 2941) enriched 150 leads today and drafted 38 hyper-tailored outreach emails with a 31% open rate. Inspect its workflow in **Automations** or **Tasks**.";
+        } else if (lower.includes('deploy')) {
           reply = "🚀 To deploy on your VPS, check out the **⚡ 2-Min Setup** tab! You can simply give the copy-paste prompt to Antigravity or Claude Code to deploy automatically.";
-        } else if (msg.toLowerCase().includes('story') || msg.toLowerCase().includes('zo')) {
+        } else if (lower.includes('story') || lower.includes('zo')) {
           reply = "❤️ We deeply love Zo Computer! Click the **The Story** tab to read why this project was created as an open-source homage.";
         }
         appendChatMsg(reply, 'assistant');
@@ -1947,32 +2056,6 @@ Please connect to my server via SSH, clone https://github.com/shieldspprt/open-c
         setTimeout(() => btn.textContent = 'Copy Prompt', 2500);
       });
     }
-
-    // Command Palette
-    function openPalette() {
-      document.getElementById('paletteModal').classList.add('active');
-      document.getElementById('paletteInput').focus();
-    }
-    function closePalette() {
-      document.getElementById('paletteModal').classList.remove('active');
-    }
-    function filterPalette(q) {
-      const items = document.querySelectorAll('.palette-item');
-      items.forEach(item => {
-        item.style.display = item.textContent.toLowerCase().includes(q.toLowerCase()) ? 'flex' : 'none';
-      });
-    }
-
-    // Keyboard Shortcuts
-    document.addEventListener('keydown', (e) => {
-      if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
-        e.preventDefault();
-        openPalette();
-      }
-      if (e.key === 'Escape') {
-        closePalette();
-      }
-    });
   </script>
 </body>
 </html>
