@@ -1,8 +1,28 @@
+<div align="center">
+
 # 🖥️ Open Computer
 
-**Your personal, self-hosted AI cloud computer.** Turn any Linux VPS into an autonomous personal computer with a web desktop, native Linux terminal, file explorer, 24/7 background agents, and scheduled automations.
+### The Open-Source, Self-Hosted Personal AI Cloud Computer
+*Your private, sovereign [zo.computer](https://zo.computer) on any $4/mo Linux VPS.*
 
-[🌐 **Live Website & Interactive Showcase**](https://shieldspprt.github.io/open-computer/) · [⭐ **GitHub Repository**](https://github.com/shieldspprt/open-computer)
+[![GitHub Stars](https://img.shields.io/github/stars/shieldspprt/open-computer?style=for-the-badge&color=FFE4A0&logo=star&logoColor=black)](https://github.com/shieldspprt/open-computer/stargazers)
+[![GitHub Forks](https://img.shields.io/github/forks/shieldspprt/open-computer?style=for-the-badge&color=8AB4F8&logo=git&logoColor=white)](https://github.com/shieldspprt/open-computer/network/members)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg?style=for-the-badge)](LICENSE)
+[![Python 3.10+](https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://python.org)
+[![Linux Tested](https://img.shields.io/badge/Linux-Ubuntu%20%7C%20Debian%20%7C%20Arch%20%7C%20Fedora-E95420?style=for-the-badge&logo=linux&logoColor=white)](https://github.com/shieldspprt/open-computer)
+[![Cloudflare Tunnel Native](https://img.shields.io/badge/Cloudflare-Zero%20Trust%20Ready-F38020?style=for-the-badge&logo=cloudflare&logoColor=white)](https://www.cloudflare.com/products/tunnel/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-Welcome-brightgreen.svg?style=for-the-badge)](CONTRIBUTING.md)
+
+<p align="center">
+  <a href="https://shieldspprt.github.io/open-computer/"><strong>🌐 Live Web OS Showcase</strong></a> ·
+  <a href="#-the-2-minute-ai-setup-zero-manual-commands"><strong>⚡ 2-Min AI Setup</strong></a> ·
+  <a href="#-recommended-vps--bare-metal-cloud-providers"><strong>☁️ Supported VPS Providers</strong></a> ·
+  <a href="#-manual-beginner-friendly-step-by-step-guide"><strong>📖 Beginner Guide</strong></a> ·
+  <a href="#-why-open-computer-the-modern-ai-computer-matrix"><strong>🥊 Comparison Matrix</strong></a> ·
+  <a href="https://github.com/shieldspprt/open-computer/stargazers"><strong>⭐ Star on GitHub</strong></a>
+</p>
+
+</div>
 
 ---
 
@@ -30,14 +50,31 @@ So I decided to recreate my favorite product—out of sheer love, homage, the de
 
 ### 🌊 The Emerging Trend: Why GUI + Global Tops the Agentic OS Wave
 
-The world is waking up to this new era. Projects like **Omarchy** are proving that an OS with an AI agent as master is the next frontier of operating systems. The developer ecosystem is moving at breakneck speed toward autonomous environments.
+The world is waking up to this new era. Projects like **[Omarchy](https://github.com/omacom/omarchy)** ([omarchy.org](https://omarchy.org)) are proving that an OS with an AI agent as master is the next frontier of operating systems. The developer ecosystem is moving at breakneck speed toward autonomous environments.
 
-Yet, as exciting as terminal-only or raw agentic OS experiments are, **Zo and Open Computer still top the paradigm for two fundamental reasons: it is a true visual GUI, and it is Global.**
+Yet, as exciting as terminal-only or raw agentic OS experiments are, **[Zo Computer](https://zo.computer) and Open Computer still top the paradigm for two fundamental reasons: it is a true visual GUI, and it is Global.**
 
 1. **A True Visual GUI (Human + AI in Harmony)**: Purely headless or terminal-bound agent OSes can feel isolating and opaque. Humans are visual creatures. We want to see our workspace—a dual-pane file explorer, live tabbed code editing with syntax highlighting, visual system metrics, scheduled automations cards, and a dedicated Recycle Bin. Open Computer preserves full human agency alongside autonomous AI power. You are in the cockpit, with the AI as your tireless co-pilot.
 2. **Global & Everywhere**: It lives in the cloud, accessible instantly from any browser on earth. Whether you're on a dual-monitor desktop at your desk, typing on a cheap Chromebook, holding an iPad at a coffee shop, or checking a task from your phone on the train—your entire environment, terminal sessions, background daemons, and AI agent travel with you anywhere in the world.
 
 Open Computer is a labor of love: 100% self-hosted, 100% open-source, and free forever for anyone with a Linux server.
+
+---
+
+## 🥊 Why Open Computer? The Modern AI Computer Matrix
+
+| Capability / Feature | Open Computer | [Zo Computer](https://zo.computer) | [Omarchy](https://github.com/omacom/omarchy) | Terminal CLIs (Claude Code / Aider) |
+|---|:---:|:---:|:---:|:---:|
+| **100% Self-Hosted & Sovereign** | ✅ **Yes** (Runs on your hardware) | ❌ Closed Cloud SaaS | ✅ Yes (Local Linux) | ✅ Yes (Local Terminal) |
+| **Software Cost** | 🆓 **100% Free & MIT** | ~$50–$100/mo | 🆓 Free & Open | 🆓 Free CLI (requires API) |
+| **Hosting Cost** | **$4/mo VPS or $0 Homelab** | Included in SaaS | Local machine | Local machine |
+| **Visual Desktop Web OS** | ✅ **Full Web Desktop** | ✅ Full Web Desktop | ❌ Headless / TUI | ❌ Terminal only |
+| **Native Linux PTY Terminal** | ✅ **Full xterm.js Shell** | ✅ Containerized Shell | ✅ Linux Shell | ⚠️ Subshell / Tool exec |
+| **File Manager & Editor** | ✅ **Dual-pane + Recycle Bin** | ✅ Files & Editor | ❌ Manual CLI | ❌ External editor |
+| **24/7 Background Automations** | ✅ **YouTube, X, GTM, Crons** | ✅ Cloud Tasks | ⚠️ Local daemons | ❌ Closes with terminal |
+| **Global Remote Access** | ✅ **Any browser anywhere** | ✅ Any browser anywhere | ❌ Local desktop only | ❌ Local terminal only |
+| **Model Freedom (BYOK)** | ✅ **Any LLM + Local Ollama** | ⚠️ Managed selection | ⚠️ Configurable | ⚠️ Specific providers |
+| **Zero Inbound Open Ports** | ✅ **Cloudflare Tunnel Native** | N/A (Hosted) | N/A | N/A |
 
 ---
 
@@ -57,13 +94,47 @@ Open Computer is a labor of love: 100% self-hosted, 100% open-source, and free f
 
 ---
 
+## 🏗️ System Architecture
+
+```text
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │                 Client Layer (Browser / iPad / Mobile)                 │
+  │     Web OS Desktop · xterm.js PTY · Dual-Pane Files · Tabbed Editor    │
+  └───────────────────────────────────┬────────────────────────────────────┘
+                                      │  HTTPS / WSS (WebSocket)
+                                      ▼
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │         Zero-Trust Ingress (Cloudflare Tunnel / SSH Local Port)         │
+  │          No public open ports · Automatic SSL · DDoS Protection        │
+  └───────────────────────────────────┬────────────────────────────────────┘
+                                      │  Reverse Proxy / Unix Loopback
+                                      ▼
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │                  Open Computer Gateway (FastAPI Daemon)                 │
+  │   ├── PAM / Token Authentication & Rate Limiting                       │
+  │   ├── WebSocket PTY Manager (Full Arch/Ubuntu pseudo-terminal)         │
+  │   ├── Safe File Gateway (SSRF & Traversal Protection, Trash Bin)       │
+  │   ├── 24/7 Process Supervisor (YouTube, X Bot, GTM Outbound/Inbound)   │
+  │   └── Cron Automation Engine (Flexible background triggers)            │
+  └───────────────────────────────────┬────────────────────────────────────┘
+                                      │  REST / Async Streaming
+                                      ▼
+  ┌────────────────────────────────────────────────────────────────────────┐
+  │                     Model Intelligence Layer (BYOK)                    │
+  │   Anthropic Claude · Google Gemini · OpenAI GPT · DeepSeek · Ollama    │
+  └────────────────────────────────────────────────────────────────────────┘
+```
+
+---
+
 ## ✨ Features at a Glance
 
-- 🧠 **Bring Your Own Models**: Chat with any LLM using your own keys—OpenRouter, Anthropic (Claude), OpenAI, Google Gemini, DeepSeek, NVIDIA NIM, or run completely offline with local models via **Ollama** or **vLLM**.
-- 💻 **Real In-Browser Terminal**: A true Linux PTY powered by `xterm.js` with ANSI color support, window resizing, and direct shell execution.
+- 🧠 **Bring Your Own Models**: Chat with any LLM using your own keys—OpenRouter, Anthropic (Claude 3.5 Sonnet), OpenAI (GPT-4o), Google Gemini 2.5, DeepSeek R1/V3, NVIDIA NIM, or run 100% offline with local models via **Ollama** or **vLLM**.
+- 💻 **Real In-Browser Terminal**: A true Linux PTY powered by `xterm.js` with ANSI color support, window resizing, direct shell execution, and an integrated **Recycle Bin bar**.
 - 📁 **File Manager & Code Editor**: Browse your home directory, view/edit source code in a tabbed editor, upload files, and safely manage deletions with an integrated **Recycle Bin**.
+- 🤖 **Autonomous Social & GTM Tasks**: Built-in supervisor processes for YouTube video repurposing, autonomous X (Twitter) growth posting, and GTM cold email & inbound lead enrichment.
 - ⏰ **Scheduled Automations**: Tell your agent in plain English to run tasks periodically (e.g. *"Check competitor prices every morning at 8 AM and email me the summary"*).
-- 🔄 **24/7 Background Tasks**: Keep long-running processes alive (web scrapers, Telegram bots, Discord bots, monitors) with automatic supervisor restarts.
+- 🔄 **24/7 Background Daemons**: Keep long-running processes alive (web scrapers, Telegram bots, Discord bots, monitors) with automatic supervisor restarts.
 - 🔌 **Integrations & MCP Tools**: Connect remote Model Context Protocol (MCP) servers and third-party APIs.
 - 🛡️ **Hardened Security**: Built with defense-in-depth protection against Server-Side Request Forgery (SSRF), prompt injection, directory traversal, and server reconnaissance.
 
@@ -86,12 +157,39 @@ Open Computer is a labor of love: 100% self-hosted, 100% open-source, and free f
 
 ---
 
+## ☁️ Recommended VPS & Bare-Metal Cloud Providers
+
+Open Computer is lightweight and runs on almost any 64-bit Linux instance with at least **1.5 GB RAM and 1 vCPU**. Here are battle-tested hosting providers across all budget tiers:
+
+### 🌟 Popular Cloud VPS Providers
+| Provider | Typical Specs | Pricing | Best For | Official Link |
+|---|---|---|---|---|
+| **[DigitalOcean](https://www.digitalocean.com)** | 1 vCPU, 2 GB RAM, 50 GB NVMe | ~$6/mo ($200 credit) | Beginner-friendly dashboard & 1-click snapshots | [digitalocean.com ↗](https://www.digitalocean.com) |
+| **[Hetzner Cloud](https://www.hetzner.com/cloud)** | 2 vCPU (x86/ARM), 4 GB RAM, 40 GB NVMe | ~€3.79/mo | **Community #1 pick**: Unbeatable price-to-performance | [hetzner.com/cloud ↗](https://www.hetzner.com/cloud) |
+| **[Linode / Akamai](https://www.linode.com)** | 1 vCPU, 2 GB RAM, 50 GB SSD | ~$12/mo ($100 credit) | Rock-solid reliability & developer network | [linode.com ↗](https://www.linode.com) |
+| **[Vultr](https://www.vultr.com)** | 1 vCPU, 2 GB RAM, 55 GB NVMe | ~$10/mo | High-frequency compute across 32+ global regions | [vultr.com ↗](https://www.vultr.com) |
+| **[OVHcloud](https://www.ovhcloud.com)** | 1 vCPU, 2 GB RAM, 40 GB SSD | ~$4.20/mo | Unmetered bandwidth & enterprise anti-DDoS | [ovhcloud.com ↗](https://www.ovhcloud.com) |
+| **[Contabo](https://contabo.com)** | 4 vCPU, 8 GB RAM, 50 GB NVMe | ~€5.50/mo | Massive RAM for running local Ollama LLMs | [contabo.com ↗](https://contabo.com) |
+
+### ⚡ Bare-Metal & Ultra-Budget VPS Providers
+Looking for the most economical way to run Open Computer 24/7? These providers offer extraordinary value:
+- **[RackNerd](https://www.racknerd.com)**: Legendary budget deals (frequently **$15–$25/year** for 2GB–3GB KVM VPS). A top favorite on LowEndBox.
+- **[BuyVM / Frantech](https://buyvm.net)**: Dedicated CPU slices, unmetered 1Gbps bandwidth, and inexpensive NVMe Storage Slabs ($5/mo per TB).
+- **[Netcup](https://www.netcup.eu)**: High-performance German root-servers with guaranteed dedicated cores at VPS pricing.
+- **[Scaleway](https://www.scaleway.com)**: European cloud provider with ultra-low-cost Stardust and ARM instances.
+- **Your Own Homelab / Spare PC / Raspberry Pi 4/5**: Run Open Computer on Ubuntu Server or Debian at home for $0/month.
+
+### 🌐 Zero-Trust Global Access via Cloudflare
+- **[Cloudflare Zero Trust & Tunnel](https://www.cloudflare.com/products/tunnel/)**: Connect your Open Computer to a custom domain (`https://agent.yourdomain.com`) with automated SSL certificates, Cloudflare Access (SSO), and DDoS shielding—**completely free**, without opening any inbound ports on your firewall.
+
+---
+
 ## 🚀 Manual Beginner-Friendly Step-by-Step Guide
 
 Prefer running the commands yourself? Follow these 4 easy steps:
 
 ### Prerequisites
-- A Linux server or VPS running **Ubuntu 22.04 or 24.04** (e.g. Hetzner, Contabo, DigitalOcean, Linode, or a spare PC/Raspberry Pi). A $4–$6/month box with 2GB+ RAM is plenty!
+- A Linux server or VPS running **Ubuntu 22.04 or 24.04** (e.g. Hetzner, DigitalOcean, Contabo, or a spare PC). A $4–$6/month box with 2GB+ RAM is plenty!
 - SSH access to your server.
 
 ---
@@ -153,7 +251,7 @@ Now open **http://localhost:8000** in your web browser!
 
 #### Option B: Free Cloudflare Tunnel (Recommended for remote access)
 To access your personal computer from anywhere with free SSL (`https://yourname.domain.com`):
-1. Create a free tunnel in your **Cloudflare Zero Trust** dashboard pointing to `http://localhost:8000`.
+1. Create a free tunnel in your **[Cloudflare Zero Trust](https://one.dash.cloudflare.com/)** dashboard pointing to `http://localhost:8000`.
 2. Add your tunnel token to `.env` as `CLOUDFLARE_TUNNEL_TOKEN=...`
 3. Start the tunnel container:
    ```bash
@@ -200,6 +298,46 @@ Open Computer is designed for **single-user personal ownership**:
 
 ---
 
+## 🗺️ Community Roadmap & Upcoming Features
+
+We are actively building the future of open-source agentic computing. Here is what is in flight:
+
+- [x] **Web OS Desktop**: Zo-style tabbed UI with live system telemetry.
+- [x] **Native Linux PTY**: Fast ANSI terminal with auto-reconnect and integrated Recycle Bin status.
+- [x] **Safe Tools & Sandbox**: Protection against SSRF, directory traversal, and prompt injection.
+- [x] **Social & GTM Automations**: Autonomous YouTube, X (Twitter), and B2B email pipelines.
+- [ ] 🎙️ **Real-Time Voice Mode**: Low-latency duplex voice conversations with your cloud computer.
+- [ ] 📱 **Mobile PWA & Push Notifications**: Installable web app for iOS and Android with background task completion alerts.
+- [ ] 💬 **Telegram & WhatsApp Agent Gateway**: Interact with your VPS directly through encrypted messaging apps.
+- [ ] 🔌 **Community MCP Hub**: One-click installer for Model Context Protocol tools (Notion, GitHub, Brave Search, Postgres).
+- [ ] 🐳 **Docker All-in-One Image**: Instant 1-line deployment via `docker run -d -p 8000:8000 ...`.
+
+---
+
+## 🌟 Join the Movement: Star & Share!
+
+Open Computer is built by developers who believe that **AI personal computers should be open, private, and owned by you—not locked behind expensive monthly subscriptions.**
+
+If you believe in sovereign, self-hosted AI, here is how you can support this project:
+
+### 1. Give us a Star ⭐
+Click the **Star** button at the top right of this repository! It takes 1 second and directly signals to the GitHub algorithm that self-hosted AI computers matter.
+
+[![Star History Chart](https://api.star-history.com/svg?repos=shieldspprt/open-computer&type=Date)](https://star-history.com/#shieldspprt/open-computer&Date)
+
+### 2. Share with the Community 📢
+Spread the word to fellow developers, self-hosters, and AI builders:
+- 🐦 [**Share on X (Twitter)**](https://twitter.com/intent/tweet?text=Check%20out%20Open%20Computer%20%E2%80%94%20an%20open-source%2C%20self-hosted%20personal%20AI%20cloud%20computer%20inspired%20by%20zo.computer.%20Turn%20any%20%244%2Fmo%20VPS%20into%20your%20own%20private%20AI%20desktop%20with%20terminal%2C%20files%20%26%2024%2F7%20automations%3A%20https%3A%2F%2Fgithub.com%2Fshieldspprt%2Fopen-computer)
+- 👾 Share on [**Reddit r/selfhosted**](https://www.reddit.com/r/selfhosted/) and [**r/LocalLLaMA**](https://www.reddit.com/r/LocalLLaMA/)
+- 🟠 Discuss on [**Hacker News**](https://news.ycombinator.com/submit)
+
+### 3. Join GitHub Discussions & Feedback 💬
+Have a question, feature request, or cool automation you built?
+- Join the conversation on [GitHub Discussions](https://github.com/shieldspprt/open-computer/discussions)
+- Report bugs or security enhancements via [GitHub Issues](https://github.com/shieldspprt/open-computer/issues)
+
+---
+
 ## 🤝 Contributing
 
 Contributions, bug reports, and suggestions are warmly welcome!
@@ -214,4 +352,6 @@ This project is licensed under the [MIT License](LICENSE).
 
 ---
 
-*Special thanks to the [Zo Computer](https://zo.computer) team for inspiring this self-hosted journey.*
+<div align="center">
+  <sub>Special thanks to the <a href="https://zo.computer">Zo Computer</a> team for pioneering the AI computer paradigm.</sub>
+</div>
