@@ -1118,6 +1118,113 @@
     @media (max-width: 900px) {
       #chat-pane { display: none; }
     }
+
+    /* VPS Providers Grid */
+    .vps-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+      margin-bottom: 32px;
+    }
+    .vps-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 10px;
+      padding: 16px 18px;
+      text-decoration: none;
+      color: inherit;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      transition: all 0.2s ease;
+    }
+    .vps-card:hover {
+      border-color: #60a5fa;
+      background: rgba(255, 255, 255, 0.06);
+      transform: translateY(-2px);
+    }
+    .vps-card-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .vps-name {
+      font-size: 15px;
+      font-weight: 700;
+      color: #f8fafc;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .vps-badge {
+      font-size: 11px;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: rgba(96, 165, 250, 0.15);
+      color: #93c5fd;
+    }
+    .vps-desc {
+      font-size: 13px;
+      color: #94a3b8;
+      line-height: 1.4;
+      margin-bottom: 12px;
+    }
+    .vps-link-btn {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: #60a5fa;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    /* Community Share Box */
+    .community-box {
+      background: linear-gradient(135deg, rgba(30, 41, 59, 0.6), rgba(15, 23, 42, 0.85));
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 24px;
+    }
+    .community-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 16px;
+    }
+    .btn-community-share {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      text-decoration: none;
+      color: #fff;
+      transition: all 0.2s;
+    }
+    .btn-star-repo {
+      background: #eab308;
+      color: #0f172a;
+    }
+    .btn-star-repo:hover { background: #facc15; }
+    .btn-share-x {
+      background: #000;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+    .btn-share-x:hover { background: #18181b; }
+    .btn-share-reddit {
+      background: #ff4500;
+    }
+    .btn-share-reddit:hover { background: #ff5722; }
+    .btn-share-hn {
+      background: #ff6600;
+    }
+    .btn-share-hn:hover { background: #ff7722; }
+
   </style>
 </head>
 <body>
@@ -1324,7 +1431,7 @@
             </h3>
 
             <p class="story-p">
-              The world is waking up to this new era. Projects like <strong>Omarchy</strong> are proving that an OS with an AI agent as master is the next frontier of operating systems. The developer ecosystem is moving at breakneck speed toward autonomous environments.
+              The world is waking up to this new era. Projects like <a href="https://github.com/omacom/omarchy" target="_blank" rel="noopener noreferrer" style="color: #93c5fd; text-decoration: underline; font-weight: 700;">Omarchy</a> (<a href="https://omarchy.org" target="_blank" rel="noopener noreferrer" style="color: #93c5fd; text-decoration: underline;">omarchy.org</a>) are proving that an OS with an AI agent as master is the next frontier of operating systems. The developer ecosystem is moving at breakneck speed toward autonomous environments.
             </p>
 
             <p class="story-p">
@@ -1746,6 +1853,141 @@ Please connect to my server via SSH, clone https://github.com/shieldspprt/open-c
                   <h4>Add Your Model Key & Start Creating</h4>
                   <p>Sign in with your Linux username and password, enter your API key (Claude, Gemini, OpenAI, or Ollama) in Settings, and launch!</p>
                 </div>
+              </div>
+            </div>
+
+            <!-- Tested Cloud & Bare-Metal VPS Providers -->
+            <div style="margin-top: 40px;">
+              <div style="display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:8px;">
+                <div>
+                  <h3 style="font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 4px;">☁️ Tested Cloud & Bare-Metal VPS Providers</h3>
+                  <p style="font-size: 13.5px; color: #94a3b8;">Run Open Computer 24/7 on any low-cost Linux VPS with 1.5GB+ RAM.</p>
+                </div>
+              </div>
+
+              <div class="vps-grid">
+                <!-- DigitalOcean -->
+                <a href="https://www.digitalocean.com" target="_blank" rel="noopener noreferrer" class="vps-card">
+                  <div>
+                    <div class="vps-card-header">
+                      <span class="vps-name">🌊 DigitalOcean</span>
+                      <span class="vps-badge">~$6/mo</span>
+                    </div>
+                    <div class="vps-desc">1-Click Droplets, beginner-friendly UI, and reliable worldwide network. $200 free trial credits available.</div>
+                  </div>
+                  <div class="vps-link-btn">Visit digitalocean.com ↗</div>
+                </a>
+
+                <!-- Hetzner Cloud -->
+                <a href="https://www.hetzner.com/cloud" target="_blank" rel="noopener noreferrer" class="vps-card" style="border-color: rgba(96, 165, 250, 0.4);">
+                  <div>
+                    <div class="vps-card-header">
+                      <span class="vps-name">⚡ Hetzner Cloud</span>
+                      <span class="vps-badge" style="background:#2563eb; color:#fff;">Community #1</span>
+                    </div>
+                    <div class="vps-desc">Unbeatable price-to-performance. ~€3.79/mo for 2 vCPU and 4GB RAM in Germany, Finland, and USA.</div>
+                  </div>
+                  <div class="vps-link-btn">Visit hetzner.com/cloud ↗</div>
+                </a>
+
+                <!-- Linode / Akamai -->
+                <a href="https://www.linode.com" target="_blank" rel="noopener noreferrer" class="vps-card">
+                  <div>
+                    <div class="vps-card-header">
+                      <span class="vps-name">🐧 Linode / Akamai</span>
+                      <span class="vps-badge">~$12/mo</span>
+                    </div>
+                    <div class="vps-desc">Developer-favorite Linux infrastructure, ultra-reliable compute nodes, and 24/7 technical support.</div>
+                  </div>
+                  <div class="vps-link-btn">Visit linode.com ↗</div>
+                </a>
+
+                <!-- Vultr -->
+                <a href="https://www.vultr.com" target="_blank" rel="noopener noreferrer" class="vps-card">
+                  <div>
+                    <div class="vps-card-header">
+                      <span class="vps-name">🚀 Vultr</span>
+                      <span class="vps-badge">~$10/mo</span>
+                    </div>
+                    <div class="vps-desc">High Frequency compute with NVMe storage deployed across 32+ global datacenters in 60 seconds.</div>
+                  </div>
+                  <div class="vps-link-btn">Visit vultr.com ↗</div>
+                </a>
+
+                <!-- OVHcloud -->
+                <a href="https://www.ovhcloud.com" target="_blank" rel="noopener noreferrer" class="vps-card">
+                  <div>
+                    <div class="vps-card-header">
+                      <span class="vps-name">🛡️ OVHcloud</span>
+                      <span class="vps-badge">~$4.20/mo</span>
+                    </div>
+                    <div class="vps-desc">Budget-friendly European servers with unmetered bandwidth, NVMe SSDs, and enterprise Anti-DDoS.</div>
+                  </div>
+                  <div class="vps-link-btn">Visit ovhcloud.com ↗</div>
+                </a>
+
+                <!-- Contabo -->
+                <a href="https://contabo.com" target="_blank" rel="noopener noreferrer" class="vps-card">
+                  <div>
+                    <div class="vps-card-header">
+                      <span class="vps-name">💾 Contabo</span>
+                      <span class="vps-badge">~€5.50/mo</span>
+                    </div>
+                    <div class="vps-desc">Massive RAM for the price (8GB+ RAM). Perfect for running local Ollama LLMs and heavy background tasks.</div>
+                  </div>
+                  <div class="vps-link-btn">Visit contabo.com ↗</div>
+                </a>
+
+                <!-- RackNerd & Barebone -->
+                <a href="https://www.racknerd.com" target="_blank" rel="noopener noreferrer" class="vps-card">
+                  <div>
+                    <div class="vps-card-header">
+                      <span class="vps-name">🏷️ RackNerd & Barebone</span>
+                      <span class="vps-badge">$15-$25/yr</span>
+                    </div>
+                    <div class="vps-desc">Legendary ultra-budget deals. Run a 24/7 sovereign AI computer for less than the cost of a coffee a month.</div>
+                  </div>
+                  <div class="vps-link-btn">Visit racknerd.com ↗</div>
+                </a>
+
+                <!-- Cloudflare Tunnel -->
+                <a href="https://www.cloudflare.com/products/tunnel/" target="_blank" rel="noopener noreferrer" class="vps-card" style="background: rgba(243, 128, 32, 0.05); border-color: rgba(243, 128, 32, 0.3);">
+                  <div>
+                    <div class="vps-card-header">
+                      <span class="vps-name">🧡 Cloudflare Tunnel</span>
+                      <span class="vps-badge" style="background: rgba(243, 128, 32, 0.2); color: #fdba74;">Free Zero Trust</span>
+                    </div>
+                    <div class="vps-desc">Expose Open Computer on your custom domain with free SSL and Zero Trust authentication. Zero open ports!</div>
+                  </div>
+                  <div class="vps-link-btn" style="color: #fb923c;">Visit cloudflare.com ↗</div>
+                </a>
+              </div>
+            </div>
+
+            <!-- Viral Community Attraction & Share Box -->
+            <div class="community-box">
+              <div style="display:flex; align-items:flex-start; justify-content:space-between; flex-wrap:wrap; gap:16px;">
+                <div>
+                  <h3 style="font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 6px;">🌟 Join the Movement: Open Computer is Free Forever</h3>
+                  <p style="font-size: 14px; color: #cbd5e1; max-width: 680px; line-height: 1.5;">
+                    AI cloud computers should belong to you—not locked behind $100/mo corporate silos. Help us bring open, sovereign computing to developers everywhere!
+                  </p>
+                </div>
+              </div>
+
+              <div class="community-actions">
+                <a href="https://github.com/shieldspprt/open-computer" target="_blank" rel="noopener noreferrer" class="btn-community-share btn-star-repo">
+                  <span>⭐ Star on GitHub</span>
+                </a>
+                <a href="https://twitter.com/intent/tweet?text=Check%20out%20Open%20Computer%20%E2%80%94%20an%20open-source%2C%20self-hosted%20personal%20AI%20cloud%20computer%20inspired%20by%20zo.computer.%20Turn%20any%20%244%2Fmo%20VPS%20into%20your%20own%20private%20AI%20desktop%20with%20terminal%2C%20files%20%26%2024%2F7%20automations%3A%20https%3A%2F%2Fgithub.com%2Fshieldspprt%2Fopen-computer" target="_blank" rel="noopener noreferrer" class="btn-community-share btn-share-x">
+                  <span>🐦 Share on X (Twitter)</span>
+                </a>
+                <a href="https://www.reddit.com/r/selfhosted/" target="_blank" rel="noopener noreferrer" class="btn-community-share btn-share-reddit">
+                  <span>👾 Discuss on r/selfhosted</span>
+                </a>
+                <a href="https://news.ycombinator.com/submit" target="_blank" rel="noopener noreferrer" class="btn-community-share btn-share-hn">
+                  <span>🟠 Submit to Hacker News</span>
+                </a>
               </div>
             </div>
           </div>
