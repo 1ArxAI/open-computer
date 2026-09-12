@@ -1,27 +1,29 @@
-# SU
+# Open Computer
 
-A self-hosted AI operator for a Linux server you own. One person, one box, your own model keys.
+A self-hosted personal AI cloud computer for any Linux VPS. One person, one box, your own model keys.
 
-SU is a web app on your server with an agent that has a shell, files, a scheduler and a process supervisor. You talk to it in a browser; it does the work on the machine and reports back. When you are away it keeps running your automations and 24/7 tasks.
+Open Computer turns your server into an autonomous personal computer: an agent with a native Linux shell, file explorer, 24/7 process supervisor, scheduled automations, skills, and model connections. You talk to it in the browser; it works directly on the machine and reports back.
 
 **What you get**
 
-- Chats with any model you hold a key for: OpenRouter, Anthropic, OpenAI, Gemini, DeepSeek, NVIDIA, or a local OpenAI-compatible server. Claude Code and Gemini CLI are used when installed.
-- Files: a browser for the home directory with an editor, uploads and trash.
-- Automations: prompts that run on a schedule with the same tools, with a log per run and email on failure.
-- Tasks: long-running processes SU keeps alive, restarts, and logs.
-- Skills: reusable know-how as `Skills/<name>/SKILL.md`, compatible with the open Agent Skills format.
-- Terminal: a real shell in the browser, as the SU user.
-- Settings: keys, connected apps through Pipedream, remote MCP servers, memory.
+- **Chats**: Connect any model you hold a key for (OpenRouter, Anthropic, OpenAI, Gemini, DeepSeek, NVIDIA, or local models via Ollama/vLLM).
+- **Terminal**: Real Arch/Ubuntu Linux PTY in the browser via xterm.js with resize, fit, and direct shell execution.
+- **My Files & Recycle Bin**: Full file tree, tabbed modal editor, uploads, and safe Recycle Bin for recoverable file operations.
+- **Automations**: Prompts that run on schedules or natural language triggers with execution traces.
+- **24/7 Tasks**: Supervisor that keeps persistent background scrapers, watchers, and daemons alive.
+- **Integrations & MCP**: Connect external MCP servers and API tools seamlessly.
+- **Hardened Security**: Anti-OSINT, SSRF defense, prompt injection isolation, and path traversal prevention.
 
-**What it is not**: multi-user, hosted, or safe on a shared machine. The agent runs as your Linux user with everything that user can do. Give it its own user on its own server.
+**What it is not**: multi-user or hosted. The agent runs as your Linux user with full local capabilities. Give it its own user on its own server.
 
-## Install (Ubuntu 22.04 or 24.04)
+## Quick Install (Ubuntu 22.04 or 24.04)
 
-As the Linux user who will own SU, with sudo:
+As the Linux user who will own Open Computer (needs sudo):
 
 ```bash
-git clone <repo-url> su && cd su && bash install.sh
+git clone https://github.com/shieldspprt/open-computer.git
+cd open-computer
+bash install.sh
 ```
 
 The installer adds a few packages, creates a Python environment, writes `.env` with a generated token, installs a systemd service and starts it. About two minutes.
