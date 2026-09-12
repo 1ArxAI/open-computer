@@ -445,6 +445,95 @@
       overflow-x: auto;
     }
 
+    /* Story Section */
+    .story-section {
+      margin: 80px auto;
+      max-width: 960px;
+    }
+    .story-card {
+      background: radial-gradient(circle at 85% 15%, rgba(244, 63, 94, 0.12) 0%, transparent 45%),
+                  radial-gradient(circle at 15% 85%, rgba(139, 92, 246, 0.12) 0%, transparent 45%),
+                  linear-gradient(180deg, #13151c 0%, #0d0e14 100%);
+      border: 1px solid rgba(244, 63, 94, 0.28);
+      border-radius: 18px;
+      padding: 48px;
+      box-shadow: 0 20px 50px rgba(0, 0, 0, 0.6);
+      position: relative;
+    }
+    .story-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 14px;
+      border-radius: 999px;
+      background: rgba(244, 63, 94, 0.12);
+      border: 1px solid rgba(244, 63, 94, 0.35);
+      color: #fb7185;
+      font-size: 12px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      margin-bottom: 20px;
+    }
+    .story-title {
+      font-size: 32px;
+      font-weight: 800;
+      line-height: 1.25;
+      letter-spacing: -0.02em;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+    .story-quote {
+      border-left: 3px solid #f43f5e;
+      padding-left: 20px;
+      font-size: 17.5px;
+      font-style: italic;
+      color: #fda4af;
+      margin-bottom: 28px;
+      line-height: 1.55;
+    }
+    .story-body p {
+      font-size: 15.5px;
+      line-height: 1.75;
+      color: #cbd5e1;
+      margin-bottom: 20px;
+    }
+    .story-body strong {
+      color: #fff;
+    }
+    .story-pillars {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 20px;
+      margin-top: 32px;
+    }
+    .pillar-card {
+      background: rgba(10, 11, 16, 0.65);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 22px;
+      transition: all 0.2s;
+    }
+    .pillar-card:hover {
+      border-color: rgba(59, 130, 246, 0.5);
+      transform: translateY(-2px);
+    }
+    .pillar-icon {
+      font-size: 26px;
+      margin-bottom: 12px;
+    }
+    .pillar-card h4 {
+      font-size: 16.5px;
+      color: #fff;
+      margin-bottom: 8px;
+    }
+    .pillar-card p {
+      font-size: 13.8px;
+      color: var(--text-muted);
+      line-height: 1.55;
+      margin-bottom: 0;
+    }
+
     /* Footer */
     footer {
       border-top: 1px solid var(--border);
@@ -474,9 +563,10 @@
         <span>Open Computer</span>
       </div>
       <nav class="nav-links">
-        <a href="#features">Features</a>
+        <a href="#story">The Story</a>
         <a href="#showcase">Showcase</a>
         <a href="#ai-deploy">2-Min AI Setup</a>
+        <a href="#features">Features</a>
         <a href="#quickstart">Quickstart</a>
         <a href="https://zo.computer" target="_blank" rel="noopener">Zo.computer ↗</a>
       </nav>
@@ -536,6 +626,54 @@
         <span class="frame-title" id="frameTitle">AI Home & Chat Workspace</span>
       </div>
       <img id="screenshotImg" src="images/home.png" alt="Open Computer Interface" class="screenshot-img">
+    </div>
+  </section>
+
+  <!-- The Story & Philosophy -->
+  <section class="container story-section" id="story">
+    <div class="story-card">
+      <div class="story-badge">❤️ The Story & The Vision</div>
+      <h2 class="story-title">Recreating My Favorite Tool in the World</h2>
+      
+      <div class="story-quote">
+        "Once you experience what it feels like to have a real personal computer powered by an AI API, there is simply no coming back."
+      </div>
+
+      <div class="story-body">
+        <p>I'll be completely honest: <strong>I really love <a href="https://zo.computer" target="_blank" rel="noopener" style="color: #fda4af; text-decoration: underline;">Zo Computer</a>.</strong></p>
+
+        <p>The first time I discovered Zo, something profound clicked. If you already have an AI API key (Anthropic Claude, OpenAI, Google Gemini), Zo is the last thing you will ever need. It isn't just another chat box tucked into a tiny sidebar—it is a <strong>pure superpower</strong>. It transforms an AI model from a passive text generator into an active, autonomous companion running on a real computer in the cloud that never sleeps.</p>
+
+        <p>Once you start using a tool like this in your daily workflow, your standard for what a computer should be changes forever. Going back to isolated local scripts, manual SSH tabs, and dead local terminal sessions feels like stepping back a decade. <strong>There is simply no coming back.</strong></p>
+
+        <p>So I decided to recreate my favorite product from the ground up. Part of it was pure homage and love. Part of it was the sheer thrill and fun of hacking from first principles. And part of it was the deep desire to own this superpower 100% self-hosted on my own VPS hardware for maximum productivity and freedom.</p>
+
+        <p style="margin-top: 32px; margin-bottom: 12px; font-size: 18px; font-weight: 700; color: #fff;">
+          🌊 The Emerging Wave: Why GUI + Global Tops Agentic OSes
+        </p>
+
+        <p>The tech world is catching fire with this trend. Exciting new operating systems like <strong>Omarchy</strong> are proving that an OS with an AI agent as master is the next computing frontier. The industry is realizing that autonomous agents need their own native environment.</p>
+
+        <p>Yet, as remarkable as raw terminal-only agent experiments are, <strong>Zo and Open Computer still top the paradigm for two reasons: a true visual GUI, and global reach.</strong></p>
+
+        <div class="story-pillars">
+          <div class="pillar-card">
+            <div class="pillar-icon">🖥️</div>
+            <h4>1. A True Visual GUI</h4>
+            <p>Terminal-only agent systems can feel isolating and opaque. Humans are visual beings. We want to see our files, watch live streaming code in a tabbed editor, inspect visual system metrics, configure scheduled tasks visually, and easily recover files from a Recycle Bin. Open Computer preserves human agency alongside autonomous AI power.</p>
+          </div>
+
+          <div class="pillar-card">
+            <div class="pillar-icon">🌍</div>
+            <h4>2. Global & Everywhere</h4>
+            <p>Not locked to a single local machine or desktop partition. It lives in the cloud, accessible instantly from any browser on earth—your laptop, desktop, iPad at a coffee shop, or phone on the go. Your files, background bots, terminal sessions, and AI companion travel with you everywhere.</p>
+          </div>
+        </div>
+
+        <p style="margin-top: 32px; text-align: center; font-size: 14.5px; color: #94a3b8; font-style: italic;">
+          Open Computer is an open-source labor of love: 100% self-hosted, 100% hackable, and free forever for anyone with a Linux box.
+        </p>
+      </div>
     </div>
   </section>
 
