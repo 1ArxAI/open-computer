@@ -946,6 +946,14 @@
     body.chat-full #chat-card > * { width: 100%; max-width: 800px; align-self: center; }
     #workspace-card .tab-content { flex: 1; min-height: 0; }
     #content-terminal { background: var(--zo-bg) !important; }
+    .terminal-trash-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 14px; background: color-mix(in oklab, var(--zo-card) 95%, transparent); border-top: 1px solid var(--border); font-size: 12px; color: var(--zo-fg-muted); flex: none; z-index: 5; }
+    .terminal-trash-bar .tb-left { display: flex; align-items: center; gap: 8px; }
+    .terminal-trash-bar .tb-right { display: flex; align-items: center; gap: 6px; }
+    .terminal-trash-bar .trash-pill-count { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 999px; font-size: 11px; background: color-mix(in oklab, var(--zo-fg) 8%, transparent); color: var(--zo-fg-muted); }
+    .terminal-trash-bar .trash-pill-count.has-items { background: color-mix(in oklab, var(--accent-red) 15%, transparent); color: var(--accent-red); font-weight: 500; }
+    .nav-badge { margin-left: auto; margin-right: 8px; font-size: 11px; font-weight: 500; padding: 1px 6px; border-radius: 999px; background: color-mix(in oklab, var(--zo-fg) 10%, transparent); color: var(--zo-fg-muted); }
+    .nav-badge[hidden] { display: none !important; }
+    .nav-item.active .nav-badge { background: color-mix(in oklab, var(--zo-primary) 20%, transparent); color: var(--zo-primary-fg); }
 
     /* chat pane */
     #chat-pane { width: 440px; height: 100dvh; background: transparent; border-left: none; padding: 0 4px 4px 4px; }
@@ -1404,6 +1412,7 @@
       <div class="nav-row"><button class="nav-item" data-nav="integrations" onclick="switchNav('integrations', event)"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" width="18" height="18" aria-hidden="true"><path d="M9.14339 10.691L9.35031 10.4841C11.329 8.50532 14.5372 8.50532 16.5159 10.4841C18.4947 12.4628 18.4947 15.671 16.5159 17.6497L13.6497 20.5159C11.671 22.4947 8.46279 22.4947 6.48405 20.5159C4.50532 18.5372 4.50532 15.329 6.48405 13.3503L6.9484 12.886" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path><path d="M17.0516 11.114L17.5159 10.6497C19.4947 8.67095 19.4947 5.46279 17.5159 3.48405C15.5372 1.50532 12.329 1.50532 10.3503 3.48405L7.48405 6.35031C5.50532 8.32904 5.50532 11.5372 7.48405 13.5159C9.46279 15.4947 12.671 15.4947 14.6497 13.5159L14.8566 13.309" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path></svg></span><span class="nav-label">Integrations</span></button></div>
       <div class="nav-row"><button class="nav-item" data-nav="skills" onclick="switchNav('skills', event)"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" width="18" height="18" aria-hidden="true"><path d="M2.00127 8.5L1.99911 13.997C1.99782 17.2979 1.99717 18.9484 3.02235 19.974C4.04754 20.9996 5.69801 20.9996 8.99895 20.9997L15 20.9998C18.2994 20.9999 19.949 21 20.9741 19.9751C21.9992 18.9502 21.9996 17.3005 22.0002 14.0012L22.0013 8.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M8.49857 6.5C8.49857 5.09554 8.49857 4.39331 8.83563 3.88886C8.98154 3.67048 9.16904 3.48298 9.38743 3.33706C9.89187 3 10.5941 3 11.9986 3C13.403 3 14.1053 3 14.6097 3.33706C14.8281 3.48298 15.0156 3.67048 15.1615 3.88886C15.4986 4.39331 15.4986 5.09554 15.4986 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19.998 6.50016L3.99885 6.5C2.8944 6.50007 1.99876 7.39568 1.99866 8.50013C1.99876 10.7091 3.79005 12.5004 5.99901 12.5006H17.9978C20.2068 12.5005 21.998 10.7093 21.9981 8.5003C21.998 7.39582 21.1024 6.50023 19.998 6.50016Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M9.99857 12.5V13.5C9.99857 13.965 9.99857 14.1975 10.0497 14.3882C10.1884 14.9059 10.5927 15.3102 11.1103 15.4489C11.3011 15.5 11.5336 15.5 11.9986 15.5C12.4636 15.5 12.696 15.5 12.8868 15.4489C13.4044 15.3102 13.8088 14.9059 13.9475 14.3882C13.9986 14.1975 13.9986 13.965 13.9986 13.5V12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg></span><span class="nav-label">Skills</span></button></div>
       <div class="nav-row"><button class="nav-item" data-nav="terminal" onclick="switchNav('terminal', event)"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" width="18" height="18" aria-hidden="true"><path d="M7.5 7.5L8.72654 8.55719C9.24218 9.00163 9.5 9.22386 9.5 9.5C9.5 9.77614 9.24218 9.99836 8.72654 10.4428L7.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M11.5 12.5H15.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M12 21C15.7497 21 17.6246 21 18.9389 20.0451C19.3634 19.7367 19.7367 19.3634 20.0451 18.9389C21 17.6246 21 15.7497 21 12C21 8.25027 21 6.3754 20.0451 5.06107C19.7367 4.6366 19.3634 4.26331 18.9389 3.95491C17.6246 3 15.7497 3 12 3C8.25027 3 6.3754 3 5.06107 3.95491C4.6366 4.26331 4.26331 4.6366 3.95491 5.06107C3 6.3754 3 8.25027 3 12C3 15.7497 3 17.6246 3.95491 18.9389C4.26331 19.3634 4.6366 19.7367 5.06107 20.0451C6.3754 21 8.25027 21 12 21Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg></span><span class="nav-label">Terminal</span></button></div>
+      <div class="nav-row"><button class="nav-item" data-nav="trash" onclick="switchNav('trash', event)"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></svg></span><span class="nav-label">Recycle Bin</span><span id="navTrashBadge" class="nav-badge" hidden>0</span></button></div>
     </nav>
     <div class="sb-search"><label class="sb-search-box"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M17 17L21 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><input type="search" id="sidebarChatSearch" placeholder="Search chats" oninput="sidebarChatSearchInput(this.value)" aria-label="Search chats"></label></div>
     <div class="sb-chats" id="sidebarChatList"></div>
@@ -1467,6 +1476,53 @@
     <!-- VIEW 1: TERMINAL (Native Arch Linux PTY via xterm.js) -->
     <section class="tab-content" id="content-terminal" style="padding: 0; flex-direction: column; overflow: hidden; background: var(--zo-bg);">
       <div id="terminalContainer" style="flex: 1; min-height: 0; width: 100%; overflow: hidden; padding: 8px 0 4px 8px;"></div>
+      <!-- Recycle Bin footer bar under the terminal view -->
+      <div class="terminal-trash-bar" id="terminalTrashBar">
+        <div class="tb-left">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></svg>
+          <span style="font-weight: 500; color: var(--zo-fg);">Recycle Bin</span>
+          <span id="terminalTrashCount" class="trash-pill-count">0 items</span>
+        </div>
+        <div class="tb-right">
+          <button class="zo-pill" id="terminalToggleTrashDrawerBtn" onclick="toggleTerminalTrashDrawer()" title="Quick view trashed items">Quick View</button>
+          <button class="zo-pill" onclick="openInTab('trash')" title="Open full Recycle Bin tab">Open Tab</button>
+          <button class="zo-pill zo-danger" id="terminalEmptyTrashBtn" onclick="emptyTrashConfirm()" title="Empty trash" style="display: none;">Empty</button>
+        </div>
+      </div>
+      <!-- Collapsible inline drawer under terminal -->
+      <div id="terminalTrashDrawer" style="display: none; height: 180px; flex: none; border-top: 1px solid var(--border); background: var(--zo-card); flex-direction: column; overflow: hidden;">
+        <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--zo-fg-muted);">
+          <span>Recent items in Recycle Bin</span>
+          <button class="zo-iconbtn" onclick="toggleTerminalTrashDrawer()" title="Close quick view" style="width: 22px; height: 22px;">✕</button>
+        </div>
+        <div class="files-list-table" id="terminalTrashDrawerList" style="flex: 1; overflow-y: auto; padding: 4px 8px;"></div>
+      </div>
+    </section>
+
+    <!-- VIEW: RECYCLE BIN / TRASH -->
+    <section class="tab-content" id="content-trash" style="padding: 0; flex-direction: column; overflow: hidden;">
+      <div class="pg-head" style="display: flex; align-items: center; justify-content: space-between;">
+        <div>
+          <div class="pg-title" style="display: flex; align-items: center; gap: 8px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></svg>
+            Recycle Bin
+          </div>
+          <div class="pg-sub" id="dedicatedTrashCountLabel">Items deleted from My Files and terminal</div>
+        </div>
+        <div style="display: flex; gap: 8px; align-items: center;">
+          <button class="zo-pill" onclick="loadDedicatedTrashList()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg> Refresh</button>
+          <button class="zo-pill zo-danger" id="dedicatedEmptyTrashBtn" onclick="emptyTrashConfirm()">Empty Recycle Bin</button>
+        </div>
+      </div>
+      <div class="pg-search">
+        <label class="zo-search">
+          <svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M17 17L21 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg>
+          <input type="search" id="dedicatedTrashSearch" placeholder="Filter trashed files..." oninput="filterDedicatedTrash(this.value)" aria-label="Search trash">
+        </label>
+      </div>
+      <div style="flex: 1; min-height: 0; overflow-y: auto; padding: 0 16px 16px;">
+        <div class="files-list-table" id="dedicatedTrashListContainer"></div>
+      </div>
     </section>
 
 
@@ -2058,10 +2114,11 @@
     // ==========================================
     // WORKSPACE TABS (Zo model: sidebar click replaces the active tab, "+" adds one)
     // ==========================================
-    const TAB_META = { files: 'My Files', automations: 'Automations', tasks: 'Tasks', integrations: 'Integrations', skills: 'Skills', terminal: 'Terminal', chats: 'Chats', settings: 'Settings', newtab: 'Search' };
+    const TAB_META = { files: 'My Files', automations: 'Automations', tasks: 'Tasks', integrations: 'Integrations', skills: 'Skills', terminal: 'Terminal', trash: 'Recycle Bin', chats: 'Chats', settings: 'Settings', newtab: 'Search' };
     const SEARCH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M17 17l4 4"/><circle cx="11" cy="11" r="8"/></svg>';
     const X_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg>';
     const CHATS_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 16 0z"/></svg>';
+    const TRASH_ICON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></svg>';
     let wsTabs = [], activeTab = null;
     try { const st = JSON.parse(store.get('su_tabs') || 'null'); if (st && Array.isArray(st.tabs)) { wsTabs = st.tabs.filter(t => TAB_META[t] && t !== 'newtab'); activeTab = wsTabs.includes(st.active) ? st.active : (wsTabs[0] || null); } } catch (e) {}
     function tabIcon(name) {
@@ -2069,6 +2126,7 @@
       if (nav) return nav.innerHTML;
       if (name === 'settings') return document.querySelector('.sb-iconbtn[title="Settings"]').innerHTML;
       if (name === 'chats') return CHATS_ICON;
+      if (name === 'trash') return TRASH_ICON;
       return SEARCH_ICON;
     }
     function saveTabs() { store.set('su_tabs', JSON.stringify({ tabs: wsTabs, active: activeTab })); }
@@ -2336,14 +2394,45 @@
       try {
         const res = await api('/api/files/trash');
         const d = await res.json();
+        const count = d.count || 0;
+
+        // 1. Files tab toolbar badge
         const badge = document.getElementById('trashBadgeCount');
-        if (badge) { badge.textContent = d.count || '0'; badge.hidden = !d.count; const b = document.getElementById('btnToggleTrash'); if (b) b.setAttribute('aria-label', 'Trash, ' + (d.count || 0) + ' items'); }
-      } catch (e) {}
+        if (badge) { badge.textContent = count || '0'; badge.hidden = !count; }
+        const b = document.getElementById('btnToggleTrash');
+        if (b) b.setAttribute('aria-label', 'Trash, ' + count + ' items');
+
+        // 2. Sidebar navigation badge (under Terminal)
+        const navBadge = document.getElementById('navTrashBadge');
+        if (navBadge) {
+          navBadge.textContent = count;
+          navBadge.hidden = !count;
+        }
+
+        // 3. Terminal bottom bar trash count
+        const termCount = document.getElementById('terminalTrashCount');
+        if (termCount) {
+          termCount.textContent = count === 1 ? '1 item' : `${count} items`;
+          termCount.classList.toggle('has-items', count > 0);
+        }
+        const termEmptyBtn = document.getElementById('terminalEmptyTrashBtn');
+        if (termEmptyBtn) termEmptyBtn.style.display = count > 0 ? 'inline-flex' : 'none';
+
+        // 4. Dedicated tab count label & empty button
+        const dedCount = document.getElementById('dedicatedTrashCountLabel');
+        if (dedCount) dedCount.textContent = count ? `${count} item${count === 1 ? '' : 's'} in Recycle Bin` : 'Recycle Bin is empty';
+        const dedEmptyBtn = document.getElementById('dedicatedEmptyTrashBtn');
+        if (dedEmptyBtn) dedEmptyBtn.style.display = count > 0 ? 'inline-flex' : 'none';
+
+        return d;
+      } catch (e) {
+        return { count: 0, items: [] };
+      }
     }
 
     async function trashFileItem(e, path) {
       if (e) e.stopPropagation();
-      if (!confirm(`Move "${path}" to Trash?`)) return;
+      if (!confirm(`Move "${path}" to Recycle Bin?`)) return;
       try {
         const res = await api('/api/files/trash', {
           method: 'POST',
@@ -2353,8 +2442,15 @@
         const d = await res.json();
         if (d.ok) {
           loadFiles();
+          updateTrashBadge();
+          if (document.getElementById('content-trash')?.classList.contains('active')) {
+            loadDedicatedTrashList();
+          }
+          if (document.getElementById('terminalTrashDrawer')?.style.display !== 'none') {
+            loadTerminalTrashDrawer();
+          }
         } else {
-          alert('Error: ' + d.detail);
+          alert('Error: ' + (d.detail || 'Could not move to trash'));
         }
       } catch (err) {
         alert('Failed: ' + err.message);
@@ -2379,10 +2475,9 @@
       if (!container) return;
       container.innerHTML = '<div class="files-empty">Loading…</div>';
       try {
-        const res = await api('/api/files/trash');
-        const d = await res.json();
+        const d = await updateTrashBadge();
         if (!d.items || d.items.length === 0) {
-          container.innerHTML = '<div class="files-empty">Trash is empty.</div>';
+          container.innerHTML = '<div class="files-empty">Recycle Bin is empty.</div>';
           return;
         }
 
@@ -2391,9 +2486,12 @@
           const row = document.createElement('div');
           row.className = 'ft-row ft-trash-row';
           row.innerHTML = `<span class="ft-ico">${item.is_dir ? FILE_ICONS.dir : extBadge(item.name)}</span>
-            <span class="ft-name"><span>${esc(item.name)}</span><span class="ft-sub">${esc(item.orig_path)}</span></span>
+            <span class="ft-name" style="flex: 1; min-width: 0;"><span>${esc(item.name)}</span><span class="ft-sub">${esc(item.orig_path)}</span></span>
             <span class="ft-date">${esc(item.trashed_at || '')}</span>
-            <button class="zo-pill" onclick="restoreTrashItem(${jsq(item.name)})">Restore</button>`;
+            <div style="display: flex; gap: 6px; align-items: center;">
+              <button class="zo-pill" onclick="restoreTrashItem(${jsq(item.name)})">Restore</button>
+              <button class="zo-pill zo-danger" onclick="permanentlyDeleteTrashItem(${jsq(item.name)})" title="Permanently delete">Delete</button>
+            </div>`;
           container.appendChild(row);
         });
       } catch (e) {
@@ -2402,12 +2500,14 @@
     }
 
     async function emptyTrashConfirm() {
-      if (!confirm('Permanently delete all items in Trash? This cannot be undone.')) return;
+      if (!confirm('Permanently delete all items in Recycle Bin? This cannot be undone.')) return;
       try {
         const d = await fetchJson('/api/files/trash/empty', { method: 'POST' });
-        if (d.purged_count) alert(`Trash emptied. Purged ${d.purged_count} items.`);
-        loadTrashList();
-        updateTrashBadge();
+        await updateTrashBadge();
+        if (isTrashViewActive) loadTrashList();
+        if (document.getElementById('content-trash')?.classList.contains('active')) loadDedicatedTrashList();
+        if (document.getElementById('terminalTrashDrawer')?.style.display !== 'none') loadTerminalTrashDrawer();
+        alert(`Recycle Bin emptied. Purged ${d.purged_count || 0} items.`);
       } catch (e) {
         alert('Failed: ' + e.message);
       }
@@ -2423,14 +2523,159 @@
         const d = await res.json();
         if (d.ok) {
           alert('Item restored to: ' + d.restored);
-          loadTrashList();
-          updateTrashBadge();
+          await updateTrashBadge();
+          if (isTrashViewActive) loadTrashList();
+          if (document.getElementById('content-trash')?.classList.contains('active')) loadDedicatedTrashList();
+          if (document.getElementById('terminalTrashDrawer')?.style.display !== 'none') loadTerminalTrashDrawer();
           loadFiles();
         } else {
-          alert('Restore failed: ' + d.detail);
+          alert('Restore failed: ' + (d.detail || 'Unknown error'));
         }
       } catch (e) {
         alert('Restore failed: ' + e.message);
+      }
+    }
+
+    async function permanentlyDeleteTrashItem(name) {
+      if (!confirm(`Permanently delete "${name}"? This cannot be undone.`)) return;
+      try {
+        const res = await api('/api/files/trash/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name })
+        });
+        const d = await res.json();
+        if (d.ok) {
+          await updateTrashBadge();
+          if (isTrashViewActive) loadTrashList();
+          if (document.getElementById('content-trash')?.classList.contains('active')) loadDedicatedTrashList();
+          if (document.getElementById('terminalTrashDrawer')?.style.display !== 'none') loadTerminalTrashDrawer();
+        } else {
+          alert('Delete failed: ' + (d.detail || 'Unknown error'));
+        }
+      } catch (e) {
+        alert('Delete failed: ' + e.message);
+      }
+    }
+
+    // --- Dedicated Recycle Bin Tab Logic ---
+    let dedicatedTrashCache = [];
+    async function loadDedicatedTrashList() {
+      const container = document.getElementById('dedicatedTrashListContainer');
+      if (!container) return;
+      container.innerHTML = '<div class="files-empty">Loading Recycle Bin…</div>';
+      try {
+        const d = await updateTrashBadge();
+        dedicatedTrashCache = d.items || [];
+        renderDedicatedTrashList(dedicatedTrashCache);
+      } catch (e) {
+        container.innerHTML = `<div class="files-empty" style="color: var(--accent-red);">Failed to load trash: ${esc(e.message)}</div>`;
+      }
+    }
+
+    function renderDedicatedTrashList(items) {
+      const container = document.getElementById('dedicatedTrashListContainer');
+      if (!container) return;
+      if (!items || items.length === 0) {
+        container.innerHTML = `
+          <div class="files-empty" style="padding: 48px 16px; text-align: center;">
+            <div style="display: inline-flex; align-items: center; justify-content: center; width: 48px; height: 48px; border-radius: 50%; background: color-mix(in oklab, var(--zo-fg) 6%, transparent); margin-bottom: 12px; color: var(--zo-fg-muted);">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="24" height="24" aria-hidden="true">
+                <path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/>
+              </svg>
+            </div>
+            <div style="font-weight: 500; font-size: 15px; color: var(--zo-fg);">Recycle Bin is empty</div>
+            <div style="font-size: 13px; color: var(--zo-fg-muted); margin-top: 4px;">Deleted files from My Files or the terminal will appear here before permanent removal.</div>
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = '';
+      items.forEach(item => {
+        const row = document.createElement('div');
+        row.className = 'ft-row ft-trash-row';
+        row.innerHTML = `
+          <span class="ft-ico">${item.is_dir ? FILE_ICONS.dir : extBadge(item.name)}</span>
+          <span class="ft-name" style="flex: 1; min-width: 0;">
+            <span style="font-weight: 500;">${esc(item.name)}</span>
+            <span class="ft-sub" title="${esc(item.orig_path)}">Original: ${esc(item.orig_path)}</span>
+          </span>
+          <span class="ft-date" title="Deleted on">${esc(item.trashed_at || '')}</span>
+          <span class="ft-size" style="font-size: 12px; color: var(--zo-fg-muted); min-width: 60px; text-align: right; margin-right: 12px;">${item.is_dir ? 'Folder' : formatBytes(item.size)}</span>
+          <div style="display: flex; gap: 6px; align-items: center;">
+            <button class="zo-pill" onclick="restoreTrashItem(${jsq(item.name)})" title="Restore back to original location">Restore</button>
+            <button class="zo-pill zo-danger" onclick="permanentlyDeleteTrashItem(${jsq(item.name)})" title="Permanently delete this file">Delete</button>
+          </div>`;
+        container.appendChild(row);
+      });
+    }
+
+    function filterDedicatedTrash(q) {
+      q = (q || '').trim().toLowerCase();
+      if (!q) {
+        renderDedicatedTrashList(dedicatedTrashCache);
+        return;
+      }
+      const filtered = dedicatedTrashCache.filter(item => 
+        (item.name || '').toLowerCase().includes(q) || 
+        (item.orig_path || '').toLowerCase().includes(q)
+      );
+      renderDedicatedTrashList(filtered);
+    }
+
+    // --- Terminal Quick View Drawer Logic ---
+    async function toggleTerminalTrashDrawer() {
+      const drawer = document.getElementById('terminalTrashDrawer');
+      const btn = document.getElementById('terminalToggleTrashDrawerBtn');
+      if (!drawer) return;
+      const isVisible = drawer.style.display !== 'none';
+      if (isVisible) {
+        drawer.style.display = 'none';
+        if (btn) btn.textContent = 'Quick View';
+      } else {
+        drawer.style.display = 'flex';
+        if (btn) btn.textContent = 'Close View';
+        loadTerminalTrashDrawer();
+      }
+      setTimeout(() => {
+        if (xtermFitAddon) {
+          xtermFitAddon.fit();
+          notifyTerminalResize();
+        }
+      }, 50);
+    }
+
+    async function loadTerminalTrashDrawer() {
+      const container = document.getElementById('terminalTrashDrawerList');
+      if (!container) return;
+      container.innerHTML = '<div class="files-empty" style="padding: 12px;">Loading…</div>';
+      try {
+        const d = await updateTrashBadge();
+        const items = d.items || [];
+        if (!items.length) {
+          container.innerHTML = '<div class="files-empty" style="padding: 12px;">Recycle Bin is empty.</div>';
+          return;
+        }
+        container.innerHTML = '';
+        items.slice(0, 30).forEach(item => {
+          const row = document.createElement('div');
+          row.className = 'ft-row ft-trash-row';
+          row.style.fontSize = '12px';
+          row.innerHTML = `
+            <span class="ft-ico">${item.is_dir ? FILE_ICONS.dir : extBadge(item.name)}</span>
+            <span class="ft-name" style="flex: 1; min-width: 0;">
+              <span style="font-weight: 500;">${esc(item.name)}</span>
+              <span class="ft-sub" title="${esc(item.orig_path)}">${esc(item.orig_path)}</span>
+            </span>
+            <span class="ft-date" style="font-size: 11px;">${esc(item.trashed_at || '')}</span>
+            <div style="display: flex; gap: 4px;">
+              <button class="zo-pill" style="height: 22px; padding: 0 8px; font-size: 11px;" onclick="restoreTrashItem(${jsq(item.name)})">Restore</button>
+              <button class="zo-pill zo-danger" style="height: 22px; padding: 0 8px; font-size: 11px;" onclick="permanentlyDeleteTrashItem(${jsq(item.name)})">Delete</button>
+            </div>`;
+          container.appendChild(row);
+        });
+      } catch (e) {
+        container.innerHTML = `<div class="files-empty" style="padding: 12px; color: var(--accent-red);">Failed: ${esc(e.message)}</div>`;
       }
     }
 
@@ -3215,7 +3460,8 @@
       clearTimeout(appsSearchTimer); clearInterval(appsPollTimer); clearInterval(tasksPollTimer); clearInterval(taskLogTimer);
       if (name === 'files') { if (isTrashViewActive) toggleTrashView(); loadFiles(); }
       if (name === 'chats') { renderChatsView(); renderSidebarChatHistory(); }
-      if (name === 'terminal') initTerminal();
+      if (name === 'terminal') { initTerminal(); updateTrashBadge(); }
+      if (name === 'trash') loadDedicatedTrashList();
       if (name === 'automations') loadAutomations();
       if (name === 'tasks') loadTasks(true);
       if (name === 'skills') loadSkills();
@@ -4059,6 +4305,7 @@
     refreshRuns().then(renderSidebarChatHistory);
     showHomeView();
     loadFiles();
+    updateTrashBadge();
   </script>
 
 

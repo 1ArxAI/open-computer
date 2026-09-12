@@ -780,6 +780,29 @@ async def restore_from_trash(req: RestoreRequest):
         info_file.unlink()
     return {"ok": True, "restored": orig_path}
 
+class DeleteTrashRequest(BaseModel):
+    name: str
+
+@app.post("/api/files/trash/delete")
+async def delete_from_trash(req: DeleteTrashRequest):
+    source = TRASH_DIR / req.name
+    if not source.exists():
+        raise HTTPException(status_code=404, detail="Item not in trash")
+    try:
+        if source.is_dir():
+            shutil.rmtree(source)
+        else:
+            source.unlink()
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    info_file = TRASH_INFO_DIR / f"{req.name}.json"
+    if info_file.exists():
+        try:
+            info_file.unlink()
+        except:
+            pass
+    return {"ok": True, "deleted": req.name}
+
 # ==================== TERMINAL & EXECUTION ====================
 
 class ExecRequest(BaseModel):
