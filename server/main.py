@@ -20,6 +20,7 @@ from typing import Optional, Dict, Any, List
 from fastapi import FastAPI, File, Form, Header, HTTPException, Request, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, FileResponse, RedirectResponse, Response, PlainTextResponse
+from urllib.parse import urlparse
 import hmac, hashlib, base64, secrets as _secrets
 try:
     import pam as _pam
@@ -140,7 +141,7 @@ async def auth_gate(request: Request, call_next):
     resp.headers.setdefault("X-Robots-Tag", "noindex, nofollow, noarchive, nosnippet")
     resp.headers.setdefault(
         "Content-Security-Policy",
-        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline' fonts.googleapis.com; font-src 'self' fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' ws: wss:; frame-ancestors 'none';"
+        "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' fonts.googleapis.com cdn.jsdelivr.net; font-src 'self' fonts.gstatic.com data:; img-src 'self' data: blob: https:; media-src 'self' data: blob:; connect-src 'self' ws: wss:; frame-ancestors 'none';"
     )
     return resp
 
@@ -1611,9 +1612,14 @@ async def serve_dashboard():
 
 @app.websocket("/api/terminal/ws")
 async def terminal_ws(websocket: WebSocket, token: Optional[str] = None):
-    origin = websocket.headers.get("origin", "")
-    allowed = {o.strip() for o in agent.env().get("SU_CORS_ORIGINS", _DEFAULT_ORIGINS).split(",") if o.strip()}
-    if origin and origin not in allowed:  # WebSockets are outside CORS: refuse cross-site pages that carry the cookie
+    origin = websocket.headers.get("origin", "").rstrip("/")
+    host = (websocket.headers.get("x-forwarded-host") or websocket.headers.get("host") or "").split(":")[0].lower()
+    allowed = {o.strip().rstrip("/").lower() for o in agent.env().get("SU_CORS_ORIGINS", _DEFAULT_ORIGINS).split(",") if o.strip()}
+
+    origin_host = urlparse(origin).netloc.split(":")[0].lower() if origin else ""
+    is_same_origin = bool(host and origin_host and host == origin_host)
+
+    if origin and origin.lower() not in allowed and not is_same_origin:
         await websocket.close(code=4403)
         return
     if not ((SU_TOKEN and token == SU_TOKEN) or verify_session(websocket.cookies.get("su_session"))):

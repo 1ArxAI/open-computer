@@ -2230,10 +2230,24 @@
           xtermFitAddon.fit();
           notifyTerminalResize();
         }
+        if (!terminalSocket || terminalSocket.readyState === WebSocket.CLOSED) {
+          connectTerminalSocket();
+        }
         return;
       }
       const container = document.getElementById('terminalContainer');
       if (!container) return;
+
+      if (typeof Terminal === 'undefined') {
+        container.innerHTML = '<div style="padding: 24px; color: #f87171; font-family: monospace;">Terminal library (xterm.js) is loading or blocked by network/CSP. Please refresh the page.</div>';
+        return;
+      }
+
+      container.onclick = () => {
+        if (!terminalSocket || terminalSocket.readyState === WebSocket.CLOSED) {
+          connectTerminalSocket();
+        }
+      };
 
       xtermInstance = new Terminal({
         cursorBlink: true,
@@ -2267,6 +2281,7 @@
     function connectTerminalSocket() {
       const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
       const wsUrl = `${protocol}//${location.host}/api/terminal/ws` + (SU_TOKEN ? '?token=' + encodeURIComponent(SU_TOKEN) : '');
+      if (terminalSocket && terminalSocket.readyState === WebSocket.CONNECTING) return;
       terminalSocket = new WebSocket(wsUrl);
       terminalSocket.binaryType = 'arraybuffer';
 
@@ -2284,7 +2299,11 @@
       };
 
       terminalSocket.onclose = () => {
-        if (xtermInstance) xtermInstance.writeln('\r\n\x1b[31m[Disconnected from Arch Linux PTY. Click to reconnect]\x1b[0m');
+        if (xtermInstance) xtermInstance.writeln('\r\n\x1b[31m[Disconnected from Linux PTY. Click anywhere in terminal to reconnect]\x1b[0m');
+      };
+
+      terminalSocket.onerror = (err) => {
+        console.warn('Terminal socket error:', err);
       };
 
       xtermInstance.onData((data) => {
