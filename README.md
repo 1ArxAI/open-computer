@@ -145,15 +145,36 @@ Open Computer is a labor of love: 100% self-hosted, 100% open-source, and free f
 > [!TIP]
 > **Don't want to type Linux commands manually? You don't have to!**
 > 
-> Simply copy this prompt, fill in your server details, and paste it into your favorite AI coding assistant (we strongly recommend **Antigravity** or Claude Code):
+> When installing Open Computer on your VPS, you only need to provide four details to your AI coding assistant (we strongly recommend **Antigravity** or **Claude Code**):
+> 
+> 1. **VPS SSH Connection**: Your server IP, root (or sudo) username, and password / SSH key.
+> 2. **Open Computer Credentials**: The dedicated username and password you want for Open Computer (e.g. `opencomputer`). Open Computer uses Linux PAM authentication, so your AI will create this secure non-root user with sudo privileges automatically.
+> 3. **Cloudflare Tunnel Token (Optional)**: If you want zero-port-forwarding public HTTPS access (`https://agent.yourdomain.com`), provide your tunnel token.
+> 4. **AI Model API Key (Optional)**: Provide your Anthropic, Google Gemini, OpenAI, or OpenRouter API key so your agent is ready to chat immediately upon first login.
+> 
+> Simply copy this prompt, fill in your details, and paste it into your AI assistant:
 > 
 > ```text
-> Here is my Ubuntu VPS (IP: <YOUR_SERVER_IP>, user: suop, password: <YOUR_PASSWORD>).
+> Here are my server and Open Computer setup details:
 > 
-> Please connect to my server via SSH, clone https://github.com/shieldspprt/open-computer.git, run bash install.sh, and set up Open Computer for me.
+> 1. VPS Connection (root or admin user):
+>    - IP: <YOUR_SERVER_IP>
+>    - User: root (or sudo user)
+>    - Password / SSH Key: <YOUR_VPS_PASSWORD_OR_KEY>
+> 
+> 2. Open Computer Account (create this user for me):
+>    - Desired Username: opencomputer
+>    - Desired Password: <YOUR_OPENCOMPUTER_PASSWORD>
+> 
+> 3. Optional Integrations (leave blank if not needed):
+>    - Cloudflare Tunnel Token: <YOUR_CLOUDFLARE_TUNNEL_TOKEN>
+>    - AI API Key (Anthropic / Gemini / OpenAI / OpenRouter): <YOUR_API_KEY>
+> 
+> Instructions:
+> Please connect to my VPS via SSH. If logged in as root, create the dedicated Open Computer user with sudo privileges and set the password specified above. Switch to that user, clone https://github.com/shieldspprt/open-computer.git under their home directory, configure the .env file with the AI API key and Cloudflare Tunnel token (if provided), run bash install.sh, and ensure the systemd service (and Cloudflare tunnel if configured) is running and healthy.
 > ```
 > 
-> Your AI assistant will handle package installations, virtual environment creation, systemd service configuration, and security checks automatically. You'll be ready to log in and chat in **2 minutes flat!**
+> Your AI assistant will handle user creation, package installations, virtual environment setup, systemd service configuration, and security checks automatically. You'll be ready to log in and chat in **2 minutes flat!**
 
 ---
 
