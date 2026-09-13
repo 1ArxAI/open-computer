@@ -980,6 +980,7 @@
       color: #e2e8f0;
       position: relative;
       margin-top: 16px;
+      white-space: pre-wrap;
     }
     .btn-copy-prompt {
       position: absolute;
@@ -1806,14 +1807,28 @@ async def process_latest_youtube_upload(channel_id: str):
               <span style="font-size:12px; font-weight:700; color:#c4b5fd; text-transform:uppercase; letter-spacing:0.05em;">⚡ Zero Manual Commands</span>
               <h2 style="font-size:26px; font-weight:700; margin:8px 0 10px; color:#fff;">The 2-Minute AI Setup</h2>
               <p style="color:#cbd5e1; font-size:14.5px; line-height:1.5;">
-                Don't want to run Linux commands manually? You don't have to! Copy this prompt and paste it into your favorite AI coding assistant (we strongly recommend <strong>Antigravity</strong> or <strong>Claude Code</strong>):
+                Don't want to run Linux commands manually? You don't have to! Provide your VPS connection info, your desired Open Computer login (the system will create it for you), and optional Cloudflare Tunnel token &amp; AI API key. Copy this prompt and paste it into your favorite AI assistant (we strongly recommend <strong>Antigravity</strong> or <strong>Claude Code</strong>):
               </p>
 
               <div class="ai-prompt-box">
                 <button class="btn-copy-prompt" id="copyPromptBtn" onclick="copyDeployPrompt()">Copy Prompt</button>
-                <div id="deployPromptText">Here is my Ubuntu VPS (IP: &lt;YOUR_SERVER_IP&gt;, user: suop, password: &lt;YOUR_PASSWORD&gt;).
+                <div id="deployPromptText">Here are my server and Open Computer setup details:
 
-Please connect to my server via SSH, clone https://github.com/shieldspprt/open-computer.git, run bash install.sh, and set up Open Computer for me.</div>
+1. VPS Connection (root or admin user):
+   - IP: &lt;YOUR_SERVER_IP&gt;
+   - User: root (or sudo user)
+   - Password / SSH Key: &lt;YOUR_VPS_PASSWORD_OR_KEY&gt;
+
+2. Open Computer Account (create this user for me):
+   - Desired Username: opencomputer
+   - Desired Password: &lt;YOUR_OPENCOMPUTER_PASSWORD&gt;
+
+3. Optional Integrations (leave blank if not needed):
+   - Cloudflare Tunnel Token: &lt;YOUR_CLOUDFLARE_TUNNEL_TOKEN&gt;
+   - AI API Key (Anthropic / Gemini / OpenAI / OpenRouter): &lt;YOUR_API_KEY&gt;
+
+Instructions:
+Please connect to my VPS via SSH. If logged in as root, create the dedicated Open Computer user with sudo privileges and set the password specified above. Switch to that user, clone https://github.com/shieldspprt/open-computer.git under their home directory, configure the .env file with the AI API key and Cloudflare Tunnel token (if provided), run bash install.sh, and ensure the systemd service (and Cloudflare tunnel if configured) is running and healthy.</div>
               </div>
             </div>
 
