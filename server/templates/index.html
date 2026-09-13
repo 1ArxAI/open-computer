@@ -1275,8 +1275,38 @@
     .chat-history-item.running .chi-title::before, .chats-row.running .chats-title::before, .home-runs::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 6px; vertical-align: -1px; border: 2px solid color-mix(in oklab, var(--zo-primary) 35%, transparent); border-top-color: var(--zo-primary); border-radius: 50%; animation: zo-spin .9s linear infinite; flex: none; }
     .home-runs { align-self: center; margin: 8px auto 0; height: 28px; padding: 0 12px 0 10px; display: inline-flex; align-items: center; border-radius: 999px; border: 1px solid color-mix(in oklab, var(--zo-primary) 40%, transparent); background: color-mix(in oklab, var(--zo-primary) 12%, transparent); color: var(--zo-fg); font-size: 12px; cursor: pointer; }
     .home-runs[hidden] { display: none; }
-    .update-pill { position: fixed; left: 50%; top: 8px; transform: translateX(-50%); z-index: 80; height: 32px; padding: 0 14px; border-radius: 999px; border: 1px solid color-mix(in oklab, var(--zo-primary) 50%, transparent); background: var(--zo-primary); color: var(--zo-primary-fg); font-size: 13px; cursor: pointer; box-shadow: 0 8px 24px rgba(0,0,0,.35); }
-    .update-pill[hidden] { display: none; }
+    .update-pill { position: fixed; left: 50%; top: 12px; transform: translateX(-50%); z-index: 80; height: 38px; padding: 0 8px 0 14px; border-radius: 999px; border: 1px solid color-mix(in oklab, var(--zo-primary) 50%, transparent); background: var(--zo-card); color: var(--zo-fg); font-size: 13px; box-shadow: 0 8px 28px rgba(0,0,0,.45); display: inline-flex; align-items: center; gap: 10px; animation: pillFadeDown 0.3s cubic-bezier(0.16, 1, 0.3, 1); }
+    @keyframes pillFadeDown { from { opacity: 0; transform: translate(-50%, -10px); } to { opacity: 1; transform: translate(-50%, 0); } }
+    .update-pill[hidden] { display: none !important; }
+    .update-pill-dot { width: 8px; height: 8px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px #10b981; flex: none; animation: pulseDot 2s infinite; }
+    @keyframes pulseDot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.55; transform: scale(1.15); } }
+    .update-pill-text { font-weight: 500; white-space: nowrap; color: var(--zo-fg); }
+    .update-pill-btn { height: 26px; padding: 0 12px; border-radius: 999px; border: none; background: var(--zo-primary); color: var(--zo-primary-fg); font-size: 12px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 4px; transition: filter 0.15s ease; }
+    .update-pill-btn:hover { filter: brightness(1.1); }
+    .update-pill-close { background: none; border: none; color: var(--zo-fg-muted); cursor: pointer; padding: 2px 6px; font-size: 16px; line-height: 1; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .update-pill-close:hover { color: var(--zo-fg); background: var(--hover); }
+
+    .sb-update-badge { width: 100%; margin-bottom: 8px; height: 32px; padding: 0 12px; border-radius: 8px; border: 1px solid color-mix(in oklab, #10b981 35%, transparent); background: color-mix(in oklab, #10b981 12%, transparent); color: #10b981; font-size: 12px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: background 0.15s; }
+    .sb-update-badge:hover { background: color-mix(in oklab, #10b981 22%, transparent); }
+    .sb-update-badge[hidden] { display: none !important; }
+
+    .system-update-card { margin-top: 16px; margin-bottom: 24px; padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: color-mix(in oklab, var(--zo-muted) 35%, transparent); display: flex; flex-direction: column; gap: 14px; }
+    .suc-header { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+    .suc-title-wrap { display: flex; align-items: center; gap: 8px; }
+    .suc-title { font-weight: 600; font-size: 14px; color: var(--zo-fg); }
+    .suc-status-badge { font-size: 11.5px; padding: 2px 8px; border-radius: 999px; font-weight: 500; background: color-mix(in oklab, var(--zo-fg-muted) 20%, transparent); color: var(--zo-fg-muted); }
+    .suc-status-badge.up-to-date { background: color-mix(in oklab, #10b981 20%, transparent); color: #10b981; }
+    .suc-status-badge.update-ready { background: color-mix(in oklab, #f59e0b 20%, transparent); color: #f59e0b; }
+    .suc-status-badge.checking { background: color-mix(in oklab, var(--zo-primary) 20%, transparent); color: var(--zo-primary); }
+    .suc-actions { display: flex; align-items: center; gap: 8px; }
+    .suc-body { display: flex; flex-direction: column; gap: 8px; font-size: 12.5px; }
+    .suc-detail-row { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+    .suc-label { color: var(--zo-fg-muted); min-width: 105px; }
+    .suc-val { font-family: var(--font-mono); font-weight: 600; color: var(--zo-fg); }
+    .suc-branch { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--hover); color: var(--zo-fg-muted); font-family: var(--font-mono); }
+    .suc-msg { color: var(--zo-fg-muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; }
+    .suc-repo-link { margin-left: auto; font-size: 12px; color: var(--zo-primary); text-decoration: none; }
+    .suc-repo-link:hover { text-decoration: underline; }
     .sb-chats { flex: 0 1 auto; }
     .sb-viewall { font: inherit; font-size: 12px; color: var(--zo-fg-muted); background: none; border: none; padding: 0; cursor: pointer; }
     .sb-viewall:hover { color: var(--zo-fg); text-decoration: underline; }
@@ -1417,11 +1447,20 @@
     <div class="sb-search"><label class="sb-search-box"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M17 17L21 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><input type="search" id="sidebarChatSearch" placeholder="Search chats" oninput="sidebarChatSearchInput(this.value)" aria-label="Search chats"></label></div>
     <div class="sb-chats" id="sidebarChatList"></div>
     <div class="sb-footer">
+      <button class="sb-update-badge" id="sbUpdateBadge" hidden onclick="openSettings('profile')">
+        <span class="update-pill-dot" style="width:7px; height:7px;"></span>
+        <span>Update available</span>
+      </button>
       <div class="sb-account"><span class="sb-account-pill" id="sbAccountName"></span><button class="sb-signout" onclick="signOut()">Sign out</button></div>
       <button class="sb-iconbtn" onclick="openSettings('ai')" title="Settings" aria-label="Settings"><svg viewBox="0 0 24 24" fill="none" width="20" height="20" aria-hidden="true"><path d="M15.5 12C15.5 13.933 13.933 15.5 12 15.5C10.067 15.5 8.5 13.933 8.5 12C8.5 10.067 10.067 8.5 12 8.5C13.933 8.5 15.5 10.067 15.5 12Z" stroke="currentColor" stroke-width="1.5"></path><path d="M21.011 14.0965C21.5329 13.9558 21.7939 13.8854 21.8969 13.7508C22 13.6163 22 13.3998 22 12.9669V11.0332C22 10.6003 22 10.3838 21.8969 10.2493C21.7938 10.1147 21.5329 10.0443 21.011 9.90358C19.0606 9.37759 17.8399 7.33851 18.3433 5.40087C18.4817 4.86799 18.5509 4.60156 18.4848 4.44529C18.4187 4.28902 18.2291 4.18134 17.8497 3.96596L16.125 2.98673C15.7528 2.77539 15.5667 2.66972 15.3997 2.69222C15.2326 2.71472 15.0442 2.90273 14.6672 3.27873C13.208 4.73448 10.7936 4.73442 9.33434 3.27864C8.95743 2.90263 8.76898 2.71463 8.60193 2.69212C8.43489 2.66962 8.24877 2.77529 7.87653 2.98663L6.15184 3.96587C5.77253 4.18123 5.58287 4.28891 5.51678 4.44515C5.45068 4.6014 5.51987 4.86787 5.65825 5.4008C6.16137 7.3385 4.93972 9.37763 2.98902 9.9036C2.46712 10.0443 2.20617 10.1147 2.10308 10.2492C2 10.3838 2 10.6003 2 11.0332V12.9669C2 13.3998 2 13.6163 2.10308 13.7508C2.20615 13.8854 2.46711 13.9558 2.98902 14.0965C4.9394 14.6225 6.16008 16.6616 5.65672 18.5992C5.51829 19.1321 5.44907 19.3985 5.51516 19.5548C5.58126 19.7111 5.77092 19.8188 6.15025 20.0341L7.87495 21.0134C8.24721 21.2247 8.43334 21.3304 8.6004 21.3079C8.76746 21.2854 8.95588 21.0973 9.33271 20.7213C10.7927 19.2644 13.2088 19.2643 14.6689 20.7212C15.0457 21.0973 15.2341 21.2853 15.4012 21.3078C15.5682 21.3303 15.7544 21.2246 16.1266 21.0133L17.8513 20.034C18.2307 19.8187 18.4204 19.711 18.4864 19.5547C18.5525 19.3984 18.4833 19.132 18.3448 18.5991C17.8412 16.6616 19.0609 14.6226 21.011 14.0965Z" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path></svg></button>
     </div>
   </aside>
-  <button class="update-pill" id="updatePill" hidden onclick="location.reload()">SU was updated · Reload</button>
+  <div class="update-pill" id="updatePill" hidden>
+    <span class="update-pill-dot"></span>
+    <span class="update-pill-text" id="updatePillText">Update available</span>
+    <button class="update-pill-btn" id="updatePillBtn" onclick="applySystemUpdate()">Update now</button>
+    <button class="update-pill-close" onclick="dismissUpdatePill()" title="Dismiss">×</button>
+  </div>
   <div id="scrim" onclick="toggleSidebar(true)" aria-hidden="true"></div>
   <button class="sb-iconbtn" id="sbExpand" title="Expand sidebar" aria-label="Expand sidebar" onclick="toggleSidebar(false)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/><path d="m14 9 3 3-3 3"/></svg></button>
 
@@ -1797,6 +1836,40 @@
         <div class="settings-subtab-pane" id="spane-profile">
           <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Profile</span></div>
           <div class="settings-section-subtitle">SU's own identity and system keys: its email and password, your phone, mail servers, model and app keys. Project keys live under Advanced.</div>
+
+          <!-- SYSTEM & UPDATES CARD -->
+          <div class="system-update-card" id="systemUpdateCard">
+            <div class="suc-header">
+              <div class="suc-title-wrap">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/><path d="M16 21h5v-5"/></svg>
+                <span class="suc-title">System &amp; Updates</span>
+                <span class="suc-status-badge" id="sucStatusBadge">Checking…</span>
+              </div>
+              <div class="suc-actions">
+                <button class="zo-pill" id="sucCheckBtn" onclick="checkSystemUpdates(true)">Check for updates</button>
+                <button class="zo-btn-primary" id="sucApplyBtn" style="display:none;" onclick="applySystemUpdate()">Update now</button>
+              </div>
+            </div>
+            <div class="suc-body">
+              <div class="suc-detail-row">
+                <span class="suc-label">Current Version:</span>
+                <span class="suc-val" id="sucCurrentCommit">—</span>
+                <span class="suc-branch" id="sucBranch"></span>
+              </div>
+              <div class="suc-detail-row" id="sucLatestRow" style="display:none;">
+                <span class="suc-label">Latest Upstream:</span>
+                <span class="suc-val" id="sucLatestCommit">—</span>
+                <span class="suc-msg" id="sucLatestMsg"></span>
+              </div>
+              <div class="suc-detail-row">
+                <span class="suc-label">Last Checked:</span>
+                <span class="suc-val suc-time" id="sucLastChecked">Never</span>
+                <a id="sucRepoLink" class="suc-repo-link" href="https://github.com/shieldspprt/open-computer" target="_blank" rel="noopener">GitHub commits ↗</a>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section-subtitle" style="margin-top: 24px; font-weight: 600; color: var(--text-primary);">System Environment Variables</div>
           <div class="secret-add-bar">
             <input type="text" id="profSecretKey" class="secret-input-key" aria-label="Secret name" autocomplete="off" spellcheck="false" placeholder="KEY_NAME">
             <input type="text" id="profSecretVal" class="secret-input-val" placeholder="value" aria-label="Secret value" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')addSecretFrom('profSecretKey','profSecretVal','profile')">
@@ -3257,6 +3330,7 @@
       });
 
       if (sub === 'advanced' || sub === 'profile' || sub === 'ai' || sub === 'tools') loadAdvSecrets();
+      if (sub === 'profile') checkSystemUpdates(false);
       if (sub === 'ai') loadProviders();
       if (sub === 'channels') loadChannels();
       if (sub === 'ux') renderThemeList();
@@ -4259,7 +4333,14 @@
       try {
         const res = await window.fetch('/', { cache: 'no-store' }); const reader = res.body.getReader(); const { value } = await reader.read(); reader.cancel();
         const m = new TextDecoder().decode(value || new Uint8Array()).match(/name="su-build" content="([^"]+)"/);
-        if (m && m[1] !== BUILD) { const p = document.getElementById('updatePill'); p.hidden = false; }
+        if (m && m[1] !== BUILD) {
+          const p = document.getElementById('updatePill');
+          const t = document.getElementById('updatePillText');
+          if (t) t.textContent = 'New version deployed';
+          const b = document.getElementById('updatePillBtn');
+          if (b) { b.textContent = 'Reload'; b.onclick = () => location.reload(); }
+          if (p) p.hidden = false;
+        }
       } catch (e) {}
     }
     setInterval(checkForUpdate, 90000);
@@ -4332,6 +4413,189 @@
       } catch (e) {}
     }
 
+    // ==========================================
+    // SYSTEM UPDATES & NOTIFICATION ENGINE
+    // ==========================================
+    let latestUpdateInfo = null;
+    let updateCheckInProgress = false;
+
+    async function checkSystemUpdates(force = false) {
+      if (updateCheckInProgress) return;
+      updateCheckInProgress = true;
+
+      const badge = document.getElementById('sucStatusBadge');
+      const checkBtn = document.getElementById('sucCheckBtn');
+      const applyBtn = document.getElementById('sucApplyBtn');
+      const pill = document.getElementById('updatePill');
+      const pillText = document.getElementById('updatePillText');
+      const sbBadge = document.getElementById('sbUpdateBadge');
+
+      if (badge) {
+        badge.className = 'suc-status-badge checking';
+        badge.textContent = 'Checking…';
+      }
+      if (checkBtn) checkBtn.disabled = true;
+
+      try {
+        const res = await window.fetch('/api/update/check' + (force ? '?force=true' : ''));
+        if (!res.ok) throw new Error('HTTP ' + res.status);
+        const data = await res.json();
+        latestUpdateInfo = data;
+
+        // Populate Profile UI fields if present
+        const curEl = document.getElementById('sucCurrentCommit');
+        const brEl = document.getElementById('sucBranch');
+        const latRow = document.getElementById('sucLatestRow');
+        const latEl = document.getElementById('sucLatestCommit');
+        const latMsg = document.getElementById('sucLatestMsg');
+        const chkEl = document.getElementById('sucLastChecked');
+        const repoLink = document.getElementById('sucRepoLink');
+
+        if (curEl) curEl.textContent = data.current_commit || 'unknown';
+        if (brEl) brEl.textContent = data.current_branch || 'main';
+        if (chkEl && data.last_checked) {
+          const d = new Date(data.last_checked);
+          chkEl.textContent = isNaN(d) ? data.last_checked : d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+        if (repoLink && data.release_url) {
+          repoLink.href = data.release_url;
+        }
+
+        if (data.update_available) {
+          if (badge) {
+            badge.className = 'suc-status-badge update-ready';
+            badge.textContent = data.commits_behind > 0 ? `${data.commits_behind} update(s) available` : 'Update available';
+          }
+          if (applyBtn) applyBtn.style.display = 'inline-flex';
+          if (latRow) {
+            latRow.style.display = 'flex';
+            if (latEl) latEl.textContent = data.latest_commit || '';
+            if (latMsg) latMsg.textContent = data.latest_message ? `— ${data.latest_message}` : '';
+          }
+
+          // Show floating pill if not dismissed in session
+          const dismissedCommit = sessionStorage.getItem('dismissed_update_commit');
+          if (pill && dismissedCommit !== data.latest_commit) {
+            pill.hidden = false;
+            if (pillText) {
+              pillText.textContent = data.commits_behind > 1 
+                ? `Update available (${data.commits_behind} commits)` 
+                : `Update available (${data.latest_commit})`;
+            }
+          }
+          if (sbBadge) sbBadge.hidden = false;
+        } else {
+          if (badge) {
+            badge.className = 'suc-status-badge up-to-date';
+            badge.textContent = 'Up to date';
+          }
+          if (applyBtn) applyBtn.style.display = 'none';
+          if (latRow) latRow.style.display = 'none';
+          if (pill) pill.hidden = true;
+          if (sbBadge) sbBadge.hidden = true;
+        }
+      } catch (err) {
+        console.warn('Update check failed:', err);
+        if (badge) {
+          badge.className = 'suc-status-badge';
+          badge.textContent = 'Check failed';
+        }
+      } finally {
+        updateCheckInProgress = false;
+        if (checkBtn) checkBtn.disabled = false;
+      }
+    }
+
+    function dismissUpdatePill() {
+      const pill = document.getElementById('updatePill');
+      if (pill) pill.hidden = true;
+      if (latestUpdateInfo && latestUpdateInfo.latest_commit) {
+        sessionStorage.setItem('dismissed_update_commit', latestUpdateInfo.latest_commit);
+      }
+    }
+
+    async function applySystemUpdate() {
+      const modal = document.getElementById('updateModal');
+      const spinner = document.getElementById('updateModalSpinner');
+      const icon = document.getElementById('updateModalIcon');
+      const title = document.getElementById('updateModalTitle');
+      const status = document.getElementById('updateModalStatus');
+      const bar = document.getElementById('updateProgressBar');
+      const logBox = document.getElementById('updateModalLog');
+      const actions = document.getElementById('updateModalActions');
+
+      if (modal) modal.style.display = 'flex';
+      if (spinner) spinner.style.display = 'block';
+      if (icon) icon.style.display = 'none';
+      if (title) title.textContent = 'Updating Open Computer';
+      if (status) status.textContent = 'Downloading latest changes from repository…';
+      if (bar) bar.style.width = '35%';
+      if (logBox) { logBox.style.display = 'none'; logBox.textContent = ''; }
+      if (actions) actions.style.display = 'none';
+
+      try {
+        const res = await window.fetch('/api/update/apply', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' }
+        });
+        const data = await res.json();
+        if (!res.ok || !data.ok) {
+          throw new Error(data.error || 'Failed to trigger system update.');
+        }
+
+        if (status) status.textContent = 'Applying updates and restarting service…';
+        if (bar) bar.style.width = '70%';
+
+        // Wait 3 seconds for uvicorn to exit and systemd to restart it, then poll /health
+        await new Promise(r => setTimeout(r, 3000));
+        if (status) status.textContent = 'Reconnecting to Open Computer…';
+        if (bar) bar.style.width = '85%';
+
+        let attempts = 0;
+        const maxAttempts = 35;
+        const pollInterval = setInterval(async () => {
+          attempts++;
+          try {
+            const hRes = await window.fetch('/health', { cache: 'no-store' });
+            if (hRes.ok) {
+              clearInterval(pollInterval);
+              if (bar) bar.style.width = '100%';
+              if (spinner) spinner.style.display = 'none';
+              if (icon) icon.style.display = 'block';
+              if (title) title.textContent = 'Update Complete!';
+              if (status) status.textContent = 'System restarted successfully. Reloading…';
+              setTimeout(() => {
+                window.location.reload();
+              }, 1200);
+            }
+          } catch (e) {
+            if (attempts >= maxAttempts) {
+              clearInterval(pollInterval);
+              if (spinner) spinner.style.display = 'none';
+              if (title) title.textContent = 'Restart Taking Longer';
+              if (status) status.textContent = 'The system update was applied, but the service is still restarting. Please wait a moment and reload the page.';
+              if (actions) actions.style.display = 'flex';
+            }
+          }
+        }, 1500);
+
+      } catch (err) {
+        if (spinner) spinner.style.display = 'none';
+        if (title) title.textContent = 'Update Failed';
+        if (status) status.textContent = err.message;
+        if (logBox) {
+          logBox.textContent = err.message;
+          logBox.style.display = 'block';
+        }
+        if (actions) actions.style.display = 'flex';
+      }
+    }
+
+    function closeUpdateModal() {
+      const modal = document.getElementById('updateModal');
+      if (modal) modal.style.display = 'none';
+    }
+
     // Initialize defaults
     welcome();
     loadModels(); loadSysTag(); setInterval(loadSysTag, 30000);
@@ -4339,6 +4603,8 @@
     showHomeView();
     loadFiles();
     updateTrashBadge();
+    setTimeout(() => checkSystemUpdates(false), 2000);
+    setInterval(() => { if (!document.hidden) checkSystemUpdates(false); }, 15 * 60 * 1000);
   </script>
 
 
@@ -4384,6 +4650,23 @@
           <button class="zo-pill" onclick="closeIntegrationDrawer()">Cancel</button>
           <button class="btn-secret-add" id="drawerSaveBtn" onclick="saveCurrentIntegration()">Save &amp; Connect</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SYSTEM UPDATE MODAL -->
+  <div class="modal-bg" id="updateModal" role="dialog" aria-modal="true" aria-label="System Update" style="display:none; z-index:9999;">
+    <div class="modal-card" style="max-width: 440px; text-align: center; padding: 28px 24px;">
+      <div id="updateModalSpinner" style="margin: 0 auto 16px; width: 44px; height: 44px; border: 3px solid color-mix(in oklab, var(--zo-primary) 25%, transparent); border-top-color: var(--zo-primary); border-radius: 50%; animation: zo-spin 0.9s linear infinite;"></div>
+      <div id="updateModalIcon" style="display:none; margin: 0 auto 16px; font-size: 38px;">🎉</div>
+      <div id="updateModalTitle" style="font-size: 16px; font-weight: 700; margin-bottom: 8px;">Updating Open Computer</div>
+      <div id="updateModalStatus" style="font-size: 13px; color: var(--text-muted); line-height: 1.5; margin-bottom: 18px;">Connecting to update service...</div>
+      <div class="update-progress-bar" style="width: 100%; height: 6px; background: var(--hover); border-radius: 999px; overflow: hidden; margin-bottom: 16px;">
+        <div id="updateProgressBar" style="width: 25%; height: 100%; background: var(--zo-primary); border-radius: 999px; transition: width 0.4s ease;"></div>
+      </div>
+      <div id="updateModalLog" style="display:none; font-family: var(--font-mono); font-size: 11px; text-align: left; padding: 8px 12px; border-radius: 6px; background: color-mix(in oklab, var(--zo-bg) 60%, black); color: var(--accent-red); max-height: 100px; overflow-y: auto; margin-bottom: 14px;"></div>
+      <div id="updateModalActions" style="display:none; justify-content: center; gap: 8px;">
+        <button class="btn-sm" onclick="closeUpdateModal()">Close</button>
       </div>
     </div>
   </div>

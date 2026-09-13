@@ -30,6 +30,7 @@ import mimetypes
 import re
 from datetime import datetime
 import agent
+import updater
 from pydantic import BaseModel
 import httpx
 
@@ -129,7 +130,7 @@ async def auth_gate(request: Request, call_next):
     else:
         resp = await call_next(request)
         # Background polling routes should NOT refresh idle session timeout. Only active interactions do.
-        passive_paths = ("/api/runs", "/api/system", "/health")
+        passive_paths = ("/api/runs", "/api/system", "/health", "/api/update/check")
         parts = _session_parts(request.cookies.get("su_session"))
         if parts and path not in passive_paths and (parts[2] - time.time() < SESSION_IDLE / 2) and (parts[1] + SESSION_MAX > time.time() + 60):
             _set_session_cookie(resp, request, make_session(parts[0], parts[1]), SESSION_IDLE)
@@ -218,6 +219,17 @@ async def start_scheduler():
     if agent.env().get("SU_SCHEDULER", "1") != "0":  # SU_SCHEDULER=0: a standby or rehearsal gateway that must not run automations or poll channels
         asyncio.create_task(agent.scheduler_loop())
         asyncio.create_task(agent.telegram_channel_loop())
+
+    async def _periodic_update_checker():
+        await asyncio.sleep(5)
+        while True:
+            try:
+                await updater.check_for_updates(force=False)
+            except Exception:
+                pass
+            await asyncio.sleep(3600)  # Check every hour in background
+
+    asyncio.create_task(_periodic_update_checker())
 
 @app.get("/api/channels")
 async def get_channels():
@@ -1083,6 +1095,24 @@ def _system_stats_sync():
         "disk_total_gb": round(du.total / 1e9),
         "containers": containers
     }
+
+
+# ==================== SYSTEM UPDATES ====================
+
+@app.get("/api/update/check")
+async def check_updates(force: bool = False):
+    return await updater.check_for_updates(force=force)
+
+
+@app.get("/api/update/version")
+async def get_version():
+    return updater.get_current_version()
+
+
+@app.post("/api/update/apply")
+async def apply_system_update():
+    return await updater.apply_update()
+
 
 # ==================== ENVIRONMENT VARIABLES (VIEW, EDIT, DELETE) ====================
 
