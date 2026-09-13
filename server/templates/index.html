@@ -1307,6 +1307,33 @@
     .suc-msg { color: var(--zo-fg-muted); font-size: 12px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 320px; }
     .suc-repo-link { margin-left: auto; font-size: 12px; color: var(--zo-primary); text-decoration: none; }
     .suc-repo-link:hover { text-decoration: underline; }
+    .ai-provider-add-card { margin-top: 14px; margin-bottom: 20px; padding: 16px; border-radius: 12px; border: 1px solid var(--border); background: color-mix(in oklab, var(--zo-muted) 35%, transparent); display: flex; flex-direction: column; gap: 14px; }
+    .ai-preset-chips { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+    .ai-preset-label { font-size: 12px; color: var(--zo-fg-muted); margin-right: 2px; }
+    .ai-chip { font-size: 11.5px; padding: 3px 10px; border-radius: 999px; background: var(--hover); border: 1px solid var(--border); color: var(--zo-fg); cursor: pointer; transition: all 0.15s ease; }
+    .ai-chip:hover { border-color: var(--zo-primary); color: var(--zo-primary); background: color-mix(in oklab, var(--zo-primary) 12%, transparent); }
+    .ai-add-grid { display: grid; grid-template-columns: 1fr 1.5fr 1.2fr; gap: 10px; }
+    @media (max-width: 800px) { .ai-add-grid { grid-template-columns: 1fr; } }
+    .ai-input-group { display: flex; flex-direction: column; gap: 5px; }
+    .ai-input-group label { font-size: 11.5px; font-weight: 600; color: var(--zo-fg-muted); }
+    .ai-input-group input { height: 36px; padding: 0 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--zo-bg); color: var(--zo-fg); font-size: 13px; outline: none; font-family: inherit; }
+    .ai-input-group input:focus { border-color: var(--zo-primary); }
+    .ai-add-footer { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .ai-add-status { font-size: 12px; color: var(--zo-fg-muted); }
+    .ai-providers-container { display: flex; flex-direction: column; gap: 10px; margin-top: 10px; margin-bottom: 24px; }
+    .ai-prov-card { display: flex; align-items: center; justify-content: space-between; padding: 12px 16px; border-radius: 10px; border: 1px solid var(--border); background: color-mix(in oklab, var(--zo-muted) 25%, transparent); gap: 12px; flex-wrap: wrap; }
+    .ai-prov-card.prov-off { opacity: 0.6; }
+    .ai-prov-info { display: flex; flex-direction: column; gap: 4px; min-width: 220px; }
+    .ai-prov-name-row { display: flex; align-items: center; gap: 8px; }
+    .ai-prov-name { font-weight: 600; font-size: 14px; color: var(--zo-fg); }
+    .ai-prov-badge { font-size: 11px; padding: 1px 7px; border-radius: 999px; font-weight: 500; background: color-mix(in oklab, #10b981 18%, transparent); color: #10b981; }
+    .ai-prov-badge.badge-off { background: color-mix(in oklab, var(--zo-fg-muted) 20%, transparent); color: var(--zo-fg-muted); }
+    .ai-prov-url { font-family: var(--font-mono); font-size: 11.5px; color: var(--zo-fg-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 340px; }
+    .ai-prov-key { font-family: var(--font-mono); font-size: 11px; color: var(--zo-fg-muted); }
+    .ai-prov-models { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 4px; }
+    .ai-model-tag { font-size: 11px; padding: 1px 6px; border-radius: 4px; background: var(--hover); font-family: var(--font-mono); color: var(--zo-fg-muted); }
+    .ai-prov-actions { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
     .sb-chats { flex: 0 1 auto; }
     .sb-viewall { font: inherit; font-size: 12px; color: var(--zo-fg-muted); background: none; border: none; padding: 0; cursor: pointer; }
     .sb-viewall:hover { color: var(--zo-fg); text-decoration: underline; }
@@ -1776,23 +1803,73 @@
         </div>
 
         <div class="settings-subtab-pane active" id="spane-ai">
-          <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><span>Models</span></div>
-          <div class="settings-section-subtitle">SU talks to any OpenAI-compatible provider with tool calling. Add a key in Advanced; models appear in the chat picker.</div>
-          <div class="zo-list" id="providersCard"><div class="pg-empty">Loading providers…</div></div>
+          <div class="settings-section-title">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg>
+            <span>AI Providers</span>
+          </div>
+          <div class="settings-section-subtitle">Add any AI provider: give it a name, base URL (endpoint), and API key. You can add multiple providers. Models are loaded dynamically into your chat picker.</div>
 
-          <div class="settings-section-title" style="margin-top: 28px;"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M8 7H16.75C18.8567 7 19.91 7 20.6667 7.50559C20.9943 7.72447 21.2755 8.00572 21.4944 8.33329C22 9.08996 22 10.1433 22 12.25C22 15.7612 22 17.5167 21.1573 18.7779C20.7926 19.3238 20.3238 19.7926 19.7779 20.1573C18.5167 21 16.7612 21 13.25 21H12C7.28595 21 4.92893 21 3.46447 19.5355C2 18.0711 2 15.714 2 11V7.94427C2 6.1278 2 5.21956 2.38032 4.53806C2.65142 4.05227 3.05227 3.65142 3.53806 3.38032C4.21956 3 5.1278 3 6.94427 3C8.10802 3 8.6899 3 9.19926 3.19101C10.3622 3.62712 10.8418 4.68358 11.3666 5.73313L12 7" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path></svg><span>Rules</span></div>
-          <div class="settings-section-subtitle">Always applied to every chat and automation (saved to workspace/RULES.md).</div>
+          <!-- ADD PROVIDER FORM -->
+          <div class="ai-provider-add-card">
+            <div class="ai-preset-chips">
+              <span class="ai-preset-label">Quick fill:</span>
+              <button type="button" class="ai-chip" onclick="fillProviderPreset('OpenAI', 'https://api.openai.com/v1')">OpenAI</button>
+              <button type="button" class="ai-chip" onclick="fillProviderPreset('DeepSeek', 'https://api.deepseek.com/v1')">DeepSeek</button>
+              <button type="button" class="ai-chip" onclick="fillProviderPreset('Groq', 'https://api.groq.com/openai/v1')">Groq</button>
+              <button type="button" class="ai-chip" onclick="fillProviderPreset('OpenRouter', 'https://openrouter.ai/api/v1')">OpenRouter</button>
+              <button type="button" class="ai-chip" onclick="fillProviderPreset('Local Ollama', 'http://127.0.0.1:11434/v1')">Ollama / Local</button>
+            </div>
+            <div class="ai-add-grid">
+              <div class="ai-input-group">
+                <label for="newProvName">Provider Name</label>
+                <input type="text" id="newProvName" placeholder="e.g. DeepSeek, OpenAI" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="ai-input-group">
+                <label for="newProvUrl">Base URL (Endpoint)</label>
+                <input type="url" id="newProvUrl" placeholder="https://api.deepseek.com/v1" autocomplete="off" spellcheck="false">
+              </div>
+              <div class="ai-input-group">
+                <label for="newProvKey">API Key</label>
+                <input type="password" id="newProvKey" placeholder="sk-... (optional for local)" autocomplete="new-password" spellcheck="false" onkeydown="if(event.key==='Enter')addNewProvider()">
+              </div>
+            </div>
+            <div class="ai-add-footer">
+              <span class="ai-add-status" id="newProvStatus"></span>
+              <button class="zo-btn-primary" id="addProvBtn" onclick="addNewProvider()">Add Provider</button>
+            </div>
+          </div>
+
+          <!-- CONNECTED PROVIDERS -->
+          <div class="settings-section-subtitle" style="margin-top: 18px; font-weight: 600; color: var(--zo-fg);">Connected Providers</div>
+          <div id="aiProvidersList" class="ai-providers-container">
+            <div class="pg-empty">Loading providers…</div>
+          </div>
+
+          <!-- MODEL PREFERENCES -->
+          <div class="settings-section-subtitle" style="margin-top: 24px; font-weight: 600; color: var(--zo-fg);">Model Preferences</div>
+          <div class="zo-list" id="modelPrefsCard">
+            <div class="zo-list-row">
+              <span class="zo-list-label"><span>Default Chat Model</span><span class="zo-list-sub">Used for new chats</span></span>
+              <label class="zo-pill" style="max-width: 320px;">
+                <select id="defaultModelSelect" onchange="setDefaultModel(this.value)"><option value="">Loading…</option></select>
+              </label>
+            </div>
+            <div class="zo-list-row">
+              <span class="zo-list-label"><span>Image Model</span><span class="zo-list-sub">Model used by generate_image</span></span>
+              <label class="zo-pill" style="max-width: 320px;">
+                <select id="mediaImageSelect" onchange="saveMedia({ image: this.value })"><option value="">Loading…</option></select>
+              </label>
+            </div>
+          </div>
+
+          <!-- RULES -->
+          <div class="settings-section-title" style="margin-top: 28px;">
+            <svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M8 7H16.75C18.8567 7 19.91 7 20.6667 7.50559C20.9943 7.72447 21.2755 8.00572 21.4944 8.33329C22 9.08996 22 10.1433 22 12.25C22 15.7612 22 17.5167 21.1573 18.7779C20.7926 19.3238 20.3238 19.7926 19.7779 20.1573C18.5167 21 16.7612 21 13.25 21H12C7.28595 21 4.92893 21 3.46447 19.5355C2 18.0711 2 15.714 2 11V7.94427C2 6.1278 2 5.21956 2.38032 4.53806C2.65142 4.05227 3.05227 3.65142 3.53806 3.38032C4.21956 3 5.1278 3 6.94427 3C8.10802 3 8.6899 3 9.19926 3.19101C10.3622 3.62712 10.8418 4.68358 11.3666 5.73313L12 7" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path></svg>
+            <span>Rules</span>
+          </div>
+          <div class="settings-section-subtitle">System instructions applied to every chat and automation (saved to workspace/RULES.md).</div>
           <textarea id="rulesText" class="zo-textarea" aria-label="Rules" placeholder="e.g. Always reply in British English. Never delete files outside Projects/."></textarea>
           <div style="display: flex; justify-content: flex-end; margin-top: 8px;"><button class="zo-btn-primary" id="rulesSaveBtn" onclick="saveRules()">Save rules</button></div>
-
-          <div class="settings-section-title" style="margin-top: 28px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M2 18v3h3l9.5-9.5a4.5 4.5 0 1 0-3-3z"/><circle cx="16.5" cy="7.5" r="1"/></svg><span>AI keys</span></div>
-          <div class="settings-section-subtitle">Provider keys and model settings SU itself uses.</div>
-          <div class="secret-add-bar">
-            <input type="text" id="aiSecretKey" class="secret-input-key" aria-label="Secret name" autocomplete="off" spellcheck="false" placeholder="KEY_NAME">
-            <input type="text" id="aiSecretVal" class="secret-input-val" placeholder="value" aria-label="Secret value" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')addSecretFrom('aiSecretKey','aiSecretVal','ai')">
-            <button class="zo-btn-primary" onclick="addSecretFrom('aiSecretKey','aiSecretVal','ai')">Add</button>
-          </div>
-          <div id="aiSecretsList" class="secrets-list"><div class="pg-empty">Loading…</div></div>
         </div>
 
         <div class="settings-subtab-pane" id="spane-channels">
@@ -3887,38 +3964,223 @@
     }
 
     // --- SETTINGS: providers + rules ---
-    async function loadProviders() {
-      const el = document.getElementById('providersCard'); if (!el) return;
-      let d = { providers: [], default: '' };
-      try { d = await (await api('/api/providers')).json(); } catch (e) { el.innerHTML = '<div class="pg-empty">Could not load providers.</div>'; return; }
-      const rows = (d.providers || []).map(p => {
-        const off = !p.enabled;
-        const status = p.kind === 'runtime'
-          ? (p.configured ? '<span class="zo-status-ok">Connected</span>' : '<span class="zo-list-sub">Not logged in on the box</span>')
-          : (p.configured ? '<span class="zo-status-ok">Connected</span>' : `<button class="zo-pill" onclick="prefillSecret(${jsq(p.key)})">Add key</button>`);
-        return `<div class="zo-list-row prov-row${off ? ' prov-off' : ''}" id="prov-${esc(p.id)}">
-          <span class="zo-list-label"><span>${esc(p.label)}${off ? ' <span class="prov-badge">Offline</span>' : ''}</span><span class="zo-list-sub" style="font-family: var(--font-mono);">${esc(p.kind === 'runtime' ? 'runtime · ' + p.id : p.key)}</span>${p.image_only ? '<span class="zo-list-sub">Used for image generation only</span>' : ''}</span>
-          <span class="prov-actions">${status}<label class="zo-switch" title="${off ? 'Switch online' : 'Switch offline'}"><input type="checkbox" ${p.enabled ? 'checked' : ''} onchange="setProviderEnabled(${jsq(p.id)}, this.checked, this)" aria-label="${esc(p.label)} online"><span class="zo-switch-track"></span></label></span>
-        </div>`;
-      }).join('');
-      el.innerHTML = rows
-        + `<div class="zo-list-row"><span class="zo-list-label"><span>Default model</span></span><span class="zo-list-sub" style="font-family: var(--font-mono);">${esc(d.default || '—')}</span></div>`
-        + `<div class="zo-list-row"><span class="zo-list-label"><span>Image</span><span class="zo-list-sub">Model used by generate_image</span></span><label class="zo-pill" style="max-width: 320px;"><select id="mediaImageSelect" aria-label="Image model" onchange="saveMedia({ image: this.value })"><option value="">Loading…</option></select></label></div>`
-        + `<div class="zo-list-row"><span class="zo-list-label"><span>Video</span><span class="zo-list-sub" id="mediaVideoHint">fal.ai model id</span></span><span style="display:flex;align-items:center;gap:8px;"><span id="mediaVideoStatus" class="zo-list-sub"></span><input id="mediaVideoInput" class="zo-input" placeholder="fal-ai/…" aria-label="Video model id" onchange="saveMedia({ video: this.value.trim() })"></span></div>`;
-      loadMedia();
-      const rulesEl = document.getElementById('rulesText'), rulesBtn = document.getElementById('rulesSaveBtn');
-      rulesBtn.disabled = true;
-      try { rulesEl.value = (await fetchJson('/api/rules')).rules || ''; rulesBtn.disabled = false; }
-      catch (e) { rulesEl.value = ''; rulesEl.placeholder = 'Could not load rules: ' + e.message; }
+    function fillProviderPreset(name, url) {
+      const n = document.getElementById('newProvName');
+      const u = document.getElementById('newProvUrl');
+      const k = document.getElementById('newProvKey');
+      if (n) n.value = name;
+      if (u) u.value = url;
+      if (k) { k.value = ''; k.focus(); }
     }
-    async function setProviderEnabled(id, enabled, input) {
-      input.disabled = true;
+
+    async function addNewProvider() {
+      const nameInput = document.getElementById('newProvName');
+      const urlInput = document.getElementById('newProvUrl');
+      const keyInput = document.getElementById('newProvKey');
+      const statusEl = document.getElementById('newProvStatus');
+      const btn = document.getElementById('addProvBtn');
+      if (!nameInput || !urlInput) return;
+
+      const name = nameInput.value.trim();
+      const base_url = urlInput.value.trim();
+      const api_key = keyInput ? keyInput.value.trim() : '';
+
+      if (!name) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444">Please enter a provider name.</span>';
+        nameInput.focus();
+        return;
+      }
+      if (!base_url) {
+        if (statusEl) statusEl.innerHTML = '<span style="color:#ef4444">Please enter a base URL.</span>';
+        urlInput.focus();
+        return;
+      }
+
+      if (btn) { btn.disabled = true; btn.textContent = 'Connecting…'; }
+      if (statusEl) statusEl.innerHTML = '<span style="color:var(--zo-fg-muted)">Discovering models…</span>';
+
       try {
-        const r = await api('/api/providers/' + encodeURIComponent(id), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ enabled }) });
+        const r = await api('/api/providers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name, base_url, api_key })
+        });
+        const data = await r.json();
+        if (!r.ok) throw new Error(data.detail || ('HTTP ' + r.status));
+
+        nameInput.value = '';
+        urlInput.value = '';
+        if (keyInput) keyInput.value = '';
+
+        const modelsCount = (data.provider && data.provider.models) ? data.provider.models.length : 0;
+        if (statusEl) {
+          statusEl.innerHTML = `<span style="color:#10b981">✓ Added provider! Discovered ${modelsCount} model${modelsCount === 1 ? '' : 's'}.</span>`;
+          setTimeout(() => { if (statusEl) statusEl.textContent = ''; }, 4000);
+        }
+        await loadProviders();
+        await loadModels();
+      } catch (e) {
+        if (statusEl) statusEl.innerHTML = `<span style="color:#ef4444">Error: ${esc(e.message)}</span>`;
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = 'Add Provider'; }
+      }
+    }
+
+    async function deleteProvider(pid, name) {
+      if (!confirm(`Remove AI provider "${name || pid}"?`)) return;
+      try {
+        const r = await api('/api/providers/' + encodeURIComponent(pid), { method: 'DELETE' });
         if (!r.ok) throw new Error((await r.json()).detail || r.status);
-      } catch (e) { alert('Could not update provider: ' + e.message); }
+      } catch (e) {
+        alert('Could not remove provider: ' + e.message);
+      }
       await loadProviders();
-      loadModels();
+      await loadModels();
+    }
+
+    async function testProvider(pid, btn) {
+      const origText = btn ? btn.textContent : '';
+      if (btn) { btn.disabled = true; btn.textContent = 'Testing…'; }
+      try {
+        const r = await api('/api/providers/' + encodeURIComponent(pid) + '/test', { method: 'POST' });
+        const data = await r.json();
+        if (!data.ok) throw new Error(data.error || 'Connection failed');
+        const n = (data.models || []).length;
+        alert(`Success! Found ${n} model${n === 1 ? '' : 's'} from this provider.`);
+      } catch (e) {
+        alert('Failed to connect: ' + e.message);
+      } finally {
+        if (btn) { btn.disabled = false; btn.textContent = origText; }
+        await loadProviders();
+        await loadModels();
+      }
+    }
+
+    async function setDefaultModel(model) {
+      try {
+        const r = await api('/api/providers/default', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ model })
+        });
+        if (!r.ok) throw new Error((await r.json()).detail || r.status);
+      } catch (e) {
+        alert('Could not set default model: ' + e.message);
+      }
+      await loadModels();
+    }
+
+    async function loadProviders() {
+      const container = document.getElementById('aiProvidersList');
+      let d = { providers: [], default: '' };
+      try {
+        d = await (await api('/api/providers')).json();
+      } catch (e) {
+        if (container) container.innerHTML = '<div class="pg-empty">Could not load AI providers: ' + esc(e.message) + '</div>';
+        return;
+      }
+
+      if (container) {
+        if (!d.providers || !d.providers.length) {
+          container.innerHTML = `<div class="pg-empty" style="padding: 24px 12px; text-align: center;">
+            No AI providers connected yet.<br>
+            <span style="font-size: 12px; color: var(--zo-fg-muted); margin-top: 4px; display: inline-block;">Add an AI provider using the form above (e.g. OpenAI, DeepSeek, Groq, OpenRouter, or local Ollama).</span>
+          </div>`;
+        } else {
+          container.innerHTML = d.providers.map(p => {
+            const off = !p.enabled;
+            const modelsList = p.models || [];
+            return `<div class="ai-prov-card${off ? ' prov-off' : ''}" id="prov-${esc(p.id)}">
+              <div class="ai-prov-info">
+                <div class="ai-prov-name-row">
+                  <span class="ai-prov-name">${esc(p.name || p.id)}</span>
+                  <span class="ai-prov-badge${off ? ' badge-off' : ''}">${p.enabled ? (modelsList.length + ' model' + (modelsList.length === 1 ? '' : 's')) : 'Offline'}</span>
+                </div>
+                <div class="ai-prov-url" title="${esc(p.base_url)}">${esc(p.base_url)}</div>
+                <div class="ai-prov-key">Key: ${esc(p.masked_key || (p.has_key ? '••••' : 'None (local/open)'))}</div>
+                ${modelsList.length ? `
+                  <div class="ai-prov-models">
+                    ${modelsList.slice(0, 6).map(m => `<span class="ai-model-tag" title="${esc(m)}">${esc(m)}</span>`).join('')}
+                    ${modelsList.length > 6 ? `<span class="ai-model-tag" style="opacity: 0.7;">+${modelsList.length - 6} more</span>` : ''}
+                  </div>
+                ` : ''}
+              </div>
+              <div class="ai-prov-actions">
+                <button type="button" class="zo-pill" onclick="testProvider(${jsq(p.id)}, this)" title="Test connection and refresh models">Refresh</button>
+                <button type="button" class="zo-iconbtn" onclick="deleteProvider(${jsq(p.id)}, ${jsq(p.name || p.id)})" title="Delete provider" style="color: var(--accent-red, #ef4444);">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                </button>
+                <label class="zo-switch" title="${off ? 'Switch online' : 'Switch offline'}">
+                  <input type="checkbox" ${p.enabled ? 'checked' : ''} onchange="setProviderEnabled(${jsq(p.id)}, this.checked, this)" aria-label="${esc(p.name || p.id)} online">
+                  <span class="zo-switch-track"></span>
+                </label>
+              </div>
+            </div>`;
+          }).join('');
+        }
+      }
+
+      // Populate default chat model dropdown
+      const defSel = document.getElementById('defaultModelSelect');
+      if (defSel) {
+        let modelsResp = null;
+        try { modelsResp = await (await api('/models/available')).json(); } catch (e) {}
+        const models = (modelsResp && modelsResp.models) || [];
+        defSel.innerHTML = '';
+        if (!models.length) {
+          defSel.appendChild(new Option('No models available — add a provider above', ''));
+        } else {
+          const groups = new Map();
+          models.forEach(m => {
+            const v = m.vendor || m.model_name.split(':')[0];
+            if (!groups.has(v)) {
+              const g = document.createElement('optgroup');
+              g.label = v;
+              groups.set(v, g);
+              defSel.appendChild(g);
+            }
+            const opt = new Option(m.label.replace(' · ' + v, ''), m.model_name);
+            groups.get(v).appendChild(opt);
+          });
+          const curDef = d.default || (modelsResp && modelsResp.default) || '';
+          if (curDef && [...defSel.options].some(o => o.value === curDef)) {
+            defSel.value = curDef;
+          }
+        }
+      }
+
+      // Load media options (image / video models)
+      await loadMedia();
+
+      // Load rules
+      const rulesEl = document.getElementById('rulesText');
+      const rulesBtn = document.getElementById('rulesSaveBtn');
+      if (rulesEl && rulesBtn) {
+        rulesBtn.disabled = true;
+        try {
+          rulesEl.value = (await fetchJson('/api/rules')).rules || '';
+          rulesBtn.disabled = false;
+        } catch (e) {
+          rulesEl.value = '';
+          rulesEl.placeholder = 'Could not load rules: ' + e.message;
+        }
+      }
+    }
+
+    async function setProviderEnabled(id, enabled, input) {
+      if (input) input.disabled = true;
+      try {
+        const r = await api('/api/providers/' + encodeURIComponent(id) + '/toggle', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ enabled })
+        });
+        if (!r.ok) throw new Error((await r.json()).detail || r.status);
+      } catch (e) {
+        alert('Could not update provider: ' + e.message);
+      }
+      await loadProviders();
+      await loadModels();
     }
     function renderThemeList() {
       const list = document.getElementById('themeList'); if (!list) return;

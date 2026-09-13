@@ -37,13 +37,28 @@ AUTO_DIR = DATA / "automations"
 TASK_DIR = DATA / "tasks"
 RUNS_DIR = DATA / "runs"
 MCP_FILE = DATA / "mcp.json"
+PROVIDERS_FILE = DATA / "providers.json"
 RULES_FILE = WORKSPACE / "RULES.md"
 TZ = ZoneInfo(os.environ.get("SU_TZ", "Europe/London"))
 MAX_STEPS = 40
 SKILLS_MANIFEST = "https://raw.githubusercontent.com/zocomputer/skills/main/manifest.json"
 
-for d in (CONV_DIR, AUTO_DIR, RUNS_DIR, SKILLS_DIR, TASK_DIR):
+for d in (DATA, CONV_DIR, AUTO_DIR, RUNS_DIR, SKILLS_DIR, TASK_DIR):
     d.mkdir(parents=True, exist_ok=True)
+
+
+def _read(p: Path, default=None):
+    try:
+        return json.loads(p.read_text(encoding="utf-8"))
+    except Exception:
+        return default
+
+
+def _write(p: Path, obj):
+    tmp = p.with_suffix(p.suffix + ".tmp")
+    tmp.write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")
+    tmp.replace(p)
+
 
 # ---------------------------------------------------------------- providers
 
@@ -169,6 +184,152 @@ def env_file_keys() -> List[str]:
     return [l.split("=", 1)[0].strip() for l in p.read_text(encoding="utf-8").splitlines() if l.strip() and not l.strip().startswith("#") and "=" in l]
 
 
+def get_custom_providers() -> List[Dict[str, Any]]:
+    """Return all user-configured providers from providers.json (with automatic migration from legacy .env keys)."""
+    providers = _read(PROVIDERS_FILE, None)
+    if providers is None:
+        e = env()
+        migrated = []
+        templates = [
+            ("openai", "OpenAI", "https://api.openai.com/v1", "OPENAI_API_KEY"),
+            ("openrouter", "OpenRouter", "https://openrouter.ai/api/v1", "OPENROUTER_API_KEY"),
+            ("deepseek", "DeepSeek", "https://api.deepseek.com/v1", "DEEPSEEK_API_KEY"),
+            ("groq", "Groq", "https://api.groq.com/openai/v1", "GROQ_API_KEY"),
+            ("google", "Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/", "GEMINI_API_KEY"),
+            ("anthropic", "Anthropic", "https://api.anthropic.com/v1", "ANTHROPIC_API_KEY"),
+            ("local", "Local Ollama", "http://127.0.0.1:11434/v1", "LOCAL_LLM_URL"),
+        ]
+        for pid, name, url, key_var in templates:
+            val = e.get(key_var) or e.get(key_var.lower())
+            if val:
+                migrated.append({
+                    "id": pid,
+                    "name": name,
+                    "base_url": val if key_var == "LOCAL_LLM_URL" else url,
+                    "api_key": "" if key_var == "LOCAL_LLM_URL" else val,
+                    "enabled": True,
+                    "models": [],
+                    "created_at": time.time()
+                })
+        save_custom_providers(migrated)
+        return migrated
+    return providers
+
+
+def save_custom_providers(providers: List[Dict[str, Any]]):
+    _write(PROVIDERS_FILE, providers)
+
+
+async def test_provider_connection(base_url: str, api_key: str = "") -> Dict[str, Any]:
+    """Test connection to an OpenAI-compatible endpoint and fetch available models."""
+    url = (base_url or "").strip().rstrip("/")
+    if not url:
+        return {"ok": False, "models": [], "error": "URL cannot be empty."}
+
+    headers = {"Accept": "application/json"}
+    if api_key:
+        if "anthropic.com" in url:
+            headers["x-api-key"] = api_key
+            headers["anthropic-version"] = "2023-06-01"
+        else:
+            headers["Authorization"] = f"Bearer {api_key}"
+
+    endpoints = [f"{url}/models"]
+    if not url.endswith("/v1"):
+        endpoints.append(f"{url}/v1/models")
+    if "11434" in url or "ollama" in url.lower():
+        endpoints.append(f"{url.removesuffix('/v1')}/api/tags")
+
+    last_error = "Could not connect to provider."
+    try:
+        async with httpx.AsyncClient(timeout=10, follow_redirects=True) as client:
+            for ep in endpoints:
+                try:
+                    resp = await client.get(ep, headers=headers)
+                    if resp.status_code == 200:
+                        data = resp.json()
+                        raw_models = []
+                        if isinstance(data, dict):
+                            if "data" in data and isinstance(data["data"], list):
+                                raw_models = [m.get("id") for m in data["data"] if isinstance(m, dict) and m.get("id")]
+                            elif "models" in data and isinstance(data["models"], list):
+                                raw_models = [m.get("name") or m.get("id") for m in data["models"] if isinstance(m, dict)]
+                        elif isinstance(data, list):
+                            raw_models = [m.get("id") for m in data if isinstance(m, dict) and m.get("id")]
+
+                        if raw_models:
+                            exclude = ("embed", "whisper", "tts", "moderation", "babbage", "davinci", "curie", "ada", "realtime")
+                            filtered = [m for m in raw_models if m and not any(bad in m.lower() for bad in exclude)]
+                            return {"ok": True, "models": filtered if filtered else raw_models, "error": None}
+                    elif resp.status_code in (401, 403):
+                        return {"ok": False, "models": [], "error": f"Authentication failed (HTTP {resp.status_code}). Check your API key."}
+                    else:
+                        last_error = f"HTTP {resp.status_code}: {resp.text[:120]}"
+                except Exception as e:
+                    last_error = str(e)
+    except Exception as e:
+        last_error = str(e)
+
+    return {"ok": False, "models": [], "error": last_error}
+
+
+async def add_custom_provider(name: str, base_url: str, api_key: str = "", pid: Optional[str] = None) -> Dict[str, Any]:
+    providers = get_custom_providers()
+    name = (name or "").strip()
+    base_url = (base_url or "").strip().rstrip("/")
+    api_key = (api_key or "").strip()
+
+    if not pid:
+        base_slug = re.sub(r'[^a-zA-Z0-9_-]', '_', name.lower()).strip('_') or "provider"
+        pid = base_slug
+        count = 1
+        existing_ids = {p["id"] for p in providers}
+        while pid in existing_ids:
+            count += 1
+            pid = f"{base_slug}_{count}"
+
+    test_res = await test_provider_connection(base_url, api_key)
+    models = test_res["models"] if test_res["ok"] else []
+
+    if not models:
+        for known_key, seed_list in SEED_MODELS.items():
+            if known_key in pid.lower() or known_key in base_url.lower():
+                models = list(seed_list)
+                break
+
+    existing_idx = next((i for i, p in enumerate(providers) if p["id"] == pid), None)
+    new_prov = {
+        "id": pid,
+        "name": name,
+        "base_url": base_url,
+        "api_key": api_key,
+        "enabled": True,
+        "models": models,
+        "created_at": time.time()
+    }
+
+    if existing_idx is not None:
+        if not api_key and providers[existing_idx].get("api_key"):
+            new_prov["api_key"] = providers[existing_idx]["api_key"]
+        providers[existing_idx] = new_prov
+    else:
+        providers.append(new_prov)
+
+    save_custom_providers(providers)
+    _models_cache.clear()
+    return new_prov
+
+
+def delete_custom_provider(pid: str) -> bool:
+    providers = get_custom_providers()
+    new_list = [p for p in providers if p["id"] != pid]
+    if len(new_list) != len(providers):
+        save_custom_providers(new_list)
+        _models_cache.clear()
+        return True
+    return False
+
+
 def disabled_providers() -> set:
     return {x.strip() for x in env().get("SU_DISABLED_PROVIDERS", "").split(",") if x.strip()}
 
@@ -178,6 +339,10 @@ def image_only_providers() -> set:
 
 
 def _get_provider_key(provider: str) -> Optional[str]:
+    custom = get_custom_providers()
+    for p in custom:
+        if p["id"] == provider:
+            return p.get("api_key") or "configured"
     cfg = PROVIDERS.get(provider)
     if not cfg:
         return None
@@ -194,6 +359,9 @@ def _get_provider_key(provider: str) -> Optional[str]:
 
 
 def configured_providers() -> List[str]:
+    custom = get_custom_providers()
+    if custom:
+        return [p["id"] for p in custom if p.get("enabled", True)]
     off = disabled_providers()
     res = []
     for p in PROVIDERS:
@@ -201,69 +369,46 @@ def configured_providers() -> List[str]:
             continue
         if _get_provider_key(p):
             res.append(p)
-    e = env()
-    for k, v in e.items():
-        if (k.endswith("_BASE_URL") or k.endswith("_LLM_URL")) and v:
-            p_id = k.rsplit("_", 1)[0].lower()
-            if p_id not in PROVIDERS and p_id not in off and p_id not in res:
-                res.append(p_id)
     return res
 
 
 def chat_providers() -> List[str]:
-    """Providers whose models are offered for chat/automations (image-only ones are kept for generate_image)."""
     return [p for p in configured_providers() if p not in image_only_providers()]
 
 
 def provider_status() -> List[Dict[str, Any]]:
-    """Every provider and runtime with its key name, whether a key exists, and the online/offline toggle."""
-    e = env(); off = disabled_providers()
-    imgonly = image_only_providers()
+    """Return the clean list of user-configured AI providers."""
+    custom = get_custom_providers()
     rows = []
-    for p, cfg in PROVIDERS.items():
-        is_cfg = bool(_get_provider_key(p))
-        if not is_cfg and p not in PRIMARY_PROVIDERS:
-            continue
+    for p in custom:
+        key = p.get("api_key", "")
+        masked = f"{key[:3]}...{key[-4:]}" if len(key) > 7 else ("••••" if key else "None (local)")
         rows.append({
-            "id": p,
-            "label": cfg["label"] + (" (images only)" if p in imgonly else ""),
-            "key": cfg["key"],
-            "configured": is_cfg,
-            "enabled": p not in off,
-            "kind": "api",
-            "image_only": p in imgonly
+            "id": p["id"],
+            "name": p.get("name", p["id"]),
+            "label": p.get("name", p["id"]),
+            "base_url": p["base_url"],
+            "configured": bool(key or "127.0.0.1" in p["base_url"] or "localhost" in p["base_url"]),
+            "has_key": bool(key),
+            "masked_key": masked,
+            "enabled": p.get("enabled", True),
+            "models": p.get("models", []),
+            "model_count": len(p.get("models", [])),
+            "kind": "api"
         })
-    for k, v in e.items():
-        if (k.endswith("_BASE_URL") or k.endswith("_LLM_URL")) and v:
-            p_id = k.rsplit("_", 1)[0].lower()
-            if p_id not in PROVIDERS:
-                key_name = f"{p_id.upper()}_API_KEY"
-                rows.append({
-                    "id": p_id,
-                    "label": f"{p_id.capitalize()} (Custom)",
-                    "key": key_name,
-                    "configured": bool(e.get(key_name) or e.get(key_name.lower())),
-                    "enabled": p_id not in off,
-                    "kind": "api",
-                    "image_only": False
-                })
-    rows.append({"id": "claude-code", "label": "Claude Code (subscription)", "key": "claude login on the box", "configured": bool(CLAUDE_BIN), "enabled": "claude-code" not in off, "kind": "runtime"})
-    rows.append({"id": "gemini-cli", "label": "Gemini CLI (API key)", "key": "GEMINI_API_KEY",
-                 "configured": bool(GEMINI_BIN and (_get_provider_key("google") or gemini_cli_logged_in())), "enabled": "gemini-cli" not in off, "kind": "runtime"})
-    hidden = {x.strip() for x in e.get("SU_HIDDEN_PROVIDERS", "").split(",") if x.strip()}
-    res = [r for r in rows if r["id"] not in hidden]
-    res.sort(key=lambda r: (not r["configured"], not r["enabled"], r["id"]))
-    return res
+    return rows
 
 
 def set_provider_enabled(pid: str, enabled: bool) -> set:
+    custom = get_custom_providers()
+    for p in custom:
+        if p["id"] == pid:
+            p["enabled"] = enabled
+            save_custom_providers(custom)
+            break
     off = disabled_providers()
     (off.discard if enabled else off.add)(pid)
-    p = HOME / ".env"
-    lines = [l for l in (p.read_text(encoding="utf-8").splitlines() if p.exists() else []) if not l.startswith("SU_DISABLED_PROVIDERS=")]
-    if off:
-        lines.append("SU_DISABLED_PROVIDERS=" + ",".join(sorted(off)))
-    p.write_text("\n".join(lines) + "\n", encoding="utf-8")
+    _models_cache.clear()
     return off
 
 
@@ -274,13 +419,24 @@ def runtimes() -> List[str]:
 def split_model(model: str):
     if ":" in model:
         p, m = model.split(":", 1)
-        if p in PROVIDERS or p in configured_providers():
+        custom_ids = {x["id"] for x in get_custom_providers()}
+        if p in custom_ids or p in PROVIDERS:
             return p, m
     ps = configured_providers()
-    return (ps[0] if ps else "openrouter"), model
+    return (ps[0] if ps else "openai"), model
 
 
 def client_for(provider: str) -> AsyncOpenAI:
+    custom = get_custom_providers()
+    p_match = next((p for p in custom if p["id"] == provider), None)
+    if p_match:
+        if not p_match.get("enabled", True):
+            raise RuntimeError(f"{p_match.get('name', provider)} is switched offline in Settings > AI.")
+        base_url = p_match["base_url"].rstrip("/")
+        api_key = p_match.get("api_key") or "none"
+        timeout = 600 if ("127.0.0.1" in base_url or "localhost" in base_url) else 180
+        return AsyncOpenAI(base_url=base_url, api_key=api_key, timeout=timeout)
+
     if provider in disabled_providers():
         raise RuntimeError(f"{provider} is switched offline in Settings > AI.")
     cfg = PROVIDERS.get(provider)
@@ -293,7 +449,7 @@ def client_for(provider: str) -> AsyncOpenAI:
         return AsyncOpenAI(base_url=base_url.rstrip("/"), api_key=key, timeout=180)
     key = _get_provider_key(provider)
     if not key:
-        raise RuntimeError(f"{cfg['label']} is not configured. Add {cfg['key']} in Settings > AI keys.")
+        raise RuntimeError(f"{cfg['label']} is not configured. Add it in Settings > AI.")
     if cfg.get("local"):
         return AsyncOpenAI(base_url=key.rstrip("/"), api_key="local", timeout=600)
     base_url = cfg["base_url"]
@@ -333,6 +489,45 @@ async def _local_models(base_url: str) -> Dict[str, List[str]]:
 
 async def available_models() -> List[Dict[str, Any]]:
     out = []
+    custom = get_custom_providers()
+    if custom:
+        active = [p for p in custom if p.get("enabled", True)]
+        for p in active:
+            pid = p["id"]
+            vendor = p.get("name") or pid
+            base_url = p.get("base_url", "")
+            api_key = p.get("api_key", "")
+            cached = _models_cache.get(pid)
+            if cached and time.time() - cached.get("t", 0) < 300:
+                live = cached.get("live", [])
+            else:
+                test_res = await test_provider_connection(base_url, api_key)
+                if test_res["ok"] and test_res["models"]:
+                    live = test_res["models"]
+                    p["models"] = live
+                    save_custom_providers(custom)
+                else:
+                    live = p.get("models") or []
+                _models_cache[pid] = {"t": time.time(), "live": live}
+
+            for m_id in live:
+                free = m_id.endswith(":free") or "127.0.0.1" in base_url or "localhost" in base_url
+                out.append({
+                    "model_name": f"{pid}:{m_id}",
+                    "label": f"{m_id.split('/', 1)[-1]}{' (free)' if free else ''} · {vendor}",
+                    "vendor": vendor,
+                    "free": free,
+                    "input": ["text", "image"],
+                    "caps": "TI"
+                })
+        if gemini_cli_available():
+            out = [{"model_name": f"gemini-cli:{m}", "label": f"{m} · Gemini CLI", "vendor": "Gemini CLI",
+                    "free": "flash" in m, "input": ["text", "image", "video", "audio", "file"], "caps": "TIVAF"} for m in GEMINI_CLI_MODELS] + out
+        if cc_available():
+            out = [{"model_name": f"claude-code:{m}", "label": f"Claude {m.capitalize()} · Claude Code (subscription)", "vendor": "Claude Code",
+                    "free": False, "input": ["text", "image", "file"], "caps": "TIF"} for m in CC_MODELS] + out
+        return out
+
     providers = chat_providers()
     for p in providers:
         cached = _models_cache.get(p)
@@ -385,8 +580,8 @@ async def available_models() -> List[Dict[str, Any]]:
                         live = [m.id.replace("models/", "") for m in res.data if "gemini" in m.id and "embedding" not in m.id]
                     except Exception:
                         live = SEED_MODELS.get("google", [])
-            elif PROVIDERS.get(p, {}).get("local"):
-                base_url = env().get(PROVIDERS[p]["key"]) or PROVIDERS[p]["base_url"]
+            elif (PROVIDERS.get(p) or {}).get("local"):
+                base_url = env().get(PROVIDERS[p].get("key", "")) or PROVIDERS[p].get("base_url", "")
                 local_info = await _local_models(base_url)
                 live = list(local_info.keys())
                 mods = dict(local_info)
@@ -439,11 +634,15 @@ def default_model() -> str:
     e = env()
     if e.get("SU_DEFAULT_MODEL"):
         return e["SU_DEFAULT_MODEL"]
+    custom = get_custom_providers()
+    for p in custom:
+        if p.get("enabled", True) and p.get("models"):
+            return f"{p['id']}:{p['models'][0]}"
     if cc_available():
         return "claude-code:sonnet"
     ps = chat_providers()
     if not ps:
-        return "claude-code:sonnet"
+        return ""
     p = ps[0]
     live = (_models_cache.get(p) or {}).get("live")
     if live:
@@ -451,6 +650,14 @@ def default_model() -> str:
     for seed in SEED_MODELS.get(p, []):
         return f"{p}:{seed}"
     return f"{p}:default"
+
+
+def set_default_model(model: str):
+    p = HOME / ".env"
+    lines = [l for l in (p.read_text(encoding="utf-8").splitlines() if p.exists() else []) if not l.startswith("SU_DEFAULT_MODEL=")]
+    if model:
+        lines.append(f"SU_DEFAULT_MODEL={model}")
+    p.write_text("\n".join(lines) + "\n", encoding="utf-8")
 
 # ---------------------------------------------------------------- json stores
 
@@ -1291,8 +1498,18 @@ async def _gemini_image(model: str, prompt: str, path: Optional[str], reference:
 
 
 def available_image_models() -> List[str]:
-    e = env()
     options = []
+    custom = get_custom_providers()
+    if custom:
+        for p in custom:
+            pid = p["id"]
+            for m in p.get("models", []):
+                if any(k in m.lower() for k in ("flux", "dall-e", "image", "imagen", "recraft", "sd", "stable-diffusion")):
+                    options.append(f"{pid}:{m}")
+        if options:
+            return options
+
+    e = env()
     if _get_provider_key("openrouter"):
         cached_or_images = _models_cache.get("openrouter_images", [])
         if cached_or_images:
@@ -3141,7 +3358,9 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
         return final
     messages = [{"role": "system", "content": system_text}] + model_history(conv)
     final = ""
-    budget = int(0.75 * (32768 if PROVIDERS[provider].get("local") else 120000))  # ponytail: fixed context sizes; read them from the server if a model differs
+    is_local = bool((PROVIDERS.get(provider) or {}).get("local") or "local" in provider.lower() or "127.0.0.1" in provider.lower())
+    prov_label = (PROVIDERS.get(provider) or {}).get("label") or next((x["name"] for x in get_custom_providers() if x["id"] == provider), provider.capitalize())
+    budget = int(0.75 * (32768 if is_local else 120000))  # ponytail: fixed context sizes; read them from the server if a model differs
     for step in range(MAX_STEPS):
         est = (len(system_text) + len(json.dumps(tools)) + sum(len(json.dumps(x)) for x in messages[1:])) // 4
         if est > budget:
@@ -3150,12 +3369,12 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
             conv["messages"].append({"role": "assistant", "content": final})
             break
         kw = {"tools": tools, "tool_choice": "auto"} if tools else {}
-        if PROVIDERS[provider].get("local") and not env().get("SU_LOCAL_THINK"):
+        if is_local and not env().get("SU_LOCAL_THINK"):
             kw["extra_body"] = {"reasoning_effort": "none", "chat_template_kwargs": {"enable_thinking": False}}  # thinking runs at ~6 tok/s on the CPU server; SU_LOCAL_THINK=1 allows it
         r = None
         for attempt, wait in enumerate((0, 5, 10, 20, 40)):
             if wait:
-                await emit({"type": "status", "text": f"{PROVIDERS[provider]['label']} is rate limiting; retrying in {wait}s (attempt {attempt + 1}/5)"})
+                await emit({"type": "status", "text": f"{prov_label} is rate limiting; retrying in {wait}s (attempt {attempt + 1}/5)"})
                 await asyncio.sleep(wait)
             else:
                 await emit({"type": "status", "text": "Thinking" + (f" (step {step + 1})" if step else "")})
@@ -3205,7 +3424,7 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
                 out = ("Loaded: " + ", ".join(t["function"]["name"] for t in specs)) if specs else f"No such group. Groups: {', '.join(lazy_groups) or 'none'}"
             else:
                 out = await execute_tool(tc.function.name, args, servers)
-                if PROVIDERS[provider].get("local") and len(out) > 6000:
+                if is_local and len(out) > 6000:
                     out = out[:6000] + f"\n[truncated: {len(out) - 6000} more characters; ask for a smaller range]"
             timing["tools_ms"].append(int((time.time() - tt) * 1000))
             await emit({"type": "tool_result", "name": tc.function.name, "output": out[:1500]})

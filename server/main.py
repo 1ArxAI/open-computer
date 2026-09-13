@@ -1004,20 +1004,78 @@ async def remove_agent(aid: str):
     return {"ok": agent.delete_agent(aid)}
 
 
-# ==================== PROVIDERS (online/offline toggle) ====================
+# ==================== PROVIDERS (CRUD, test, toggle, default) ====================
+
+class AddProviderRequest(BaseModel):
+    name: str
+    base_url: str
+    api_key: Optional[str] = ""
+    id: Optional[str] = None
+
 
 @app.get("/api/providers")
 async def get_providers():
     return {"providers": agent.provider_status(), "default": agent.default_model()}
 
-@app.post("/api/providers/{pid}")
-async def set_provider(pid: str, body: Dict[str, Any]):
-    known = {r["id"] for r in agent.provider_status()}
-    if pid not in known:
-        raise HTTPException(404, "Unknown provider")
+
+@app.post("/api/providers")
+async def add_provider(req: AddProviderRequest):
+    if not req.name.strip():
+        raise HTTPException(400, "Provider name cannot be empty.")
+    if not req.base_url.strip():
+        raise HTTPException(400, "Provider base URL cannot be empty.")
+    prov = await agent.add_custom_provider(req.name, req.base_url, req.api_key or "", req.id)
+    return {"ok": True, "provider": prov, "providers": agent.provider_status(), "default": agent.default_model()}
+
+
+@app.delete("/api/providers/{pid}")
+async def delete_provider(pid: str):
+    success = agent.delete_custom_provider(pid)
+    if not success:
+        raise HTTPException(404, "Provider not found.")
+    return {"ok": True, "providers": agent.provider_status(), "default": agent.default_model()}
+
+
+@app.post("/api/providers/{pid}/toggle")
+async def toggle_provider(pid: str, body: Dict[str, Any]):
     agent.set_provider_enabled(pid, bool(body.get("enabled", True)))
     agent._models_cache.clear()
     return {"providers": agent.provider_status(), "default": agent.default_model()}
+
+
+@app.post("/api/providers/{pid}/test")
+async def test_provider(pid: str):
+    custom = agent.get_custom_providers()
+    p = next((x for x in custom if x["id"] == pid), None)
+    if not p:
+        raise HTTPException(404, "Provider not found.")
+    res = await agent.test_provider_connection(p["base_url"], p.get("api_key", ""))
+    if res["ok"] and res.get("models"):
+        p["models"] = res["models"]
+        agent.save_custom_providers(custom)
+        agent._models_cache.clear()
+    return res
+
+
+@app.post("/api/providers/default")
+async def set_default_provider_model(body: Dict[str, str]):
+    m = body.get("model", "")
+    agent.set_default_model(m)
+    agent._models_cache.clear()
+    return {"default": agent.default_model()}
+
+
+@app.post("/api/providers/{pid}")
+async def update_or_toggle_provider(pid: str, body: Dict[str, Any]):
+    if "enabled" in body and len(body) == 1:
+        agent.set_provider_enabled(pid, bool(body.get("enabled", True)))
+        agent._models_cache.clear()
+        return {"providers": agent.provider_status(), "default": agent.default_model()}
+    name = body.get("name") or pid
+    base_url = body.get("base_url") or ""
+    api_key = body.get("api_key") or ""
+    prov = await agent.add_custom_provider(name, base_url, api_key, pid)
+    return {"ok": True, "provider": prov, "providers": agent.provider_status(), "default": agent.default_model()}
 
 # ==================== SKILLS ====================
 
