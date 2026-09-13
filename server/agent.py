@@ -48,32 +48,85 @@ for d in (CONV_DIR, AUTO_DIR, RUNS_DIR, SKILLS_DIR, TASK_DIR):
 # ---------------------------------------------------------------- providers
 
 PROVIDERS = {
-    "nvidia": {"base_url": "https://integrate.api.nvidia.com/v1", "key": "NVIDIA_API_KEY", "label": "NVIDIA Build"},
     "openrouter": {"base_url": "https://openrouter.ai/api/v1", "key": "OPENROUTER_API_KEY", "label": "OpenRouter"},
-    "google": {"base_url": "https://generativelanguage.googleapis.com/v1beta/openai/", "key": "GEMINI_API_KEY", "label": "Gemini API"},
-    "deepseek": {"base_url": "https://api.deepseek.com", "key": "DEEPSEEK_API_KEY", "label": "DeepSeek"},
     "openai": {"base_url": "https://api.openai.com/v1", "key": "OPENAI_API_KEY", "label": "OpenAI"},
-    "anthropic": {"base_url": "https://api.anthropic.com/v1/", "key": "ANTHROPIC_API_KEY", "label": "Anthropic"},
+    "google": {"base_url": "https://generativelanguage.googleapis.com/v1beta/openai/", "key": "GEMINI_API_KEY", "label": "Gemini API"},
+    "anthropic": {"base_url": "https://api.anthropic.com/v1", "key": "ANTHROPIC_API_KEY", "label": "Anthropic"},
+    "groq": {"base_url": "https://api.groq.com/openai/v1", "key": "GROQ_API_KEY", "label": "Groq"},
+    "deepseek": {"base_url": "https://api.deepseek.com", "key": "DEEPSEEK_API_KEY", "label": "DeepSeek"},
+    "mistral": {"base_url": "https://api.mistral.ai/v1", "key": "MISTRAL_API_KEY", "label": "Mistral AI"},
+    "together": {"base_url": "https://api.together.xyz/v1", "key": "TOGETHER_API_KEY", "label": "Together AI"},
+    "xai": {"base_url": "https://api.x.ai/v1", "key": "XAI_API_KEY", "label": "xAI (Grok)"},
+    "perplexity": {"base_url": "https://api.perplexity.ai", "key": "PERPLEXITY_API_KEY", "label": "Perplexity"},
+    "cerebras": {"base_url": "https://api.cerebras.ai/v1", "key": "CEREBRAS_API_KEY", "label": "Cerebras"},
+    "cohere": {"base_url": "https://api.cohere.com/v2", "key": "COHERE_API_KEY", "label": "Cohere"},
+    "sambanova": {"base_url": "https://api.sambanova.ai/v1", "key": "SAMBANOVA_API_KEY", "label": "SambaNova"},
+    "fireworks": {"base_url": "https://api.fireworks.ai/inference/v1", "key": "FIREWORKS_API_KEY", "label": "Fireworks AI"},
+    "deepinfra": {"base_url": "https://api.deepinfra.com/v1/openai", "key": "DEEPINFRA_API_KEY", "label": "DeepInfra"},
+    "siliconflow": {"base_url": "https://api.siliconflow.cn/v1", "key": "SILICONFLOW_API_KEY", "label": "SiliconFlow"},
+    "moonshot": {"base_url": "https://api.moonshot.cn/v1", "key": "MOONSHOT_API_KEY", "label": "Moonshot AI"},
+    "ai21": {"base_url": "https://api.ai21.com/studio/v1", "key": "AI21_API_KEY", "label": "AI21 Labs"},
+    "novita": {"base_url": "https://api.novita.ai/v3/openai", "key": "NOVITA_API_KEY", "label": "Novita AI"},
+    "hyperbolic": {"base_url": "https://api.hyperbolic.xyz/v1", "key": "HYPERBOLIC_API_KEY", "label": "Hyperbolic"},
+    "lepton": {"base_url": "https://api.lepton.ai/v1", "key": "LEPTON_API_KEY", "label": "Lepton AI"},
+    "minimax": {"base_url": "https://api.minimax.chat/v1", "key": "MINIMAX_API_KEY", "label": "MiniMax"},
+    "nvidia": {"base_url": "https://integrate.api.nvidia.com/v1", "key": "NVIDIA_API_KEY", "label": "NVIDIA Build"},
     # local: any OpenAI-compatible server (llama-server, Ollama, vLLM); LOCAL_LLM_URL holds its base URL
     "local": {"base_url": "http://127.0.0.1:11434/v1", "key": "LOCAL_LLM_URL", "label": "Local (OpenAI-compatible)", "local": True},
 }
-# Curated, ordered: only chat models with reliable tool calling; free endpoints first. Intersected with the provider's live
-# list so retired ids disappear. Any "provider:model" string still works when typed or set as SU_DEFAULT_MODEL.
+
+PRIMARY_PROVIDERS = {
+    "openrouter", "openai", "google", "anthropic", "groq", "deepseek", "mistral", "together", "xai", "nvidia", "local"
+}
+
+KEY_ALIASES = {
+    "XAI_API_KEY": ["GROK_API_KEY", "X_AI_API_KEY"],
+    "ANTHROPIC_API_KEY": ["CLAUDE_API_KEY"],
+    "GEMINI_API_KEY": ["GOOGLE_API_KEY", "PALM_API_KEY"],
+    "OPENAI_API_KEY": ["OPEN_AI_KEY", "OPENAI_KEY"],
+    "LOCAL_LLM_URL": ["OLLAMA_URL", "OLLAMA_BASE_URL", "VLLM_URL"],
+    "OPENROUTER_API_KEY": ["OPENROUTER_KEY"],
+    "FIREWORKS_API_KEY": ["FIREWORKS_KEY"],
+    "DEEPINFRA_API_KEY": ["DEEPINFRA_KEY"],
+    "TOGETHER_API_KEY": ["TOGETHER_KEY"],
+    "MISTRAL_API_KEY": ["MISTRAL_KEY"],
+    "GROQ_API_KEY": ["GROQ_KEY"],
+    "DEEPSEEK_API_KEY": ["DEEPSEEK_KEY"],
+}
+
+# Curated fallback models if live API query fails or is unreachable
 SEED_MODELS = {
-    "nvidia": ["nvidia/nemotron-3.5-lightning-30b-a3b", "nvidia/nemotron-3-super-120b-a12b", "nvidia/nemotron-3-ultra-550b-a55b",
-               "minimaxai/minimax-m3", "moonshotai/kimi-k2.6", "moonshotai/kimi-k3",
-               "deepseek-ai/deepseek-v4-flash-0731", "deepseek-ai/deepseek-v4-pro-0813", "mistralai/mistral-large-2-instruct", "openai/gpt-oss-20b"],
-    "openrouter": ["minimax/minimax-m3:free", "minimax/minimax-m2.7:free", "nvidia/nemotron-3.5-lightning:free",
-                   "nvidia/nemotron-3-super-120b-a12b:free", "nvidia/nemotron-3-ultra-550b-a55b:free",
-                   "anthropic/claude-haiku-4.5", "anthropic/claude-sonnet-4.5", "anthropic/claude-sonnet-5", "anthropic/claude-fable-5.1",
-                   "openai/gpt-5.6-luna", "openai/gpt-4o-mini", "google/gemini-3.5-flash", "google/gemini-2.5-flash",
-                   "deepseek/deepseek-v4-flash", "deepseek/deepseek-chat-v3.1", "moonshotai/kimi-k2.6", "moonshotai/kimi-k3",
-                   "minimax/minimax-m3", "qwen/qwen3.6-plus", "z-ai/glm-5.3-flash", "x-ai/grok-4.6"],
-    "google": ["gemini-3.8-flash", "gemini-3.7-flash", "gemini-3.6-flash", "gemini-3.5-flash", "gemini-3.1-pro-preview"],  # free tier: 20 requests/day/model
-    "deepseek": ["deepseek-flash", "deepseek-chat", "deepseek-reasoner"],  # deepseek-flash = V4.1-Flash (Sept 2026); the live list filters retired ids
-    "openai": ["gpt-4o-mini", "gpt-4o"],
-    "anthropic": ["claude-sonnet-4-5", "claude-haiku-4-5"],
-    "local": [],  # whatever the local server has loaded
+    "openrouter": [
+        "anthropic/claude-3.7-sonnet", "anthropic/claude-3.5-sonnet", "anthropic/claude-3.5-haiku",
+        "openai/gpt-4o", "openai/gpt-4o-mini", "openai/o3-mini",
+        "google/gemini-2.5-flash", "google/gemini-2.0-flash-exp:free",
+        "deepseek/deepseek-chat", "deepseek/deepseek-r1",
+        "meta-llama/llama-3.3-70b-instruct", "qwen/qwen-2.5-72b-instruct", "mistralai/mistral-large-2411",
+        "minimax/minimax-m3:free", "nvidia/nemotron-3.5-lightning:free"
+    ],
+    "openai": ["gpt-4o", "gpt-4o-mini", "o3-mini", "o1", "gpt-4-turbo"],
+    "google": ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-2.0-flash-lite", "gemini-1.5-pro", "gemini-1.5-flash"],
+    "anthropic": ["claude-3-7-sonnet-20250219", "claude-3-5-sonnet-20241022", "claude-3-5-haiku-20241022", "claude-3-opus-20240229"],
+    "groq": ["llama-3.3-70b-versatile", "llama-3.1-8b-instant", "deepseek-r1-distill-llama-70b", "mixtral-8x7b-32768"],
+    "deepseek": ["deepseek-chat", "deepseek-reasoner"],
+    "mistral": ["mistral-large-latest", "mistral-small-latest", "codestral-latest"],
+    "together": ["meta-llama/Llama-3.3-70B-Instruct-Turbo", "deepseek-ai/DeepSeek-R1", "Qwen/Qwen2.5-72B-Instruct-Turbo"],
+    "xai": ["grok-2-latest", "grok-2-vision-latest", "grok-beta"],
+    "perplexity": ["sonar-pro", "sonar", "sonar-reasoning"],
+    "cerebras": ["llama3.3-70b", "llama3.1-8b"],
+    "cohere": ["command-r-plus", "command-r"],
+    "sambanova": ["Meta-Llama-3.3-70B-Instruct", "DeepSeek-R1-Distill-Llama-70B"],
+    "fireworks": ["accounts/fireworks/models/llama-v3p3-70b-instruct", "accounts/fireworks/models/deepseek-r1"],
+    "deepinfra": ["meta-llama/Llama-3.3-70B-Instruct", "deepseek-ai/DeepSeek-R1"],
+    "siliconflow": ["deepseek-ai/DeepSeek-V3", "deepseek-ai/DeepSeek-R1"],
+    "moonshot": ["moonshot-v1-8k", "moonshot-v1-32k", "kimi-k2.5"],
+    "ai21": ["jamba-1.5-large", "jamba-1.5-mini"],
+    "novita": ["meta-llama/llama-3.3-70b-instruct", "deepseek/deepseek-r1"],
+    "hyperbolic": ["meta-llama/Llama-3.3-70B-Instruct", "deepseek-ai/DeepSeek-R1"],
+    "lepton": ["llama3-3-70b", "deepseek-r1"],
+    "minimax": ["MiniMax-Text-01"],
+    "nvidia": ["nvidia/nemotron-3.5-lightning-30b-a3b", "nvidia/nemotron-3-super-120b-a12b", "deepseek-ai/deepseek-v4-pro-0813"],
+    "local": [],
 }
 _models_cache: Dict[str, Any] = {}
 
@@ -124,10 +177,37 @@ def image_only_providers() -> set:
     return {x.strip() for x in env().get("SU_IMAGE_ONLY_PROVIDERS", "").split(",") if x.strip()}
 
 
-def configured_providers() -> List[str]:
+def _get_provider_key(provider: str) -> Optional[str]:
+    cfg = PROVIDERS.get(provider)
+    if not cfg:
+        return None
     e = env()
+    key_name = cfg["key"]
+    val = e.get(key_name) or e.get(key_name.lower())
+    if val:
+        return val
+    for alias in KEY_ALIASES.get(key_name, []):
+        val = e.get(alias) or e.get(alias.lower())
+        if val:
+            return val
+    return None
+
+
+def configured_providers() -> List[str]:
     off = disabled_providers()
-    return [p for p, cfg in PROVIDERS.items() if e.get(cfg["key"]) and p not in off]
+    res = []
+    for p in PROVIDERS:
+        if p in off:
+            continue
+        if _get_provider_key(p):
+            res.append(p)
+    e = env()
+    for k, v in e.items():
+        if (k.endswith("_BASE_URL") or k.endswith("_LLM_URL")) and v:
+            p_id = k.rsplit("_", 1)[0].lower()
+            if p_id not in PROVIDERS and p_id not in off and p_id not in res:
+                res.append(p_id)
+    return res
 
 
 def chat_providers() -> List[str]:
@@ -139,13 +219,41 @@ def provider_status() -> List[Dict[str, Any]]:
     """Every provider and runtime with its key name, whether a key exists, and the online/offline toggle."""
     e = env(); off = disabled_providers()
     imgonly = image_only_providers()
-    rows = [{"id": p, "label": cfg["label"] + (" (images only)" if p in imgonly else ""), "key": cfg["key"], "configured": bool(e.get(cfg["key"])), "enabled": p not in off, "kind": "api", "image_only": p in imgonly}
-            for p, cfg in PROVIDERS.items()]
+    rows = []
+    for p, cfg in PROVIDERS.items():
+        is_cfg = bool(_get_provider_key(p))
+        if not is_cfg and p not in PRIMARY_PROVIDERS:
+            continue
+        rows.append({
+            "id": p,
+            "label": cfg["label"] + (" (images only)" if p in imgonly else ""),
+            "key": cfg["key"],
+            "configured": is_cfg,
+            "enabled": p not in off,
+            "kind": "api",
+            "image_only": p in imgonly
+        })
+    for k, v in e.items():
+        if (k.endswith("_BASE_URL") or k.endswith("_LLM_URL")) and v:
+            p_id = k.rsplit("_", 1)[0].lower()
+            if p_id not in PROVIDERS:
+                key_name = f"{p_id.upper()}_API_KEY"
+                rows.append({
+                    "id": p_id,
+                    "label": f"{p_id.capitalize()} (Custom)",
+                    "key": key_name,
+                    "configured": bool(e.get(key_name) or e.get(key_name.lower())),
+                    "enabled": p_id not in off,
+                    "kind": "api",
+                    "image_only": False
+                })
     rows.append({"id": "claude-code", "label": "Claude Code (subscription)", "key": "claude login on the box", "configured": bool(CLAUDE_BIN), "enabled": "claude-code" not in off, "kind": "runtime"})
     rows.append({"id": "gemini-cli", "label": "Gemini CLI (API key)", "key": "GEMINI_API_KEY",
-                 "configured": bool(GEMINI_BIN and (e.get("GEMINI_API_KEY") or gemini_cli_logged_in())), "enabled": "gemini-cli" not in off, "kind": "runtime"})
-    hidden = {x.strip() for x in e.get("SU_HIDDEN_PROVIDERS", "google,gemini-cli").split(",") if x.strip()}
-    return [r for r in rows if r["id"] not in hidden]  # out-of-scope providers stay off and out of sight; clear SU_HIDDEN_PROVIDERS to show them
+                 "configured": bool(GEMINI_BIN and (_get_provider_key("google") or gemini_cli_logged_in())), "enabled": "gemini-cli" not in off, "kind": "runtime"})
+    hidden = {x.strip() for x in e.get("SU_HIDDEN_PROVIDERS", "").split(",") if x.strip()}
+    res = [r for r in rows if r["id"] not in hidden]
+    res.sort(key=lambda r: (not r["configured"], not r["enabled"], r["id"]))
+    return res
 
 
 def set_provider_enabled(pid: str, enabled: bool) -> set:
@@ -166,7 +274,7 @@ def runtimes() -> List[str]:
 def split_model(model: str):
     if ":" in model:
         p, m = model.split(":", 1)
-        if p in PROVIDERS:
+        if p in PROVIDERS or p in configured_providers():
             return p, m
     ps = configured_providers()
     return (ps[0] if ps else "openrouter"), model
@@ -174,14 +282,25 @@ def split_model(model: str):
 
 def client_for(provider: str) -> AsyncOpenAI:
     if provider in disabled_providers():
-        raise RuntimeError(f"{PROVIDERS[provider]['label']} is switched offline in Settings > AI.")
-    cfg = PROVIDERS[provider]
-    key = env().get(cfg["key"])
+        raise RuntimeError(f"{provider} is switched offline in Settings > AI.")
+    cfg = PROVIDERS.get(provider)
+    e = env()
+    if not cfg:
+        base_url = e.get(f"{provider.upper()}_BASE_URL") or e.get(f"{provider.upper()}_LLM_URL")
+        key = e.get(f"{provider.upper()}_API_KEY") or e.get(f"{provider.upper()}_KEY") or "custom"
+        if not base_url:
+            raise RuntimeError(f"Unknown provider '{provider}'.")
+        return AsyncOpenAI(base_url=base_url.rstrip("/"), api_key=key, timeout=180)
+    key = _get_provider_key(provider)
     if not key:
-        raise RuntimeError(f"{cfg['label']} is not configured. Add {cfg['key']} in Settings > Advanced.")
+        raise RuntimeError(f"{cfg['label']} is not configured. Add {cfg['key']} in Settings > AI keys.")
     if cfg.get("local"):
         return AsyncOpenAI(base_url=key.rstrip("/"), api_key="local", timeout=600)
-    return AsyncOpenAI(base_url=cfg["base_url"], api_key=key, timeout=180)
+    base_url = cfg["base_url"]
+    override_url = e.get(f"{provider.upper()}_BASE_URL") or e.get(f"{cfg['key'].replace('_API_KEY', '')}_BASE_URL")
+    if override_url:
+        base_url = override_url.rstrip("/")
+    return AsyncOpenAI(base_url=base_url, api_key=key, timeout=180)
 
 
 CAP_LETTER = {"text": "T", "image": "I", "video": "V", "audio": "A", "file": "F"}
@@ -215,48 +334,98 @@ async def _local_models(base_url: str) -> Dict[str, List[str]]:
 async def available_models() -> List[Dict[str, Any]]:
     out = []
     providers = chat_providers()
-    # metadata pass first (OpenRouter carries modalities the others lack), then build rows in provider order
-    for p in sorted(providers, key=lambda x: x != "openrouter"):
+    for p in providers:
         cached = _models_cache.get(p)
-        if cached and time.time() - cached["t"] < 3600:
+        if cached and time.time() - cached.get("t", 0) < 300:
             continue
         mods = {}
+        live = []
         try:
-            if p == "google" and _gemini_native_ok():
-                live = set(await gemini_models())
-                res = None
-            elif PROVIDERS[p].get("local"):
-                live, mods, res = await _local_models(env()[PROVIDERS[p]["key"]]), {}, None
-                mods = dict(live); live = set(live)
+            if p == "anthropic":
+                key = _get_provider_key(p)
+                async with httpx.AsyncClient(timeout=10) as c:
+                    r = await c.get("https://api.anthropic.com/v1/models", headers={"x-api-key": key, "anthropic-version": "2023-06-01"})
+                    if r.status_code == 200:
+                        data = r.json().get("data", [])
+                        live = [m["id"] for m in data if "claude" in m.get("id", "")]
+                if not live:
+                    live = SEED_MODELS.get("anthropic", [])
+            elif p == "openrouter":
+                key = _get_provider_key(p)
+                async with httpx.AsyncClient(timeout=15) as c:
+                    headers = {"Authorization": f"Bearer {key}"} if key else {}
+                    r = await c.get("https://openrouter.ai/api/v1/models", headers=headers)
+                    if r.status_code == 200:
+                        data = r.json().get("data", [])
+                        img_mods = []
+                        for m in data:
+                            mid = m.get("id", "")
+                            arch = m.get("architecture") or {}
+                            im = arch.get("input_modalities", ["text"])
+                            om = arch.get("output_modalities", [])
+                            if im:
+                                mods[mid] = im
+                                _family_mods.setdefault(_family(mid), im)
+                            if "image" in om:
+                                img_mods.append(f"openrouter:{mid}")
+                        if img_mods:
+                            _models_cache["openrouter_images"] = img_mods
+                        top_prefixes = ("anthropic/", "openai/", "google/", "deepseek/", "meta-llama/", "qwen/", "mistralai/", "x-ai/", "minimax/")
+                        live = [m["id"] for m in data if m.get("id") and (m["id"].startswith(top_prefixes) or m["id"].endswith(":free"))]
+                        if not live:
+                            live = [m["id"] for m in data[:80]]
+            elif p == "google" and _gemini_native_ok():
+                try:
+                    live = list(await gemini_models())
+                except Exception:
+                    live = []
+                if not live:
+                    try:
+                        res = await client_for(p).models.list()
+                        live = [m.id.replace("models/", "") for m in res.data if "gemini" in m.id and "embedding" not in m.id]
+                    except Exception:
+                        live = SEED_MODELS.get("google", [])
+            elif PROVIDERS.get(p, {}).get("local"):
+                base_url = env().get(PROVIDERS[p]["key"]) or PROVIDERS[p]["base_url"]
+                local_info = await _local_models(base_url)
+                live = list(local_info.keys())
+                mods = dict(local_info)
             else:
-                res = await client_for(p).models.list()
-                live = {m.id.replace("models/", "") for m in res.data}
-            for m in (res.data if res else []):
-                arch = (m.model_dump().get("architecture") or {})
-                im = arch.get("input_modalities")
-                if im:
-                    mods[m.id] = im
-                    _family_mods.setdefault(_family(m.id), im)
-        except Exception:
+                client = client_for(p)
+                res = await client.models.list()
+                raw_ids = [m.id.replace("models/", "") for m in res.data]
+                exclude = ("embed", "whisper", "tts", "moderation", "babbage", "davinci", "curie", "ada", "realtime")
+                live = [mid for mid in raw_ids if not any(bad in mid.lower() for bad in exclude)]
+                if not live and raw_ids:
+                    live = raw_ids[:40]
+        except Exception as e:
+            print(f"Error listing models for {p}: {e}")
             live = None
         _models_cache[p] = {"t": time.time(), "live": live, "mods": mods}
+
     for p in providers:
         curated = SEED_MODELS.get(p, [])
         cached = _models_cache.get(p) or {}
         live, mods = cached.get("live"), cached.get("mods", {})
-        if False:
-            pass
-        if PROVIDERS[p].get("local"):
-            ids = sorted(live or [])  # unreachable local server: no rows, no 500
-        elif p == "openrouter" and live:
-            ids = sorted(i for i in live if i.endswith(":free"))  # OpenRouter: every free model, nothing paid
-        else:
-            ids = [i for i in curated if live is None or i in live]
+        ids = list(live) if live else list(curated)
+        current_def = env().get("SU_DEFAULT_MODEL")
+        if current_def and current_def.startswith(f"{p}:"):
+            m_id = current_def.split(":", 1)[1]
+            if m_id not in ids:
+                ids.insert(0, m_id)
+        cfg = PROVIDERS.get(p, {})
+        vendor = cfg.get("label", p.capitalize())
         for i in ids:
-            free = i.endswith(":free") or p == "nvidia" or (p == "google" and "flash" in i) or bool(PROVIDERS[p].get("local"))
+            free = i.endswith(":free") or p == "nvidia" or (p == "google" and "flash" in i) or bool(cfg.get("local"))
             im = mods.get(i) or _family_mods.get(_family(i)) or (["text", "image", "video", "audio", "file"] if p == "google" else ["text"])
-            out.append({"model_name": f"{p}:{i}", "label": f"{i.split('/', 1)[-1]}{' (free)' if free else ''} · {PROVIDERS[p]['label']}",
-                        "vendor": PROVIDERS[p]["label"], "free": free, "input": im, "caps": _caps(im)})
+            out.append({
+                "model_name": f"{p}:{i}",
+                "label": f"{i.split('/', 1)[-1]}{' (free)' if free else ''} · {vendor}",
+                "vendor": vendor,
+                "free": free,
+                "input": im,
+                "caps": _caps(im)
+            })
     if gemini_cli_available():
         out = [{"model_name": f"gemini-cli:{m}", "label": f"{m} · Gemini CLI", "vendor": "Gemini CLI",
                 "free": "flash" in m, "input": ["text", "image", "video", "audio", "file"], "caps": "TIVAF"} for m in GEMINI_CLI_MODELS] + out
@@ -277,10 +446,11 @@ def default_model() -> str:
         return "claude-code:sonnet"
     p = ps[0]
     live = (_models_cache.get(p) or {}).get("live")
+    if live:
+        return f"{p}:{live[0]}"
     for seed in SEED_MODELS.get(p, []):
-        if live is None or seed in live:
-            return f"{p}:{seed}"
-    return f"{p}:{SEED_MODELS[p][0]}"
+        return f"{p}:{seed}"
+    return f"{p}:default"
 
 # ---------------------------------------------------------------- json stores
 
@@ -1120,10 +1290,72 @@ async def _gemini_image(model: str, prompt: str, path: Optional[str], reference:
     return f"The image model google:{model} returned no image. Text: {(r.text or '')[:300]}"
 
 
+def available_image_models() -> List[str]:
+    e = env()
+    options = []
+    if _get_provider_key("openrouter"):
+        cached_or_images = _models_cache.get("openrouter_images", [])
+        if cached_or_images:
+            options.extend(cached_or_images[:15])
+        else:
+            options.extend([
+                "openrouter:google/gemini-2.5-flash-image",
+                "openrouter:google/gemini-3.1-flash-image",
+                "openrouter:google/gemini-2.0-flash-exp:free",
+                "openrouter:black-forest-labs/flux-1-schnell",
+                "openrouter:black-forest-labs/flux-1-dev",
+                "openrouter:recraft/recraft-v3",
+                "openrouter:stabilityai/stable-diffusion-3-medium",
+                "openrouter:openai/dall-e-3",
+            ])
+    if _get_provider_key("openai"):
+        options.extend([
+            "openai:dall-e-3",
+            "openai:dall-e-2",
+        ])
+    if _get_provider_key("google"):
+        options.extend([
+            "google:gemini-2.5-flash-image",
+            "google:gemini-3.1-flash-image",
+            "google:imagen-3.0-generate-002",
+        ])
+    if e.get("FAL_KEY"):
+        options.extend([
+            "fal-ai/flux/schnell",
+            "fal-ai/flux/dev",
+            "fal-ai/recraft-v3",
+            "fal-ai/fast-sdxl",
+        ])
+    if _get_provider_key("together"):
+        options.extend([
+            "together:black-forest-labs/FLUX.1-schnell",
+            "together:stabilityai/stable-diffusion-xl-base-1.0",
+        ])
+    if _get_provider_key("local"):
+        options.append("local:image-model")
+    if not options:
+        options = [
+            "openrouter:google/gemini-2.5-flash-image",
+            "openrouter:black-forest-labs/flux-1-schnell",
+            "openai:dall-e-3",
+            "google:gemini-2.5-flash-image",
+            "fal-ai/flux/schnell",
+        ]
+    current = e.get("SU_IMAGE_MODEL")
+    if current and current not in options:
+        options.insert(0, current)
+    return options
+
+
 def image_providers_online() -> List[str]:
     """Image-capable providers that are configured and online, in preference order."""
     ps = configured_providers()
-    return [p for p in ("openrouter", "google") if p in ps]
+    e = env()
+    allowed = ["openrouter", "google", "openai", "together", "local"]
+    res = [p for p in allowed if p in ps]
+    if e.get("FAL_KEY") and "fal" not in res:
+        res.append("fal")
+    return res
 
 
 async def generate_image(prompt: str, path: Optional[str] = None, reference: Optional[str] = None) -> str:
@@ -1132,9 +1364,9 @@ async def generate_image(prompt: str, path: Optional[str] = None, reference: Opt
     online = image_providers_online()
     if provider not in online:
         if not online:
-            return "No image provider is online. Turn on OpenRouter or Gemini API in Settings > AI (Gemini needs a key with image generation enabled)."
+            return "No image provider is online. Add an API key for OpenRouter, OpenAI, Gemini, or Fal in Settings > AI keys."
         provider = online[0]
-        m = GEMINI_IMAGE_MODELS[0] if provider == "google" else "google/gemini-2.5-flash-image"
+        m = "dall-e-3" if provider == "openai" else ("google/gemini-2.5-flash-image" if provider == "openrouter" else GEMINI_IMAGE_MODELS[0])
     if provider == "google":
         try:
             return await _gemini_image(m, prompt, path, reference)
@@ -1142,6 +1374,42 @@ async def generate_image(prompt: str, path: Optional[str] = None, reference: Opt
             code = getattr(e, "code", None)
             hint = " Gemini image generation is not part of the free tier; enable billing on the key or turn OpenRouter on." if code == 429 else ""
             return f"Gemini image error: {str(e)[:300]}.{hint}"
+    if provider == "openai" and ("dall-e" in m or "image" in m):
+        try:
+            client = client_for("openai")
+            res = await client.images.generate(model=m, prompt=prompt, n=1, size="1024x1024")
+            url = res.data[0].url
+            if url:
+                async with httpx.AsyncClient(timeout=120) as c:
+                    img_data = (await c.get(url)).content
+                out = _media_out_path(path, "png")
+                out.write_bytes(img_data)
+                return f"Image saved to {out} ({out.stat().st_size // 1024} KB). View: /api/file/raw?path={out}"
+        except Exception as e:
+            return f"OpenAI image generation error: {str(e)[:300]}"
+    if provider in ("fal", "fal-ai") or model.startswith("fal-ai/"):
+        fal_key = env().get("FAL_KEY")
+        if not fal_key:
+            return "FAL_KEY is missing in Settings > AI keys. Add FAL_KEY to use fal.ai image generation."
+        try:
+            fal_model = m if not m.startswith("fal-ai/") else m
+            async with httpx.AsyncClient(timeout=120) as c:
+                r = await c.post(
+                    f"https://fal.run/{fal_model}",
+                    headers={"Authorization": f"Key {fal_key}", "Content-Type": "application/json"},
+                    json={"prompt": prompt, "image_size": "square_hd"}
+                )
+                j = r.json()
+                images = j.get("images", [])
+                if images and images[0].get("url"):
+                    url = images[0]["url"]
+                    img_data = (await c.get(url)).content
+                    out = _media_out_path(path, "png")
+                    out.write_bytes(img_data)
+                    return f"Image saved to {out} ({out.stat().st_size // 1024} KB). View: /api/file/raw?path={out}"
+                return f"fal.ai error: {j.get('detail') or str(j)[:300]}"
+        except Exception as e:
+            return f"fal.ai image error: {str(e)[:300]}"
     client = client_for(provider)
     content: Any = prompt
     if reference:
@@ -1824,11 +2092,40 @@ def assign_key(key: str, pid: Optional[str]):
     _write(PROJECTS_FILE, d)
 
 
+SYSTEM_PROFILE_KEYS = {
+    "SU_HOST", "SU_PORT", "SU_TOKEN", "SU_SESSION_SECRET", "SU_PUBLIC_URL",
+    "SU_TZ", "SU_SESSION_IDLE", "SU_TRUST_PROXY", "SU_LOGIN_USER",
+    "CLOUDFLARE_TUNNEL_TOKEN", "TUNNEL_TOKEN", "CF_TUNNEL_TOKEN", "CLOUDFLARE_TOKEN",
+    "NOTIFY_EMAIL", "RESEND_API_KEY", "SMTP_HOST", "SMTP_PORT", "SMTP_USER",
+    "SMTP_PASS", "EMAIL_FROM", "SU_MAIL_SEND_TO", "TELEGRAM_BOT_TOKEN",
+    "TELEGRAM_CHAT_ID", "VPS_IP", "VPS_USER", "VPS_PASSWORD", "VPS_SSH_KEY",
+    "VPS_HOST", "VPS_PORT", "OPENCOMPUTER_USER", "OPENCOMPUTER_PASSWORD",
+    "OPENCOMPUTER_PASS", "HOST", "PORT", "DOMAIN", "TUNNEL_NAME",
+    "SU_FETCH_ALLOWED_HOSTS"
+}
+
+
+def default_project_for_key(k: str) -> str:
+    ku = k.upper()
+    if ku in SYSTEM_PROFILE_KEYS:
+        return "profile"
+    if ku.startswith("SU_") and not any(ku.endswith(x) for x in ("_MODEL", "_KEY", "_API_KEY")):
+        return "profile"
+    if any(x in ku for x in ("_API_KEY", "_LLM_URL", "_KEY", "_MODEL")) and not any(x in ku for x in ("PIPEDREAM_", "TINYFISH_")):
+        return "ai"
+    if any(x in ku for x in ("PIPEDREAM_", "TINYFISH_", "BROWSERLESS_")):
+        return "tools"
+    return "profile"
+
+
 def secrets_by_group() -> Dict[str, List[str]]:
     names = sorted(k for k in env_file_keys() if k.isupper() and k not in HIDDEN_KEYS)
     d = projects_data(); by: Dict[str, List[str]] = {}
     for k in names:
-        by.setdefault(d["keys"].get(k) or "", []).append(k)
+        grp = d["keys"].get(k) or d["keys"].get(k.upper())
+        if not grp:
+            grp = default_project_for_key(k)
+        by.setdefault(grp or "", []).append(k)
     return by
 
 

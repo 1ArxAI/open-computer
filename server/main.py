@@ -1086,6 +1086,10 @@ def _system_stats_sync():
 
 # ==================== ENVIRONMENT VARIABLES (VIEW, EDIT, DELETE) ====================
 
+SYSTEM_PROFILE_KEYS = agent.SYSTEM_PROFILE_KEYS
+_default_project_for_key = agent.default_project_for_key
+
+
 def parse_env_file() -> List[Dict[str, str]]:
     secrets = []
     if not ENV_PATH.exists():
@@ -1108,11 +1112,15 @@ def parse_env_file() -> List[Dict[str, str]]:
                 else:
                     masked = "(empty)"
                 
+                proj = groups.get(k) or groups.get(k.upper())
+                if not proj:
+                    proj = _default_project_for_key(k)
+                
                 secrets.append({
                     "key": k,
                     "value": v,
                     "masked": masked,
-                    "project": groups.get(k),
+                    "project": proj,
                 })
     return secrets
 
@@ -1153,6 +1161,7 @@ async def save_or_update_secret(req: SecretUpdateRequest):
         f.writelines(lines)
     if req.project is not None:
         agent.assign_key(k, req.project or None)
+    agent._models_cache.clear()
     return {"ok": True, "key": k, "action": "updated" if updated else "created"}
 
 
@@ -1250,6 +1259,7 @@ async def delete_secret(req: SecretDeleteRequest):
     with open(ENV_PATH, "w", encoding="utf-8") as f:
         f.writelines(new_lines)
     agent.assign_key(k, None)
+    agent._models_cache.clear()
     
     return {"ok": True, "key": k, "deleted": found}
 
@@ -1558,14 +1568,10 @@ async def apps_disconnect(account_id: str):
 
 # ==================== MEDIA MODELS (Settings > AI: Image / Video) ====================
 
-IMAGE_MODEL_OPTIONS = ["openrouter:google/gemini-2.5-flash-image", "openrouter:google/gemini-3.1-flash-image", "openrouter:google/gemini-3-pro-image",
-                       "openrouter:openai/gpt-5-image-mini", "openrouter:openai/gpt-5.4-image-2",
-                       "google:gemini-2.5-flash-image", "google:gemini-3.1-flash-image", "google:gemini-3.1-flash-lite-image", "google:gemini-3-pro-image"]
-
 @app.get("/api/media")
 async def get_media_models():
     m = agent.media_models()
-    return {"image": m["image"], "video": m["video"], "image_options": IMAGE_MODEL_OPTIONS,
+    return {"image": m["image"], "video": m["video"], "image_options": agent.available_image_models(),
             "video_provider": "google" if (m["video"] or "").startswith("google:") else "fal.ai",
             "video_configured": bool(m["video"] and (agent.env().get("GEMINI_API_KEY") if m["video"].startswith("google:") else agent.env().get("FAL_KEY"))),
             "video_options": ["google:veo-3.1-lite-generate-preview", "google:veo-3.1-generate-preview", "fal-ai/minimax/hailuo-02/standard/text-to-video", "fal-ai/kling-video/v2.5-turbo/pro/text-to-video"],

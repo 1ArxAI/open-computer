@@ -3362,7 +3362,7 @@
         valBox.textContent = sec.masked;
         const mk = (svg, label, cls) => { const b = document.createElement('button'); b.className = 'zo-iconbtn' + (cls ? ' ' + cls : ''); b.innerHTML = svg; b.title = label; b.setAttribute('aria-label', label + ' ' + sec.key); return b; };
         const proj = document.createElement('select'); proj.className = 'secret-proj'; proj.title = 'Project'; proj.setAttribute('aria-label', 'Project for ' + sec.key); projectOptions(proj, sec.project);
-        proj.onchange = async () => { try { await fetchJson('/api/projects/assign', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: sec.key, project: proj.value || null }) }); loadAdvSecrets(); } catch (e) { alert('Could not move ' + sec.key + ': ' + e.message); } };
+        proj.onchange = async () => { try { await fetchJson('/api/projects/assign', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: sec.key, project: proj.value || null }) }); loadAdvSecrets(); await loadProviders(); await loadMedia(); loadModels(); } catch (e) { alert('Could not move ' + sec.key + ': ' + e.message); } };
         const view = mk(SECRET_ICONS.eye, 'Show'); view.setAttribute('aria-pressed', 'false');
         // Show reveals the value and turns the button into Copy; clicking the revealed value hides it again.
         const setRevealed = (on) => {
@@ -3406,6 +3406,9 @@
         const d = await res.json().catch(() => ({}));
         if (!res.ok || !d.ok) throw new Error(d.detail || 'Failed to update');
         loadAdvSecrets();
+        await loadProviders();
+        await loadMedia();
+        loadModels();
       } catch (e) { alert('Could not save ' + key + ': ' + e.message); }
     }
     async function deleteSecretKey(key) {
@@ -3415,6 +3418,9 @@
         const d = await res.json().catch(() => ({}));
         if (!res.ok || !d.ok) throw new Error(d.detail || 'Failed to delete');
         loadAdvSecrets();
+        await loadProviders();
+        await loadMedia();
+        loadModels();
       } catch (e) { alert('Could not delete ' + key + ': ' + e.message); }
     }
 
@@ -3428,7 +3434,13 @@
         const d = await fetchJson('/api/secrets/import', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ text, overwrite: document.getElementById('importOverwrite').checked }) });
         const parts = [`${(d.added || []).length} added`, `${(d.updated || []).length} updated`]; if ((d.skipped || []).length) parts.push(`${d.skipped.length} skipped`); if ((d.invalid || []).length) parts.push(`${d.invalid.length} invalid line${d.invalid.length === 1 ? '' : 's'}`);
         status.textContent = parts.join(' · '); status.title = (d.invalid || []).join('\n');
-        if ((d.added || []).length || (d.updated || []).length) { document.getElementById('importText').value = ''; loadAdvSecrets(); }
+        if ((d.added || []).length || (d.updated || []).length) {
+          document.getElementById('importText').value = '';
+          loadAdvSecrets();
+          await loadProviders();
+          await loadMedia();
+          loadModels();
+        }
       } catch (e) { status.textContent = 'Import failed: ' + e.message; }
       finally { btn.disabled = false; }
     }
@@ -3441,7 +3453,11 @@
       try {
         const d = await fetchJson('/api/secrets', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: k, value: v, project: project || '' }) });
         if (!d.ok) throw new Error(d.detail || 'unknown error');
-        kInput.value = ''; vInput.value = ''; loadAdvSecrets();
+        kInput.value = ''; vInput.value = '';
+        loadAdvSecrets();
+        await loadProviders();
+        await loadMedia();
+        loadModels();
       } catch (e) { alert('Failed to save: ' + e.message); }
     }
 
@@ -3771,7 +3787,16 @@
     }
     async function reloadMcp(slug) { await api('/api/mcp/' + encodeURIComponent(slug) + '/reload', { method: 'POST' }); loadMcp(); }
     async function removeMcp(slug, name) { if (!confirm('Remove ' + name + '?')) return; const r = await api('/api/mcp/' + encodeURIComponent(slug), { method: 'DELETE' }); if (!r.ok) alert('Could not remove server.'); loadMcp(); }
-    function prefillSecret(key) { openSettings('advanced'); document.getElementById('advSecretKey').value = key || ''; document.getElementById('advSecretVal').focus(); }
+    function prefillSecret(key) {
+      const curSub = document.querySelector('.settings-nav-item.active')?.id?.replace('snav-', '') || 'ai';
+      if (curSub === 'ai') {
+        const k = document.getElementById('aiSecretKey'), v = document.getElementById('aiSecretVal');
+        if (k && v) { k.value = key || ''; v.focus(); return; }
+      }
+      openSettings('advanced');
+      document.getElementById('advSecretKey').value = key || '';
+      document.getElementById('advSecretVal').focus();
+    }
     async function toggleMcpTool(slug, tool) { const servers = (await (await api('/api/mcp')).json()).servers; const s = servers.find(x => x.slug === slug); if (!s) { loadMcp(); return; } const d = s.disabled_tools || []; const i = d.indexOf(tool); if (i >= 0) d.splice(i, 1); else d.push(tool); await api('/api/mcp/' + slug + '/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ disabled_tools: d }) }); loadMcp(); }
     function openMcpModal() { document.getElementById('mcpModal').classList.add('open'); document.getElementById('mcpModalMsg').textContent = ''; }
     function closeMcpModal() { document.getElementById('mcpModal').classList.remove('open'); }
@@ -3848,8 +3873,16 @@
     async function loadMedia() {
       const sel = document.getElementById('mediaImageSelect'), inp = document.getElementById('mediaVideoInput'); if (!sel || !inp) return;
       let m = null; try { m = await (await api('/api/media')).json(); } catch (e) { sel.innerHTML = '<option value="">Unavailable</option>'; return; }
-      sel.innerHTML = '<option value="">None</option>' + (m.image_options || []).map(o => `<option value="${esc(o)}">${esc(o.split(':').pop())}</option>`).join('');
-      if (m.image && ![...sel.options].some(o => o.value === m.image)) sel.appendChild(new Option(m.image.split(':').pop(), m.image));
+      const formatOpt = o => {
+        if (!o) return 'None';
+        if (o.includes(':')) {
+          const parts = o.split(':');
+          return parts[1] + ' · ' + parts[0];
+        }
+        return o;
+      };
+      sel.innerHTML = '<option value="">None</option>' + (m.image_options || []).map(o => `<option value="${esc(o)}">${esc(formatOpt(o))}</option>`).join('');
+      if (m.image && ![...sel.options].some(o => o.value === m.image)) sel.appendChild(new Option(formatOpt(m.image), m.image));
       sel.value = m.image || '';
       inp.value = m.video || '';
       document.getElementById('mediaVideoHint').textContent = (m.video_provider ? m.video_provider + ' model id' : 'Video model id') + (m.video_hint ? ' · ' + m.video_hint : '');
