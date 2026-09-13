@@ -16,9 +16,11 @@
 <p align="center">
   <a href="https://shieldspprt.github.io/open-computer/"><strong>🌐 Live Web OS Showcase</strong></a> ·
   <a href="#-the-2-minute-ai-setup-zero-manual-commands"><strong>⚡ 2-Min AI Setup</strong></a> ·
-  <a href="#-recommended-vps--bare-metal-cloud-providers"><strong>☁️ Supported VPS Providers</strong></a> ·
   <a href="#-manual-beginner-friendly-step-by-step-guide"><strong>📖 Beginner Guide</strong></a> ·
+  <a href="#-connect-any-ai-provider-in-10-seconds"><strong>🤖 AI Providers</strong></a> ·
+  <a href="#-automatic-updates--staying-current"><strong>🔄 Auto-Updates</strong></a> ·
   <a href="#-why-open-computer-the-modern-ai-computer-matrix"><strong>🥊 Comparison Matrix</strong></a> ·
+  <a href="#-beginner-faq--troubleshooting"><strong>❓ FAQ</strong></a> ·
   <a href="https://github.com/shieldspprt/open-computer/stargazers"><strong>⭐ Star on GitHub</strong></a>
 </p>
 
@@ -129,7 +131,9 @@ Open Computer is a labor of love: 100% self-hosted, 100% open-source, and free f
 
 ## ✨ Features at a Glance
 
-- 🧠 **Bring Your Own Models**: Chat with any LLM using your own keys—OpenRouter, Anthropic (Claude 3.5 Sonnet), OpenAI (GPT-4o), Google Gemini 2.5, DeepSeek R1/V3, NVIDIA NIM, or run 100% offline with local models via **Ollama** or **vLLM**.
+- 🧠 **Universal AI Providers**: Connect any OpenAI-compatible provider in seconds—OpenAI (GPT-4o, o3), DeepSeek (V3/R1), Groq, OpenRouter, Google Gemini, Anthropic, or run 100% free & local with **Ollama** or **vLLM**. Add multiple providers and switch seamlessly!
+- 🎨 **Dynamic Image Generation**: Generate visuals directly inside your workspace using DALL-E 3, Flux 1 Schnell/Dev, Recraft v3, Stable Diffusion, or Gemini Flash Image with a simple prompt in chat.
+- 🔄 **Automatic Updates & 1-Click Upgrade**: Never worry about falling behind. Open Computer checks GitHub automatically and lets you update with 1 click directly from the UI without losing your chat history or files.
 - 💻 **Real In-Browser Terminal**: A true Linux PTY powered by `xterm.js` with ANSI color support, window resizing, direct shell execution, and an integrated **Recycle Bin bar**.
 - 📁 **File Manager & Code Editor**: Browse your home directory, view/edit source code in a tabbed editor, upload files, and safely manage deletions with an integrated **Recycle Bin**.
 - 🤖 **Autonomous Social & GTM Tasks**: Built-in supervisor processes for YouTube video repurposing, autonomous X (Twitter) growth posting, and GTM cold email & inbound lead enrichment.
@@ -281,15 +285,78 @@ To access your personal computer from anywhere with free SSL (`https://yourname.
 
 ---
 
-### Step 4: Sign In and Add Your First Model Key
+### Step 4: Sign In and Connect Your AI Provider (Takes 10 Seconds!)
 
-1. **Sign In**: Enter your Linux username (e.g. `suop`) and the Linux password you set in Step 1.
-2. **Add a Model Key**:
-   - In the web interface, click **Settings (⚙️)** in the bottom-left corner.
-   - Click **AI** or **Advanced**.
-   - Paste an API key from [OpenRouter](https://openrouter.ai), [Anthropic](https://console.anthropic.com), [OpenAI](https://platform.openai.com), or [Google AI Studio](https://aistudio.google.com).
-   - *(Optional)* If you have local Ollama running, enter `http://127.0.0.1:11434/v1` under `LOCAL_LLM_URL`.
-3. **Start Creating**: Type your first prompt in the home chat box and watch your personal AI computer work!
+1. **Sign In**: In your browser, enter the Linux username (e.g. `suop` or `opencomputer`) and the Linux password you set during installation.
+2. **Open Settings**: Click the **Settings (⚙️)** gear icon in the bottom-left sidebar, then click the **AI** tab.
+3. **Add Your AI Provider**:
+   - You don't have to deal with editing messy `.env` files or scrolling through huge lists of companies!
+   - Simply click one of the **Quick fill** buttons:
+     - ⚡ **OpenAI**: Quick fill `https://api.openai.com/v1`, paste your OpenAI key (`sk-...`), and click **Add Provider**.
+     - 🧠 **DeepSeek**: Quick fill `https://api.deepseek.com/v1`, paste your DeepSeek key, and click **Add Provider**.
+     - 🚀 **Groq**: Quick fill `https://api.groq.com/openai/v1`, paste your Groq key, and click **Add Provider**.
+     - 🌐 **OpenRouter**: Quick fill `https://openrouter.ai/api/v1`, paste your OpenRouter key, and click **Add Provider**.
+     - 🦙 **Ollama / Local**: Quick fill `http://127.0.0.1:11434/v1` (leave API key blank) and click **Add Provider**.
+   - *Want to bring any other provider?* Just type any Provider Name, its Base URL, and API key.
+   - Click **Add Provider**. Open Computer tests the connection and **automatically discovers all available chat and image models**!
+4. **Choose Your Default Models**:
+   - In **Model Preferences**, choose your preferred **Default Chat Model** and **Image Model** (e.g., `openai:dall-e-3` or `openrouter:black-forest-labs/flux-1-schnell`).
+5. **Start Creating**: Close Settings and select your model from the top bar or composer dropdown. Type your first prompt and start building!
+
+---
+
+## 🤖 Connect Any AI Provider in 10 Seconds
+
+Open Computer includes a **Universal AI Provider Manager**. You can connect any OpenAI-compatible AI provider in the world in seconds:
+
+| Provider | Quick-Fill Endpoint | API Key Needed? | Example Models Discovered |
+|---|---|:---:|---|
+| **OpenAI** | `https://api.openai.com/v1` | Yes (`sk-...`) | `gpt-4o`, `gpt-4o-mini`, `o3-mini`, `dall-e-3`, `dall-e-2` |
+| **DeepSeek** | `https://api.deepseek.com/v1` | Yes (`sk-...`) | `deepseek-chat` (V3), `deepseek-reasoner` (R1) |
+| **Groq** | `https://api.groq.com/openai/v1` | Yes (`gsk_...`) | `llama-3.3-70b-versatile`, `deepseek-r1-distill-llama-70b` |
+| **OpenRouter** | `https://openrouter.ai/api/v1` | Yes (`sk-or-...`) | 300+ models: Claude 3.7 Sonnet, Gemini 2.5 Flash, Flux 1 |
+| **Local Ollama** | `http://127.0.0.1:11434/v1` | **No** (100% Free) | Any model you have pulled (`llama3.2`, `deepseek-r1`, `qwen2.5`) |
+| **Google Gemini** | `https://generativelanguage.googleapis.com/v1beta/openai/` | Yes | `gemini-2.5-flash`, `gemini-2.0-flash`, `imagen-3.0` |
+| **Together AI** | `https://api.together.xyz/v1` | Yes | `Llama-3.3-70B`, `FLUX.1-schnell`, `DeepSeek-R1` |
+
+> [!TIP]
+> **Can I add multiple providers?**
+> **Yes!** You can add OpenAI, DeepSeek, Groq, and your local Ollama all at the same time. Open Computer merges their models into your chat picker so you can switch between them anytime with a single click.
+
+---
+
+## 🎨 Generating Images with AI
+
+Open Computer can generate images and save them directly to your cloud computer's workspace:
+
+1. **Pick an Image Model**: Go to **Settings (⚙️) › AI › Model Preferences** and choose your preferred image model:
+   - **OpenAI**: `openai:dall-e-3` or `openai:dall-e-2`
+   - **OpenRouter**: `openrouter:black-forest-labs/flux-1-schnell`, `openrouter:black-forest-labs/flux-1-dev`, `openrouter:google/gemini-2.5-flash-image`, `openrouter:recraft/recraft-v3`
+   - **Fal.ai**: `fal-ai/flux/schnell`, `fal-ai/recraft-v3` (set `FAL_KEY` in Settings › Advanced)
+   - **Together AI**: `together:black-forest-labs/FLUX.1-schnell`
+2. **Generate in Chat**: Simply ask the agent in natural language:
+   > *"Generate a high-resolution image of a futuristic neon city street in Tokyo during rain."*
+3. **Instant Preview & Download**: The generated image is automatically saved to `workspace/Projects/media/` and rendered right in the chat with a direct download link.
+
+---
+
+## 🔄 Automatic Updates & Staying Current
+
+You never have to worry about missing new features, security fixes, or updates:
+
+### Method A: 1-Click Update from the Web UI (Recommended)
+1. Open Computer automatically checks GitHub periodically for new updates.
+2. When a new version is released, an **"Update Available"** badge appears in the top navigation bar and in **Settings (⚙️) › Profile**.
+3. Click **Update Now**: Open Computer will pull the latest code, update python dependencies, and reload the background service in ~5 seconds.
+4. Your chat history, files, automations, and keys are **100% preserved**.
+
+### Method B: Update via Terminal (SSH)
+If you prefer updating via the command line or are updating from a previous version, simply run:
+```bash
+cd ~/open-computer
+git pull
+sudo systemctl restart su
+```
 
 ---
 
@@ -305,6 +372,48 @@ journalctl -u su -f
 # Check service status
 systemctl status su
 ```
+
+---
+
+## ❓ Beginner FAQ & Troubleshooting
+
+#### 1. How do I log in? What is my username and password?
+Open Computer uses Linux PAM authentication. Your username is the Linux user you created in Step 1 (or told your AI assistant to create, such as `opencomputer` or `suop`). Your password is the Linux password you set for that user.
+
+#### 2. I forgot my password or got locked out. How do I reset it?
+Log into your VPS via SSH as `root`, and run:
+```bash
+sudo passwd yourusername
+```
+Type a new password, press Enter, and log in on the web!
+
+#### 3. How do I run AI completely free for $0?
+You can run 100% private, free local models using **Ollama**:
+1. In your Open Computer web terminal, run:
+   ```bash
+   curl -fsSL https://ollama.com/install.sh | sh
+   ollama pull llama3.2
+   ```
+2. Go to **Settings › AI**, click the **Ollama / Local** preset chip (`http://127.0.0.1:11434/v1`), leave the API key blank, and click **Add Provider**.
+3. Your local models will appear in the model picker!
+
+#### 4. How do I access Open Computer from my phone or tablet?
+Connect your Open Computer to a free **Cloudflare Tunnel** (see Step 3, Option B). You get a free HTTPS address (e.g. `https://computer.yourdomain.com`) that works on iPhone, iPad, Android, and laptops from anywhere in the world.
+
+#### 5. How do I restart or check if Open Computer is running?
+```bash
+# Check service status
+systemctl status su
+
+# Restart the service
+sudo systemctl restart su
+
+# View live logs
+journalctl -u su -f
+```
+
+#### 6. Where are my files stored?
+All files, projects, and created media are saved directly on your server under `~/open-computer/workspace/`. You can view, edit, download, and delete them through the built-in dual-pane file explorer, or access them via SFTP/SSH.
 
 ---
 
