@@ -1497,67 +1497,113 @@ async def _gemini_image(model: str, prompt: str, path: Optional[str], reference:
     return f"The image model google:{model} returned no image. Text: {(r.text or '')[:300]}"
 
 
+PROVIDER_IMAGE_MODELS = {
+    "openai": ["dall-e-3", "dall-e-2"],
+    "openrouter": [
+        "google/gemini-2.5-flash-image",
+        "google/gemini-3.1-flash-image",
+        "google/gemini-2.0-flash-exp:free",
+        "black-forest-labs/flux-1-schnell",
+        "black-forest-labs/flux-1-dev",
+        "recraft/recraft-v3",
+        "stabilityai/stable-diffusion-3-medium",
+        "openai/dall-e-3",
+    ],
+    "google": [
+        "gemini-2.5-flash-image",
+        "gemini-3.1-flash-image",
+        "imagen-3.0-generate-002",
+    ],
+    "together": [
+        "black-forest-labs/FLUX.1-schnell",
+        "stabilityai/stable-diffusion-xl-base-1.0",
+    ],
+    "fal": [
+        "fal-ai/flux/schnell",
+        "fal-ai/flux/dev",
+        "fal-ai/recraft-v3",
+        "fal-ai/fast-sdxl",
+    ],
+}
+
+
 def available_image_models() -> List[str]:
     options = []
-    custom = get_custom_providers()
-    if custom:
-        for p in custom:
-            pid = p["id"]
-            for m in p.get("models", []):
-                if any(k in m.lower() for k in ("flux", "dall-e", "image", "imagen", "recraft", "sd", "stable-diffusion")):
-                    options.append(f"{pid}:{m}")
-        if options:
-            return options
-
     e = env()
-    if _get_provider_key("openrouter"):
-        cached_or_images = _models_cache.get("openrouter_images", [])
-        if cached_or_images:
-            options.extend(cached_or_images[:15])
-        else:
-            options.extend([
-                "openrouter:google/gemini-2.5-flash-image",
-                "openrouter:google/gemini-3.1-flash-image",
-                "openrouter:google/gemini-2.0-flash-exp:free",
-                "openrouter:black-forest-labs/flux-1-schnell",
-                "openrouter:black-forest-labs/flux-1-dev",
-                "openrouter:recraft/recraft-v3",
-                "openrouter:stabilityai/stable-diffusion-3-medium",
-                "openrouter:openai/dall-e-3",
-            ])
-    if _get_provider_key("openai"):
-        options.extend([
-            "openai:dall-e-3",
-            "openai:dall-e-2",
-        ])
-    if _get_provider_key("google"):
-        options.extend([
-            "google:gemini-2.5-flash-image",
-            "google:gemini-3.1-flash-image",
-            "google:imagen-3.0-generate-002",
-        ])
+    custom = get_custom_providers()
+
+    for p in custom:
+        if not p.get("enabled", True):
+            continue
+        pid = p["id"]
+        base_url = p.get("base_url", "").lower()
+
+        # 1. Models dynamically discovered from provider /models endpoint
+        for m in p.get("models", []):
+            m_low = m.lower()
+            if any(k in m_low for k in ("flux", "dall-e", "imagen", "recraft", "stable-diffusion", "sdxl", "-image", "/image")):
+                if "vision" not in m_low or "image" in m_low:
+                    entry = f"{pid}:{m}"
+                    if entry not in options:
+                        options.append(entry)
+
+        # 2. Known provider curated image models
+        prov_key = None
+        if "openai" in pid.lower() or "openai.com" in base_url:
+            prov_key = "openai"
+        elif "openrouter" in pid.lower() or "openrouter.ai" in base_url:
+            prov_key = "openrouter"
+        elif "google" in pid.lower() or "googleapis" in base_url:
+            prov_key = "google"
+        elif "together" in pid.lower() or "together" in base_url:
+            prov_key = "together"
+
+        if prov_key and prov_key in PROVIDER_IMAGE_MODELS:
+            for m in PROVIDER_IMAGE_MODELS[prov_key]:
+                entry = f"{pid}:{m}"
+                if entry not in options:
+                    options.append(entry)
+
+    # 3. Fal image models if FAL_KEY configured
     if e.get("FAL_KEY"):
-        options.extend([
-            "fal-ai/flux/schnell",
-            "fal-ai/flux/dev",
-            "fal-ai/recraft-v3",
-            "fal-ai/fast-sdxl",
-        ])
-    if _get_provider_key("together"):
-        options.extend([
-            "together:black-forest-labs/FLUX.1-schnell",
-            "together:stabilityai/stable-diffusion-xl-base-1.0",
-        ])
-    if _get_provider_key("local"):
-        options.append("local:image-model")
+        for m in PROVIDER_IMAGE_MODELS["fal"]:
+            if m not in options:
+                options.append(m)
+
+    # 4. Legacy .env fallback if no custom providers configured
+    if not custom:
+        if _get_provider_key("openrouter"):
+            for m in PROVIDER_IMAGE_MODELS["openrouter"]:
+                entry = f"openrouter:{m}"
+                if entry not in options:
+                    options.append(entry)
+        if _get_provider_key("openai"):
+            for m in PROVIDER_IMAGE_MODELS["openai"]:
+                entry = f"openai:{m}"
+                if entry not in options:
+                    options.append(entry)
+        if _get_provider_key("google"):
+            for m in PROVIDER_IMAGE_MODELS["google"]:
+                entry = f"google:{m}"
+                if entry not in options:
+                    options.append(entry)
+        if _get_provider_key("together"):
+            for m in PROVIDER_IMAGE_MODELS["together"]:
+                entry = f"together:{m}"
+                if entry not in options:
+                    options.append(entry)
+
+    # 5. Default popular models if nothing found
     if not options:
         options = [
+            "openai:dall-e-3",
+            "openai:dall-e-2",
             "openrouter:google/gemini-2.5-flash-image",
             "openrouter:black-forest-labs/flux-1-schnell",
-            "openai:dall-e-3",
             "google:gemini-2.5-flash-image",
             "fal-ai/flux/schnell",
         ]
+
     current = e.get("SU_IMAGE_MODEL")
     if current and current not in options:
         options.insert(0, current)
@@ -1566,6 +1612,13 @@ def available_image_models() -> List[str]:
 
 def image_providers_online() -> List[str]:
     """Image-capable providers that are configured and online, in preference order."""
+    custom = get_custom_providers()
+    if custom:
+        res = [p["id"] for p in custom if p.get("enabled", True)]
+        if env().get("FAL_KEY") and "fal" not in res:
+            res.append("fal")
+        return res
+
     ps = configured_providers()
     e = env()
     allowed = ["openrouter", "google", "openai", "together", "local"]
@@ -1577,23 +1630,26 @@ def image_providers_online() -> List[str]:
 
 async def generate_image(prompt: str, path: Optional[str] = None, reference: Optional[str] = None) -> str:
     model = media_models()["image"]
+    if not model:
+        avail = available_image_models()
+        model = avail[0] if avail else "openai:dall-e-3"
     provider, m = split_model(model)
     online = image_providers_online()
-    if provider not in online:
+    if provider not in online and not model.startswith("fal-ai/"):
         if not online:
-            return "No image provider is online. Add an API key for OpenRouter, OpenAI, Gemini, or Fal in Settings > AI keys."
+            return "No image provider is online. Add an AI provider in Settings > AI."
         provider = online[0]
-        m = "dall-e-3" if provider == "openai" else ("google/gemini-2.5-flash-image" if provider == "openrouter" else GEMINI_IMAGE_MODELS[0])
-    if provider == "google":
+        m = "dall-e-3" if "openai" in provider else ("google/gemini-2.5-flash-image" if "openrouter" in provider else m)
+    if provider == "google" or "google" in provider:
         try:
             return await _gemini_image(m, prompt, path, reference)
         except Exception as e:
             code = getattr(e, "code", None)
             hint = " Gemini image generation is not part of the free tier; enable billing on the key or turn OpenRouter on." if code == 429 else ""
             return f"Gemini image error: {str(e)[:300]}.{hint}"
-    if provider == "openai" and ("dall-e" in m or "image" in m):
+    if ("dall-e" in m.lower() or "openai" in provider.lower()) and not model.startswith("fal-ai/"):
         try:
-            client = client_for("openai")
+            client = client_for(provider)
             res = await client.images.generate(model=m, prompt=prompt, n=1, size="1024x1024")
             url = res.data[0].url
             if url:
@@ -1603,11 +1659,11 @@ async def generate_image(prompt: str, path: Optional[str] = None, reference: Opt
                 out.write_bytes(img_data)
                 return f"Image saved to {out} ({out.stat().st_size // 1024} KB). View: /api/file/raw?path={out}"
         except Exception as e:
-            return f"OpenAI image generation error: {str(e)[:300]}"
+            pass
     if provider in ("fal", "fal-ai") or model.startswith("fal-ai/"):
         fal_key = env().get("FAL_KEY")
         if not fal_key:
-            return "FAL_KEY is missing in Settings > AI keys. Add FAL_KEY to use fal.ai image generation."
+            return "FAL_KEY is missing in Settings. Add FAL_KEY to use fal.ai image generation."
         try:
             fal_model = m if not m.startswith("fal-ai/") else m
             async with httpx.AsyncClient(timeout=120) as c:
