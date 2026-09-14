@@ -1005,6 +1005,9 @@
     /* home */
     .home-hw { font-size: 12px; line-height: 16px; color: var(--zo-fg-muted); margin-left: 8px; white-space: nowrap; }
     .home-hw:empty { display: none; }
+    .home-theme { flex: none; display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 7px; margin-left: 4px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-size: 12px; color: var(--zo-fg-muted); cursor: pointer; white-space: nowrap; }
+    .home-theme:hover { background: var(--hover); color: var(--zo-fg); }
+    .home-theme svg { width: 14px; height: 14px; flex: none; }
     .home-center-container { max-width: 768px; padding: 0 16px 24px; }
     .home-composer-card { background: var(--zo-muted); border: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); border-radius: 15px; box-shadow: inset 0 1px 0 rgba(255,255,255,.12); padding: 0; gap: 0; margin-bottom: 12px; }
     .home-composer-input { font-size: 18px; line-height: 1.625; padding: 16px 16px 8px; min-height: 100px; color: var(--zo-fg); }
@@ -1494,7 +1497,7 @@
 
   <!-- DEDICATED FULL-SCREEN HOME VIEW (MATCHING ZO COMPUTER) -->
   <div id="home-view" style="display: flex;">
-    <div class="topbar"><button class="tb-btn" onclick="newTab()" title="New tab" aria-label="New tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><span class="home-hw" id="homeStats" aria-live="off"></span><span class="tb-links" style="margin-left:auto"></span></div>
+    <div class="topbar"><button class="tb-btn" onclick="newTab()" title="New tab" aria-label="New tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><span class="home-hw" id="homeStats" aria-live="off"></span><button class="home-theme" id="homeTheme" onclick="keepTheme()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.1-.7-.4-1-.2-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5-4.5-9-10-9z"/></svg><span id="homeThemeName"></span></button><span class="tb-links" style="margin-left:auto"><a class="tb-btn tb-link" href="https://supabase.rajoka.com" target="_blank" rel="noopener">Supabase</a></span></div>
     <div class="zo-card">
       <div class="lock-banner" id="lockBanner" style="display:none">This gateway is open on the LAN with no token. Add <b>SU_TOKEN</b> in <a onclick="openSettings('advanced')">Settings › Advanced</a> and restart to lock it.</div>
       <button class="home-runs" id="homeRuns" hidden onclick="openChatsView()"></button>
@@ -1520,7 +1523,7 @@
       <div class="tabstrip" id="tabStrip" role="tablist" aria-label="Open tabs"></div>
       <button class="tb-btn" onclick="newTab()" title="New tab" aria-label="New tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
-        
+        <span class="tb-links"><a class="tb-btn tb-link" href="https://supabase.rajoka.com" target="_blank" rel="noopener">Supabase</a></span>
         <button class="tb-btn tb-chat-toggle" id="btnOpenChatPanel" onclick="toggleChatPanel(false)" title="Open chat (Ctrl+\\)" aria-label="Open chat" style="display: none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m8 9 3 3-3 3"/></svg></button>
       </div>
     </div>
@@ -4204,7 +4207,15 @@
       });
     }
     function setMode(m) { applyTheme(document.documentElement.dataset.theme, m); renderThemeList(); }
-    function setThemeShuffle(on) { themePref.set('su_theme_shuffle', on ? '1' : '0'); renderThemeList(); }
+    function setThemeShuffle(on) { themePref.set('su_theme_shuffle', on ? '1' : '0'); renderThemeList(); renderHomeTheme(); }
+    // Home header chip: shows today's theme; one click keeps it (turns the shuffle off), a second click opens Settings › UX.
+    function renderHomeTheme() {
+      const el = document.getElementById('homeThemeName'); if (!el) return;
+      const kept = themePref.get('su_theme_shuffle', '1') !== '1';
+      el.textContent = document.documentElement.dataset.theme + (kept ? ' · kept' : '');
+      el.parentElement.title = kept ? 'Theme kept. Click to change it in Settings › UX' : 'A new theme on every load. Click to keep this one';
+    }
+    function keepTheme() { if (themePref.get('su_theme_shuffle', '1') === '1') { themePref.set('su_theme_shuffle', '0'); renderHomeTheme(); renderThemeList(); } else openSettings('ux'); }
     const _cvs = document.createElement('canvas'); _cvs.width = _cvs.height = 1; const _ctx = _cvs.getContext('2d', { willReadFrequently: true });
     function cssToHex(color) { _ctx.clearRect(0, 0, 1, 1); _ctx.fillStyle = color; _ctx.fillRect(0, 0, 1, 1); const [r, g, b] = _ctx.getImageData(0, 0, 1, 1).data; return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join(''); }
     function termTheme() {
@@ -4212,7 +4223,8 @@
       const fg = v('--zo-fg'), border = v('--zo-border');
       return { background: v('--zo-bg'), foreground: fg, cursor: fg, selectionBackground: border + '80', black: v('--zo-sidebar'), red: '#ef4444', green: '#22c55e', yellow: '#eab308', blue: '#3b82f6', magenta: '#a855f7', cyan: '#06b6d4', white: '#f8fafc', brightBlack: v('--zo-fg-muted'), brightRed: '#f87171', brightGreen: '#4ade80', brightYellow: '#fde047', brightBlue: '#60a5fa', brightMagenta: '#c084fc', brightCyan: '#22d3ee', brightWhite: '#ffffff' };
     }
-    window.onThemeApplied = () => { if (xtermInstance) xtermInstance.options.theme = termTheme(); };
+    window.onThemeApplied = () => { if (xtermInstance) xtermInstance.options.theme = termTheme(); renderHomeTheme(); };
+    renderHomeTheme();
     async function loadMedia() {
       const sel = document.getElementById('mediaImageSelect');
       const inp = document.getElementById('mediaVideoInput');

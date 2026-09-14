@@ -899,6 +899,26 @@ async def run_automation_now(aid: str):
     _run_push(run, {"type": "start", "conversation_id": conv["id"], "automation_id": aid})
     return run_stream(run, 0)
 
+
+class TtsBody(BaseModel):
+    text: str
+    voice: Optional[str] = None
+
+
+@app.post("/api/tts")
+async def tts(body: TtsBody):
+    """Speak text with the server's Kokoro voice (British male by default). Returns audio/wav."""
+    text = body.text.strip()
+    if not text:
+        raise HTTPException(400, "text required")
+    try:
+        wav = await agent.audio_tts(text, voice=body.voice or agent.env().get("SU_TTS_VOICE", "bm_george"),
+                                    lang="b" if (body.voice or agent.env().get("SU_TTS_VOICE", "bm_george")).startswith("b") else "a")
+    except Exception as e:
+        raise HTTPException(502, f"speech failed: {e}")
+    return Response(content=wav, media_type="audio/wav", headers={"Cache-Control": "no-store"})
+
+
 class ScheduleText(BaseModel):
     text: str
     model: Optional[str] = None
@@ -1719,6 +1739,247 @@ async def su_mcp_get():
 async def su_mcp_delete():
     return JSONResponse(None, status_code=202)
 
+
+
+# ==================== VOICE BRAIN: OpenAI-compatible /v1/chat/completions for ElevenLabs Agents (SIP trunk lives at ElevenLabs) ====================
+# ElevenLabs agent -> Custom LLM = SU. Secrets: SU_VOICE_TOKEN (the "API key" you give ElevenLabs), SU_PUBLIC_URL (tunnel origin),
+# optional SU_VOICE_MODEL. Each phone conversation maps to one SU conversation (source "voice") via elevenlabs_extra_body.conversation_id.
+
+def voice_token() -> str:
+    return agent.env().get("SU_VOICE_TOKEN", "").strip()
+
+
+def voice_authed(request: Request) -> bool:
+    """Accept `Authorization: Bearer <token>`, a bare token in Authorization, or `x-su-token` (ElevenLabs secret headers carry the raw value)."""
+    tok = voice_token()
+    if not tok:
+        return False
+    auth = request.headers.get("authorization", "").strip()
+    return auth in (f"Bearer {tok}", tok) or request.headers.get("x-su-token", "").strip() == tok
+
+
+_NUMWORDS = {"zero": "0", "oh": "0", "one": "1", "two": "2", "three": "3", "four": "4", "five": "5", "six": "6", "seven": "7", "eight": "8", "nine": "9"}
+
+def _spoken_digits(text: str) -> str:
+    words = re.findall(r"[a-z]+|\d", (text or "").lower())
+    return "".join(_NUMWORDS.get(w, w if w.isdigit() else "") for w in words)
+
+def voice_pin_ok(msgs: List[Dict[str, Any]]) -> bool:
+    """If SU_VOICE_PIN is set, some user turn in this call must contain it (digits or spoken words)."""
+    pin = re.sub(r"\D", "", agent.env().get("SU_VOICE_PIN", ""))
+    if not pin:
+        return True
+    for m in msgs:
+        if m.get("role") == "user":
+            c = m.get("content")
+            if isinstance(c, list):
+                c = " ".join(p.get("text", "") for p in c if isinstance(p, dict))
+            if pin in _spoken_digits(str(c)):
+                return True
+    return False
+
+@app.post("/v1/chat/completions")
+async def voice_chat_completions(request: Request):
+    tok = voice_token()
+    auth = request.headers.get("authorization", "")
+    if not tok or auth != f"Bearer {tok}":
+        raise HTTPException(401, "Bad voice token")
+    body = await request.json()
+    msgs = body.get("messages") or []
+    user_msgs = [m for m in msgs if m.get("role") == "user"]
+    if not user_msgs:
+        raise HTTPException(400, "No user message")
+    last = user_msgs[-1].get("content")
+    if isinstance(last, list):
+        last = " ".join(p.get("text", "") for p in last if isinstance(p, dict))
+    if not voice_pin_ok(msgs):
+        text = "Please say your access code first."
+        if body.get("stream", True):
+            cid0 = "chatcmpl-pin"
+            def pin_chunk(t, finish=None):
+                return "data: " + json.dumps({"id": cid0, "object": "chat.completion.chunk", "created": int(time.time()), "model": body.get("model", "su"),
+                                              "choices": [{"index": 0, "delta": ({"role": "assistant", "content": t} if t is not None else {}), "finish_reason": finish}]}) + "\n\n"
+            async def pin_gen():
+                yield pin_chunk(text); yield pin_chunk("", "stop"); yield "data: [DONE]\n\n"
+            return StreamingResponse(pin_gen(), media_type="text/event-stream")
+        return {"id": "chatcmpl-pin", "object": "chat.completion", "created": int(time.time()), "model": body.get("model", "su"),
+                "choices": [{"index": 0, "message": {"role": "assistant", "content": text}, "finish_reason": "stop"}]}
+    persona = "\n".join(m.get("content", "") for m in msgs if m.get("role") == "system" and isinstance(m.get("content"), str))[:4000]
+    extra = (body.get("elevenlabs_extra_body") or {})
+    key = str(extra.get("conversation_id") or body.get("user_id") or "")
+    st = agent._chan_state()
+    conv = agent.load_conversation(st["threads"].get("voice:" + key, "")) if key else None
+    if not conv:
+        conv = agent.new_conversation(f"Call: {str(last)[:40]}", source="voice")
+        if key:
+            st["threads"]["voice:" + key] = conv["id"]; agent._chan_save(st)
+    system_extra = ("You are speaking with the owner on a phone call through ElevenLabs. Do the work with your tools now. "
+                    "Answer as speech: short plain sentences, no lists, no markdown, no URLs, under 70 words. If a job will take long, say what you started and that you will email the report, then send it with send_email when done.\n"
+                    + (f"Call persona from the phone agent config:\n{persona}\n" if persona else ""))
+    model = agent.env().get("SU_VOICE_MODEL") or body.get("model") if (body.get("model") or "").count(":") else agent.env().get("SU_VOICE_MODEL") or None
+    cid = "chatcmpl-" + conv["id"]
+
+    def chunk(text: str, finish=None):
+        return "data: " + json.dumps({"id": cid, "object": "chat.completion.chunk", "created": int(time.time()), "model": body.get("model", "su"),
+                                      "choices": [{"index": 0, "delta": ({"role": "assistant", "content": text} if text is not None else {}), "finish_reason": finish}]}) + "\n\n"
+
+    queue: asyncio.Queue = asyncio.Queue()
+
+    async def on_event(ev):
+        await queue.put(ev)
+
+    async def worker():
+        try:
+            final = await agent.run_agent(conv, str(last), model, on_event, extra_system=system_extra)
+        except Exception as e:
+            final = f"I could not complete that. {type(e).__name__}."
+        await queue.put({"type": "_done", "final": final})
+
+    inline_budget = float(agent.env().get("SU_VOICE_INLINE_SECONDS", "12"))
+
+    async def gen():
+        task = asyncio.create_task(worker())
+        streamed = False
+        deadline = time.time() + inline_budget
+        while True:
+            try:
+                ev = await asyncio.wait_for(queue.get(), timeout=max(0.1, deadline - time.time()))
+            except asyncio.TimeoutError:
+                if streamed:
+                    deadline = time.time() + 30
+                    continue
+                # too slow to keep the caller waiting: answer now, finish in the background, then call back or email the report
+                yield chunk("I have started on that. It will take a little longer, so I will call you back with the result.")
+                yield chunk("", "stop")
+                yield "data: [DONE]\n\n"
+                async def finish():
+                    await task
+                    fresh = agent.load_conversation(conv["id"]) or conv
+                    final = next((m.get("content") for m in reversed(fresh["messages"]) if m.get("role") == "assistant" and m.get("content")), "The task finished.")
+                    out = await agent.call_owner("S U calling back. " + final)
+                    if out.startswith(("Calling is not configured", "ElevenLabs")):
+                        await asyncio.to_thread(agent.send_email, "[SU] Report from your call", final + "\n\n(" + out + ")")
+                asyncio.create_task(finish())
+                return
+            t = ev.get("type")
+            if t == "delta":
+                text = ev["text"] if streamed else ev["text"].lstrip()
+                if not text.strip():
+                    continue  # whitespace-only deltas do not count as speaking
+                streamed = True
+                yield chunk(text)
+            elif t == "_done":
+                if not streamed:
+                    yield chunk((ev["final"] or "Done.").strip())
+                yield chunk("", "stop")
+                yield "data: [DONE]\n\n"
+                break
+            elif t == "error" and not streamed:
+                yield chunk(ev.get("text", "Something went wrong."))
+                streamed = True
+        await task
+
+    if not body.get("stream", True):
+        final = await agent.run_agent(conv, str(last), model, None, extra_system=system_extra)
+        return {"id": cid, "object": "chat.completion", "created": int(time.time()), "model": body.get("model", "su"),
+                "choices": [{"index": 0, "message": {"role": "assistant", "content": final}, "finish_reason": "stop"}]}
+    return StreamingResponse(gen(), media_type="text/event-stream", headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"})
+
+
+@app.post("/v1/tool/ask")
+async def voice_tool_ask(request: Request):
+    """Server-tool variant: the ElevenLabs agent keeps its own LLM and calls SU as a tool {instruction} -> {result}."""
+    if not voice_authed(request):
+        raise HTTPException(401, "Bad voice token")
+    body = await request.json()
+    instruction = str(body.get("instruction") or body.get("text") or "").strip()
+    if not instruction:
+        raise HTTPException(400, "instruction required")
+    key = str(body.get("conversation_id") or "")
+    st = agent._chan_state()
+    conv = agent.load_conversation(st["threads"].get("voice:" + key, "")) if key else None
+    if not conv:
+        conv = agent.new_conversation(f"Call: {instruction[:40]}", source="voice")
+        if key:
+            st["threads"]["voice:" + key] = conv["id"]; agent._chan_save(st)
+    extra = ("The owner gave this instruction by phone via the ElevenLabs agent. Do the work with your tools now. "
+             "Reply as speech: short plain sentences, no lists or markdown, under 70 words. If it will take long, start it, say so, and email the report with send_email when done.")
+    budget = float(agent.env().get("SU_VOICE_INLINE_SECONDS", "12"))
+    task = asyncio.create_task(agent.run_agent(conv, instruction, agent.env().get("SU_VOICE_MODEL") or None, None, extra_system=extra))
+    try:
+        result = await asyncio.wait_for(asyncio.shield(task), timeout=budget)
+        return {"result": result.strip(), "conversation_id": key or conv["id"], "done": True}
+    except asyncio.TimeoutError:
+        async def finish():
+            final = await task
+            out = await agent.call_owner("S U calling back. " + final)
+            if out.startswith(("Calling is not configured", "ElevenLabs")):
+                await asyncio.to_thread(agent.send_email, "[SU] Report from your call", final + "\n\n(" + out + ")")
+        asyncio.create_task(finish())
+        return {"result": "I have started on that. It will take a little longer, so I will call you back with the result.", "conversation_id": key or conv["id"], "done": False}
+
+
+VOICE_TASKS: Dict[str, Dict[str, Any]] = {}
+
+@app.post("/v1/tool/submit")
+async def voice_tool_submit(request: Request):
+    """ElevenLabs server tool: the phone agent interviews the caller, then submits the task here. SU works in the background and calls back."""
+    if not voice_authed(request):
+        raise HTTPException(401, "Bad voice token")
+    body = await request.json()
+    pin = re.sub(r"\D", "", agent.env().get("SU_VOICE_PIN", ""))
+    if pin and pin not in _spoken_digits(str(body.get("access_code") or "")):
+        return {"accepted": False, "message": "The access code is missing or wrong. Ask the caller for the access code and try again."}
+    instruction = str(body.get("instruction") or "").strip()
+    if not instruction:
+        return {"accepted": False, "message": "No instruction given."}
+    goal, outcome = str(body.get("goal") or "").strip(), str(body.get("outcome") or "").strip()
+    task_id = "vt_" + uuid.uuid4().hex[:8]
+    conv = agent.new_conversation(f"Call task: {instruction[:40]}", source="voice")
+    prompt = instruction + (f"\n\nGoal: {goal}" if goal else "") + (f"\nExpected outcome: {outcome}" if outcome else "")
+    extra = ("This task was dictated on a phone call to the ElevenLabs agent and handed to you. Do the work now with your tools. "
+             "Finish with a short spoken-style summary (plain sentences, no lists, no markdown, under 90 words) that states whether the goal was met.")
+    VOICE_TASKS[task_id] = {"status": "running", "instruction": instruction, "goal": goal, "conversation_id": conv["id"], "started": agent.now_iso(), "result": None}
+
+    async def work(on_event):
+        try:
+            final = await agent.run_agent(conv, prompt, agent.env().get("SU_VOICE_TASK_MODEL") or None, on_event, extra_system=extra)
+            VOICE_TASKS[task_id].update(status="done", result=final, finished=agent.now_iso())
+        except Exception as e:
+            final = f"I could not complete the task. {type(e).__name__}: {e}"
+            VOICE_TASKS[task_id].update(status="error", result=final, finished=agent.now_iso())
+        spoken = "S U calling back about your task. " + (final or "It is done.")
+        out = await agent.call_owner(spoken[:1500])
+        VOICE_TASKS[task_id]["callback"] = out
+        try:
+            await asyncio.to_thread(agent.send_email, f"[SU] Task from your call: {instruction[:60]}", f"Instruction: {instruction}\nGoal: {goal}\nOutcome wanted: {outcome}\n\nResult:\n{final}\n\nCall-back: {out}")
+        except Exception:
+            pass
+        return {"status": VOICE_TASKS[task_id]["status"]}
+    run = start_run(conv, "voice", work)
+    _run_push(run, {"type": "start", "conversation_id": conv["id"], "input": prompt})
+    return {"accepted": True, "task_id": task_id, "message": "SU has started. It will call back when the goals are met, and email the report."}
+
+@app.get("/v1/tool/status/{task_id}")
+async def voice_tool_status(task_id: str, request: Request):
+    if not voice_authed(request):
+        raise HTTPException(401, "Bad voice token")
+    t = VOICE_TASKS.get(task_id)
+    if not t:
+        raise HTTPException(404, "Unknown task")
+    return {k: v for k, v in t.items() if k != "conversation_id"}
+
+@app.get("/api/voice")
+async def voice_status():
+    e = agent.env()
+    public = (e.get("SU_PUBLIC_URL") or "").rstrip("/")
+    st = agent._chan_state()
+    calls = sum(1 for k in st.get("threads", {}) if k.startswith("voice:"))
+    return {"provider": "elevenlabs", "configured": bool(voice_token() and public), "token_set": bool(voice_token()), "public_url": public or None,
+            "custom_llm_url": (public + "/v1") if public else None, "model_name_hint": e.get("SU_VOICE_MODEL") or agent.default_model(),
+            "calls": calls, "callback_configured": bool(agent.elevenlabs_call_cfg()),
+            "pin_set": bool(agent.env().get("SU_VOICE_PIN")),
+            "keys": ["SU_VOICE_TOKEN", "SU_PUBLIC_URL", "SU_VOICE_PIN", "SU_VOICE_MODEL", "ELEVENLABS_API_KEY", "ELEVENLABS_AGENT_ID", "ELEVENLABS_PHONE_NUMBER_ID", "OWNER_PHONE"]}
 
 
 # ==================== VISUAL DASHBOARD ROUTE ====================

@@ -86,15 +86,17 @@ PROVIDERS = {
     "lepton": {"base_url": "https://api.lepton.ai/v1", "key": "LEPTON_API_KEY", "label": "Lepton AI"},
     "minimax": {"base_url": "https://api.minimax.chat/v1", "key": "MINIMAX_API_KEY", "label": "MiniMax"},
     "nvidia": {"base_url": "https://integrate.api.nvidia.com/v1", "key": "NVIDIA_API_KEY", "label": "NVIDIA Build"},
+    "omni": {"base_url": "https://ai.rajoka.com/v1", "key": "OMNI_ROUTER_KEY", "label": "Omni Router"},  # own router; no SEED_MODELS entry, so every model it serves is listed
     # local: any OpenAI-compatible server (llama-server, Ollama, vLLM); LOCAL_LLM_URL holds its base URL
     "local": {"base_url": "http://127.0.0.1:11434/v1", "key": "LOCAL_LLM_URL", "label": "Local (OpenAI-compatible)", "local": True},
 }
 
 PRIMARY_PROVIDERS = {
-    "openrouter", "openai", "google", "anthropic", "groq", "deepseek", "mistral", "together", "xai", "nvidia", "local"
+    "openrouter", "openai", "google", "anthropic", "groq", "deepseek", "mistral", "together", "xai", "nvidia", "omni", "local"
 }
 
 KEY_ALIASES = {
+    "OMNI_ROUTER_KEY": ["OMNI_KEY", "OMNI_API_KEY"],
     "XAI_API_KEY": ["GROK_API_KEY", "X_AI_API_KEY"],
     "ANTHROPIC_API_KEY": ["CLAUDE_API_KEY"],
     "GEMINI_API_KEY": ["GOOGLE_API_KEY", "PALM_API_KEY"],
@@ -197,6 +199,7 @@ def get_custom_providers() -> List[Dict[str, Any]]:
             ("groq", "Groq", "https://api.groq.com/openai/v1", "GROQ_API_KEY"),
             ("google", "Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/", "GEMINI_API_KEY"),
             ("anthropic", "Anthropic", "https://api.anthropic.com/v1", "ANTHROPIC_API_KEY"),
+            ("omni", "Omni Router", "https://ai.rajoka.com/v1", "OMNI_ROUTER_KEY"),
             ("local", "Local Ollama", "http://127.0.0.1:11434/v1", "LOCAL_LLM_URL"),
         ]
         for pid, name, url, key_var in templates:
@@ -508,48 +511,102 @@ async def _local_models(base_url: str) -> Dict[str, List[str]]:
     return out
 
 
+_EFFORT_TIER = re.compile(r"-(low|medium|high|xhigh|max|ultra)$")
+
+
+def _omni_floor(models, kind: str = "chat") -> List[str]:
+    """Omni Router lists ~1150 ids. Chat: keep its top capability rung (thinking + reasoning + tools, text out);
+    image: type == image. Then one id per underlying model (`root`), no effort-tier expansions, and only the first 3 per
+    vendor prefix in the router's own best-first order. Hidden ids still work when typed (omni:cc/claude-opus-5-xhigh)."""
+    best: Dict[str, str] = {}
+    for m in models:
+        d = m.model_dump() if hasattr(m, "model_dump") else (m if isinstance(m, dict) else {})
+        mid = getattr(m, "id", None) or d.get("id") or str(m)
+        cap = d.get("capabilities") or {}
+        if kind == "image":
+            ok = d.get("type") == "image" or "image" in mid.lower()
+        else:
+            ok = bool(cap.get("tool_calling") and cap.get("reasoning") and cap.get("thinking")) \
+                and d.get("type") not in ("image", "video") and "text" in (d.get("output_modalities") or ["text"])
+        if not ok:
+            continue
+        root = d.get("root") or mid
+        if _EFFORT_TIER.search(root):
+            continue
+        if root not in best or len(mid) < len(best[root]):
+            best[root] = mid
+    seen: Dict[str, int] = {}
+    out: List[str] = []
+    for i in best.values():
+        v = i.split("/", 1)[0] if "/" in i else ""
+        if seen.get(v, 0) < 3:
+            seen[v] = seen.get(v, 0) + 1
+            out.append(i)
+    return out
+
+
+_omni_images: List[str] = []  # image ids from the last omni /models fetch
+
+
+async def omni_image_models() -> List[str]:
+    if not _omni_images and ("omni" in chat_providers() or any(p.get("id") == "omni" for p in get_custom_providers())):
+        await available_models()
+    return list(_omni_images)
+
+
 async def available_models() -> List[Dict[str, Any]]:
     out = []
+    seen_ids = set()
     custom = get_custom_providers()
-    if custom:
-        active = [p for p in custom if p.get("enabled", True)]
-        for p in active:
-            pid = p["id"]
-            vendor = p.get("name") or pid
-            base_url = p.get("base_url", "")
-            api_key = p.get("api_key", "")
-            cached = _models_cache.get(pid)
-            if cached and time.time() - cached.get("t", 0) < 300:
-                live = cached.get("live", [])
-            else:
-                test_res = await test_provider_connection(base_url, api_key)
-                if test_res["ok"] and test_res["models"]:
-                    live = test_res["models"]
-                    p["models"] = live
-                    save_custom_providers(custom)
+    active_custom = [p for p in custom if p.get("enabled", True)] if custom else []
+    custom_pids = {p["id"] for p in active_custom}
+
+    for p in active_custom:
+        pid = p["id"]
+        vendor = p.get("name") or pid
+        base_url = p.get("base_url", "")
+        api_key = p.get("api_key", "")
+        cached = _models_cache.get(pid)
+        if cached and time.time() - cached.get("t", 0) < 300:
+            live = cached.get("live", [])
+            mods = cached.get("mods", {})
+        else:
+            test_res = await test_provider_connection(base_url, api_key)
+            mods = {}
+            if test_res["ok"] and test_res["models"]:
+                raw_models = test_res["models"]
+                if "omni" in pid.lower() or "omni" in base_url.lower():
+                    live = [m for m in raw_models if not _EFFORT_TIER.search(m)]
+                    if len(live) > 80:
+                        top_pfx = ("anthropic/", "openai/", "google/", "deepseek/", "meta-llama/", "qwen/", "mistralai/", "x-ai/")
+                        curated = [m for m in live if any(m.startswith(x) for x in top_pfx)]
+                        if curated:
+                            live = curated[:60]
                 else:
-                    live = p.get("models") or []
-                _models_cache[pid] = {"t": time.time(), "live": live}
+                    live = raw_models
+                p["models"] = live
+                save_custom_providers(custom)
+            else:
+                live = p.get("models") or []
+            _models_cache[pid] = {"t": time.time(), "live": live, "mods": mods}
 
-            for m_id in live:
-                free = m_id.endswith(":free") or "127.0.0.1" in base_url or "localhost" in base_url
-                out.append({
-                    "model_name": f"{pid}:{m_id}",
-                    "label": f"{m_id.split('/', 1)[-1]}{' (free)' if free else ''} · {vendor}",
-                    "vendor": vendor,
-                    "free": free,
-                    "input": ["text", "image"],
-                    "caps": "TI"
-                })
-        if gemini_cli_available():
-            out = [{"model_name": f"gemini-cli:{m}", "label": f"{m} · Gemini CLI", "vendor": "Gemini CLI",
-                    "free": "flash" in m, "input": ["text", "image", "video", "audio", "file"], "caps": "TIVAF"} for m in GEMINI_CLI_MODELS] + out
-        if cc_available():
-            out = [{"model_name": f"claude-code:{m}", "label": f"Claude {m.capitalize()} · Claude Code (subscription)", "vendor": "Claude Code",
-                    "free": False, "input": ["text", "image", "file"], "caps": "TIF"} for m in CC_MODELS] + out
-        return out
+        for m_id in live:
+            key = f"{pid}:{m_id}"
+            if key in seen_ids:
+                continue
+            seen_ids.add(key)
+            free = m_id.endswith(":free") or "127.0.0.1" in base_url or "localhost" in base_url
+            im = mods.get(m_id) or _family_mods.get(_family(m_id)) or ["text", "image"]
+            out.append({
+                "model_name": key,
+                "label": f"{m_id.split('/', 1)[-1]}{' (free)' if free else ''} · {vendor}",
+                "vendor": vendor,
+                "free": free,
+                "input": im,
+                "caps": _caps(im)
+            })
 
-    providers = chat_providers()
+    providers = [p for p in chat_providers() if p not in custom_pids]
     for p in providers:
         cached = _models_cache.get(p)
         if cached and time.time() - cached.get("t", 0) < 300:
@@ -557,7 +614,17 @@ async def available_models() -> List[Dict[str, Any]]:
         mods = {}
         live = []
         try:
-            if p == "anthropic":
+            if p == "omni":
+                res = await client_for(p).models.list()
+                live = _omni_floor(res.data)
+                _omni_images[:] = _omni_floor(res.data, "image")
+                for m in (res.data if res else []):
+                    arch = (m.model_dump().get("architecture") or {}) if hasattr(m, "model_dump") else {}
+                    im = arch.get("input_modalities")
+                    if im:
+                        mods[m.id] = im
+                        _family_mods.setdefault(_family(m.id), im)
+            elif p == "anthropic":
                 key = _get_provider_key(p)
                 async with httpx.AsyncClient(timeout=10) as c:
                     r = await c.get("https://api.anthropic.com/v1/models", headers={"x-api-key": key, "anthropic-version": "2023-06-01"})
@@ -632,16 +699,21 @@ async def available_models() -> List[Dict[str, Any]]:
         cfg = PROVIDERS.get(p, {})
         vendor = cfg.get("label", p.capitalize())
         for i in ids:
+            key = f"{p}:{i}"
+            if key in seen_ids:
+                continue
+            seen_ids.add(key)
             free = i.endswith(":free") or p == "nvidia" or (p == "google" and "flash" in i) or bool(cfg.get("local"))
             im = mods.get(i) or _family_mods.get(_family(i)) or (["text", "image", "video", "audio", "file"] if p == "google" else ["text"])
             out.append({
-                "model_name": f"{p}:{i}",
+                "model_name": key,
                 "label": f"{i.split('/', 1)[-1]}{' (free)' if free else ''} · {vendor}",
                 "vendor": vendor,
                 "free": free,
                 "input": im,
                 "caps": _caps(im)
             })
+
     if gemini_cli_available():
         out = [{"model_name": f"gemini-cli:{m}", "label": f"{m} · Gemini CLI", "vendor": "Gemini CLI",
                 "free": "flash" in m, "input": ["text", "image", "video", "audio", "file"], "caps": "TIVAF"} for m in GEMINI_CLI_MODELS] + out
@@ -1584,6 +1656,10 @@ PROVIDER_IMAGE_MODELS = {
 
 def available_image_models() -> List[str]:
     options = []
+    for m in _omni_images:
+        entry = f"omni:{m}"
+        if entry not in options:
+            options.append(entry)
     e = env()
     custom = get_custom_providers()
 
@@ -1978,6 +2054,44 @@ async def _run(cmd: List[str], stdin: Optional[bytes] = None, timeout: int = 600
     return out.decode("utf-8", "replace")
 
 
+# ---------------------------------------------------------------- audio (whisper.cpp + Kokoro) in /opt/su-audio, run locally as the SU user
+
+AUDIO_DIR = Path(os.environ.get("SU_AUDIO_DIR", "/opt/su-audio"))
+
+
+async def audio_transcribe(path: str, language: str = "auto", engine: str = "whisper") -> str:
+    src = _ws_path(path)
+    if not src.is_file():
+        return f"No such file: {path}"
+    try:
+        text = await _run([str(AUDIO_DIR / "transcribe.sh"), str(src), re.sub(r"[^a-z]", "", language.lower()) or "auto"], timeout=1800)
+    except Exception as e:
+        return f"transcribe failed: {e}"
+    return text.strip() or "(no speech detected)"
+
+
+async def audio_speak(text: str, out_path: str, voice: str = "af_heart", lang: str = "a") -> str:
+    dst = _ws_path(out_path)
+    if dst.suffix.lower() != ".wav":
+        return "out_path must end in .wav"
+    dst.parent.mkdir(parents=True, exist_ok=True)
+    try:
+        info = await _run([str(AUDIO_DIR / "venv/bin/python"), str(AUDIO_DIR / "speak.py"), "--out", str(dst), "--voice", re.sub(r"[^a-z_]", "", voice) or "af_heart", "--lang", re.sub(r"[^a-z]", "", lang) or "a"],
+                          stdin=text.encode("utf-8"), timeout=900)
+    except Exception as e:
+        return f"speak failed: {e}"
+    return f"Wrote {dst.relative_to(WORKSPACE) if dst.is_relative_to(WORKSPACE) else dst} ({info.strip().split()[-1]})"
+
+
+async def audio_tts(text: str, voice: str = "bm_george", lang: str = "b") -> bytes:
+    """Kokoro speech for the UI's speaker button, from the always-on kokoro-tts service (127.0.0.1:3020). Returns wav bytes."""
+    async with httpx.AsyncClient(timeout=120) as c:
+        r = await c.post(env().get("SU_TTS_URL", "http://127.0.0.1:3020/speak"), json={"text": text, "voice": voice, "lang": lang})
+    if r.status_code != 200:
+        raise RuntimeError(f"tts service {r.status_code}: {r.text[:200]}")
+    return r.content
+
+
 # ---------------------------------------------------------------- tools
 
 
@@ -2001,12 +2115,18 @@ BUILTIN_TOOLS = [
     _tool("send_email", "Send an email to the owner (or a recipient). Uses SMTP_* or RESEND_API_KEY secrets.",
           {"subject": {"type": "string"}, "body": {"type": "string"}, "to": {"type": "string", "description": "Optional; defaults to NOTIFY_EMAIL"}}, ["subject", "body"]),
     _tool("send_telegram", "Send a Telegram message to the owner (TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID).", {"text": {"type": "string"}}),
+    _tool("call_owner", "Phone the owner through the ElevenLabs voice agent and speak this message first (use for urgent findings or when asked to call back).", {"message": {"type": "string"}}),
     _tool("generate_image", "Generate an image with the configured image model and save it as a file. Use this whenever the owner asks for an image, logo, illustration, thumbnail or picture; do not draw with code.",
           {"prompt": {"type": "string"}, "path": {"type": "string", "description": "Optional output path (.png), default Projects/media/"},
            "reference": {"type": "string", "description": "Optional path of an image to edit or use as reference"}}, ["prompt"]),
     _tool("generate_video", "Generate a short video clip with the configured video model and save it as a file. Use this whenever the owner asks for a video; do not assemble videos with ffmpeg unless they explicitly ask for that.",
           {"prompt": {"type": "string"}, "path": {"type": "string", "description": "Optional output path (.mp4)"},
            "image": {"type": "string", "description": "Optional starting image path"}, "seconds": {"type": "integer", "description": "Clip length, default 5"}}, ["prompt"]),
+    _tool("transcribe", "Speech to text (Whisper large-v3-turbo, 99 languages including Urdu). Returns the transcript. Audio path is inside the workspace; any format ffmpeg reads.",
+          {"path": {"type": "string"}, "language": {"type": "string", "description": "ISO code like en, ur, hi, ar; default auto"}}, ["path"]),
+    _tool("speak", "Text to speech (Kokoro) saved as a wav file in the workspace.",
+          {"text": {"type": "string"}, "out_path": {"type": "string", "description": "Workspace path ending in .wav, e.g. Projects/x/summary.wav"},
+           "voice": {"type": "string", "description": "Kokoro voice, default af_heart (bf_emma for British, hf_alpha for Hindi)"}, "lang": {"type": "string", "description": "default a"}}, ["text", "out_path"]),
     _tool("read_skill", "Read the full SKILL.md and file list of an installed skill. Call before using a skill.", {"name": {"type": "string"}}),
     _tool("create_skill", "Create or overwrite a skill folder Skills/<name>/SKILL.md (+ optional scripts).",
           {"name": {"type": "string"}, "description": {"type": "string"}, "body": {"type": "string", "description": "Markdown instructions"},
@@ -2342,10 +2462,16 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
             return await asyncio.to_thread(send_email, args["subject"], args["body"], args.get("to"))
         if name == "send_telegram":
             return await asyncio.to_thread(send_telegram, args["text"])
+        if name == "call_owner":
+            return await call_owner(args["message"])
         if name == "generate_image":
             return await generate_image(args["prompt"], args.get("path"), args.get("reference"))
         if name == "generate_video":
             return await generate_video(args["prompt"], args.get("path"), args.get("image"), int(args.get("seconds") or 5))
+        if name == "transcribe":
+            return await audio_transcribe(args["path"], args.get("language") or "auto", args.get("engine") or "whisper")
+        if name == "speak":
+            return await audio_speak(args["text"], args["out_path"], args.get("voice") or "af_heart", args.get("lang") or "a")
         if name == "read_skill":
             return read_skill(args["name"])
         if name == "create_skill":
@@ -2440,14 +2566,15 @@ CORE_TOOLS = ["run_command", "read_file", "write_file", "edit_file", "list_dir",
 TOOL_GROUPS = {
     "apps": ["search_app_catalog", "connect_app", "list_app_tools", "use_app"],
     "media": ["generate_image", "generate_video"],
+    "audio": ["transcribe", "speak"],
     "automations": ["create_automation", "list_automations", "update_automation", "delete_automation"],
     "tasks": ["create_task", "list_tasks", "control_task", "task_logs"],
     "agents": ["list_agents", "create_agent"],
     "skills": ["create_skill"],
-    "comms": ["send_email", "send_telegram"],
+    "comms": ["send_email", "send_telegram", "call_owner"],
 }
-GROUP_HELP = {"apps": "connected apps (Gmail, GitHub...) via Pipedream", "media": "generate images and videos", "automations": "scheduled automations",
-              "tasks": "24/7 background tasks", "agents": "saved personas", "skills": "create a skill", "comms": "email and Telegram to the owner"}
+GROUP_HELP = {"apps": "connected apps (Gmail, GitHub...) via Pipedream", "media": "generate images and videos", "audio": "transcribe audio files, text to speech", "automations": "scheduled automations",
+              "tasks": "24/7 background tasks", "agents": "saved personas", "skills": "create a skill", "comms": "email, Telegram, phone call to the owner"}
 _GROUP_OF = {n: g for g, ns in TOOL_GROUPS.items() for n in ns}
 
 
@@ -2810,9 +2937,9 @@ async def _veo_video(model: str, prompt: str, path: Optional[str], image: Option
 
 # ---------------------------------------------------------------- SU tools as an MCP server (so Claude Code sees them)
 
-SU_MCP_TOOLS = ["generate_image", "generate_video", "send_email", "send_telegram", "web_search", "web_fetch", "list_app_tools", "use_app",
+SU_MCP_TOOLS = ["generate_image", "generate_video", "send_email", "send_telegram", "call_owner", "web_search", "web_fetch", "list_app_tools", "use_app",
                 "create_automation", "list_automations", "update_automation", "delete_automation", "create_skill",
-                "create_task", "list_tasks", "control_task", "task_logs",
+                "create_task", "list_tasks", "control_task", "task_logs", "transcribe", "speak",
                 "list_agents", "create_agent", "search_app_catalog", "connect_app", "list_app_tools", "project_keys"]
 
 
@@ -3696,6 +3823,31 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
     save_conversation(conv)
     return final
 
+
+
+# ---------------------------------------------------------------- call the owner back through the ElevenLabs agent (SIP trunk outbound)
+
+def elevenlabs_call_cfg() -> Optional[Dict[str, str]]:
+    e = env()
+    if not (e.get("ELEVENLABS_API_KEY") and e.get("ELEVENLABS_AGENT_ID") and e.get("ELEVENLABS_PHONE_NUMBER_ID") and e.get("OWNER_PHONE")):
+        return None
+    return {"key": e["ELEVENLABS_API_KEY"], "agent": e["ELEVENLABS_AGENT_ID"], "number": e["ELEVENLABS_PHONE_NUMBER_ID"], "to": e["OWNER_PHONE"]}
+
+
+async def call_owner(message: str) -> str:
+    """Place an outbound call from the ElevenLabs agent to the owner; the agent opens with `message` and then continues as SU."""
+    cfg = elevenlabs_call_cfg()
+    if not cfg:
+        return "Calling is not configured. Needed in Settings > Advanced: ELEVENLABS_API_KEY, ELEVENLABS_AGENT_ID, ELEVENLABS_PHONE_NUMBER_ID, OWNER_PHONE (E.164)."
+    body = {"agent_id": cfg["agent"], "agent_phone_number_id": cfg["number"], "to_number": cfg["to"],
+            "conversation_initiation_client_data": {"dynamic_variables": {"report": message[:1500]},
+                                                    "conversation_config_override": {"agent": {"first_message": message[:1500]}}}}
+    async with httpx.AsyncClient(timeout=30) as c:
+        r = await c.post("https://api.elevenlabs.io/v1/convai/sip-trunk/outbound-call", headers={"xi-api-key": cfg["key"]}, json=body)
+    if r.status_code >= 400:
+        return f"ElevenLabs call failed {r.status_code}: {r.text[:300]}"
+    j = r.json()
+    return f"Calling {cfg['to']} now (conversation {j.get('conversation_id')})." if j.get("success", True) else f"ElevenLabs did not place the call: {j.get('message')}"
 
 
 # ---------------------------------------------------------------- inbound channels: email (IMAP/SMTP) and Telegram, like Zo's channels
