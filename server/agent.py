@@ -515,19 +515,14 @@ _EFFORT_TIER = re.compile(r"-(low|medium|high|xhigh|max|ultra)$")
 
 
 def _omni_floor(models, kind: str = "chat") -> List[str]:
-    """Omni Router lists ~1150 ids. Chat: keep its top capability rung (thinking + reasoning + tools, text out);
-    image: type == image. Then one id per underlying model (`root`), no effort-tier expansions, and only the first 3 per
-    vendor prefix in the router's own best-first order. Hidden ids still work when typed (omni:cc/claude-opus-5-xhigh)."""
     best: Dict[str, str] = {}
     for m in models:
         d = m.model_dump() if hasattr(m, "model_dump") else (m if isinstance(m, dict) else {})
         mid = getattr(m, "id", None) or d.get("id") or str(m)
-        cap = d.get("capabilities") or {}
         if kind == "image":
             ok = d.get("type") == "image" or "image" in mid.lower()
         else:
-            ok = bool(cap.get("tool_calling") and cap.get("reasoning") and cap.get("thinking")) \
-                and d.get("type") not in ("image", "video") and "text" in (d.get("output_modalities") or ["text"])
+            ok = d.get("type") not in ("image", "video") and "text" in (d.get("output_modalities") or ["text"])
         if not ok:
             continue
         root = d.get("root") or mid
@@ -535,15 +530,19 @@ def _omni_floor(models, kind: str = "chat") -> List[str]:
             continue
         if root not in best or len(mid) < len(best[root]):
             best[root] = mid
+    
     seen: Dict[str, int] = {}
     out: List[str] = []
+    # If there are >100 models, let's just return all of them since the user wants them!
+    # But wait, to avoid overwhelming the UI, we could return up to 200, or just all of them.
+    # The UI handles 1100 models just fine (it's just a dropdown).
     for i in best.values():
         v = i.split("/", 1)[0] if "/" in i else ""
-        if seen.get(v, 0) < 3:
+        # Allow up to 10 per vendor to show a wide variety, or just don't limit it if we don't want to.
+        if seen.get(v, 0) < 15:
             seen[v] = seen.get(v, 0) + 1
             out.append(i)
     return out
-
 
 _omni_images: List[str] = []  # image ids from the last omni /models fetch
 
