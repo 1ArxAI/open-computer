@@ -407,6 +407,48 @@ def chat_providers() -> List[str]:
     return [p for p in configured_providers() if p not in image_only_providers()]
 
 
+_EFFORT_TIER = re.compile(r"-(low|medium|high|xhigh|max|ultra|none|tiered|batch)$|:batch$")
+
+def _model_company(mid: str) -> str:
+    m = mid.lower()
+    if "claude" in m or "anthropic" in m: return "Anthropic"
+    if "openai" in m or "gpt" in m or "o1" in m or "o3" in m or "o4" in m: return "OpenAI"
+    if "gemini" in m or "google" in m or "antigravity" in m or "gemma" in m: return "Google"
+    if "deepseek" in m or "ds/" in m: return "DeepSeek"
+    if "llama" in m or "meta" in m: return "Meta"
+    if "qwen" in m: return "Qwen"
+    if "mistral" in m or "codestral" in m: return "Mistral"
+    if "x-ai" in m or "grok" in m: return "xAI"
+    if "minimax" in m: return "MiniMax"
+    if "moonshot" in m or "kimi" in m: return "Moonshot"
+    if "z-ai" in m or "glm" in m or "zai" in m: return "Zhipu AI"
+    if "amazon" in m or "nova" in m: return "Amazon"
+    if "auto/" in m: return "Auto"
+    if "/" in mid: return mid.split("/", 1)[0].capitalize()
+    return "Other"
+
+def filter_top_per_company(models: list, limit_per_company: int = 3) -> list:
+    seen: Dict[str, int] = {}
+    out = []
+    # 1st pass: non-effort tier
+    for m in models:
+        mid = m.get("id") if isinstance(m, dict) else m
+        if not mid or _EFFORT_TIER.search(mid): continue
+        comp = _model_company(mid)
+        if seen.get(comp, 0) < limit_per_company:
+            seen[comp] = seen.get(comp, 0) + 1
+            out.append(m)
+    # 2nd pass: any remaining
+    for m in models:
+        mid = m.get("id") if isinstance(m, dict) else m
+        if not mid or m in out: continue
+        comp = _model_company(mid)
+        if seen.get(comp, 0) < limit_per_company:
+            seen[comp] = seen.get(comp, 0) + 1
+            out.append(m)
+    return out
+
+
 def provider_status() -> List[Dict[str, Any]]:
     """Return the clean list of user-configured AI providers."""
     custom = get_custom_providers()
@@ -437,6 +479,8 @@ def provider_status() -> List[Dict[str, Any]]:
             
             # extract string name for frontend compatibility
             filtered_live.append(m_id)
+            
+        filtered_live = filter_top_per_company(filtered_live, 3)
             
         rows.append({
             "id": p["id"],
@@ -656,6 +700,19 @@ async def available_models() -> List[Dict[str, Any]]:
                 if p_filters.get("vision") and not vision: continue
                 live.append(m)
                 
+            # Filter to top 3 models per company (latest / top of each company)
+            live = filter_top_per_company(live, 3)
+            
+            # Ensure default model is retained if set
+            current_def = env().get("SU_DEFAULT_MODEL")
+            if current_def and current_def.startswith(f"{pid}:"):
+                def_mid = current_def.split(":", 1)[1]
+                if not any((m.get("id") if isinstance(m, dict) else m) == def_mid for m in live):
+                    for st_m in stored:
+                        if (st_m.get("id") if isinstance(st_m, dict) else st_m) == def_mid:
+                            live.insert(0, st_m)
+                            break
+                            
             _models_cache[pid] = {"t": time.time(), "live": live, "mods": mods}
 
         for m_obj in live:
