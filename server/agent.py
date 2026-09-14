@@ -86,7 +86,6 @@ PROVIDERS = {
     "lepton": {"base_url": "https://api.lepton.ai/v1", "key": "LEPTON_API_KEY", "label": "Lepton AI"},
     "minimax": {"base_url": "https://api.minimax.chat/v1", "key": "MINIMAX_API_KEY", "label": "MiniMax"},
     "nvidia": {"base_url": "https://integrate.api.nvidia.com/v1", "key": "NVIDIA_API_KEY", "label": "NVIDIA Build"},
-    "omni": {"base_url": "https://ai.rajoka.com/v1", "key": "OMNI_ROUTER_KEY", "label": "Omni Router"},  # own router; no SEED_MODELS entry, so every model it serves is listed
     # local: any OpenAI-compatible server (llama-server, Ollama, vLLM); LOCAL_LLM_URL holds its base URL
     "local": {"base_url": "http://127.0.0.1:11434/v1", "key": "LOCAL_LLM_URL", "label": "Local (OpenAI-compatible)", "local": True},
 }
@@ -253,16 +252,40 @@ async def test_provider_connection(base_url: str, api_key: str = "") -> Dict[str
                         data = resp.json()
                         raw_models = []
                         if isinstance(data, dict):
-                            if "data" in data and isinstance(data["data"], list):
-                                raw_models = [m.get("id") for m in data["data"] if isinstance(m, dict) and m.get("id")]
-                            elif "models" in data and isinstance(data["models"], list):
-                                raw_models = [m.get("name") or m.get("id") for m in data["models"] if isinstance(m, dict)]
+                            src_list = data.get("data") if isinstance(data.get("data"), list) else (data.get("models") if isinstance(data.get("models"), list) else [])
                         elif isinstance(data, list):
-                            raw_models = [m.get("id") for m in data if isinstance(m, dict) and m.get("id")]
+                            src_list = data
+                        else:
+                            src_list = []
+                            
+                        raw_models = []
+                        for m in src_list:
+                            if not isinstance(m, dict): continue
+                            mid = m.get("id") or m.get("name")
+                            if not mid: continue
+                            
+                            # Extract capabilities if available (like OpenRouter/OmniRouter schema)
+                            arch = m.get("architecture") or {}
+                            im = arch.get("input_modalities") or ["text"]
+                            om = arch.get("output_modalities") or []
+                            cap = m.get("capabilities") or {}
+                            
+                            is_reasoning = bool(cap.get("reasoning") or cap.get("thinking") or "reasoning" in mid.lower() or "thinking" in mid.lower())
+                            is_tools = bool(cap.get("tool_calling") or "tool" in mid.lower())
+                            is_vision = bool("image" in im or "vision" in mid.lower() or "vl" in mid.lower() or "multimodal" in mid.lower())
+                            
+                            raw_models.append({
+                                "id": mid,
+                                "im": im,
+                                "reasoning": is_reasoning,
+                                "tools": is_tools,
+                                "vision": is_vision
+                            })
+
 
                         if raw_models:
                             exclude = ("embed", "whisper", "tts", "moderation", "babbage", "davinci", "curie", "ada", "realtime")
-                            filtered = [m for m in raw_models if m and not any(bad in m.lower() for bad in exclude)]
+                            filtered = [m for m in raw_models if m and not any(bad in m["id"].lower() for bad in exclude)]
                             return {"ok": True, "models": filtered if filtered else raw_models, "error": None}
                     elif resp.status_code in (401, 403):
                         return {"ok": False, "models": [], "error": f"Authentication failed (HTTP {resp.status_code}). Check your API key."}
@@ -386,6 +409,30 @@ def provider_status() -> List[Dict[str, Any]]:
     for p in custom:
         key = p.get("api_key", "")
         masked = f"{key[:3]}...{key[-4:]}" if len(key) > 7 else ("••••" if key else "None (local)")
+
+        p_filters = p.get("filters") or {}
+        live = p.get("models") or []
+        filtered_live = []
+        for m in live:
+            is_dict = isinstance(m, dict)
+            m_id = m.get("id") if is_dict else m
+            if not m_id: continue
+            if is_dict:
+                reasoning = m.get("reasoning", False)
+                tools = m.get("tools", False)
+                vision = m.get("vision", False)
+            else:
+                reasoning = "reasoning" in m_id.lower() or "thinking" in m_id.lower()
+                tools = True
+                vision = "vision" in m_id.lower() or "vl" in m_id.lower()
+                
+            if p_filters.get("reasoning") and not reasoning: continue
+            if p_filters.get("tools") and not tools: continue
+            if p_filters.get("vision") and not vision: continue
+            
+            # extract string name for frontend compatibility
+            filtered_live.append(m_id)
+            
         rows.append({
             "id": p["id"],
             "name": p.get("name", p["id"]),
@@ -395,8 +442,9 @@ def provider_status() -> List[Dict[str, Any]]:
             "has_key": bool(key),
             "masked_key": masked,
             "enabled": p.get("enabled", True),
-            "models": p.get("models", []),
-            "model_count": len(p.get("models", [])),
+            "models": filtered_live,
+            "model_count": len(filtered_live),
+            "filters": p_filters,
             "kind": "api"
         })
     return rows
@@ -574,35 +622,72 @@ async def available_models() -> List[Dict[str, Any]]:
             mods = {}
             if test_res["ok"] and test_res["models"]:
                 raw_models = test_res["models"]
-                if "omni" in pid.lower() or "omni" in base_url.lower():
-                    live = [m for m in raw_models if not _EFFORT_TIER.search(m)]
-                    if len(live) > 80:
-                        top_pfx = ("anthropic/", "openai/", "google/", "deepseek/", "meta-llama/", "qwen/", "mistralai/", "x-ai/")
-                        curated = [m for m in live if any(m.startswith(x) for x in top_pfx)]
-                        if curated:
-                            live = curated[:60]
-                else:
-                    live = raw_models
+                live = raw_models
                 p["models"] = live
                 save_custom_providers(custom)
             else:
                 live = p.get("models") or []
+            
+            # Apply user-selected UI filters for this custom provider
+            p_filters = p.get("filters") or {}
+            if p_filters.get("reasoning") or p_filters.get("tools") or p_filters.get("vision"):
+                filtered_live = []
+                for m in live:
+                    is_dict = isinstance(m, dict)
+                    m_id = m.get("id") if is_dict else m
+                    if not m_id: continue
+                    
+                    if is_dict:
+                        reasoning = m.get("reasoning", False)
+                        tools = m.get("tools", False)
+                        vision = m.get("vision", False)
+                    else:
+                        reasoning = "reasoning" in m_id.lower() or "thinking" in m_id.lower()
+                        tools = True
+                        vision = "vision" in m_id.lower() or "vl" in m_id.lower()
+                        
+                    if p_filters.get("reasoning") and not reasoning: continue
+                    if p_filters.get("tools") and not tools: continue
+                    if p_filters.get("vision") and not vision: continue
+                    filtered_live.append(m)
+                live = filtered_live
+                
             _models_cache[pid] = {"t": time.time(), "live": live, "mods": mods}
 
-        for m_id in live:
+        for m_obj in live:
+            # Handle both string (legacy) and dict (new)
+            is_dict = isinstance(m_obj, dict)
+            m_id = m_obj.get("id") if is_dict else m_obj
+            if not m_id: continue
+            
             key = f"{pid}:{m_id}"
             if key in seen_ids:
                 continue
             seen_ids.add(key)
             free = m_id.endswith(":free") or "127.0.0.1" in base_url or "localhost" in base_url
-            im = mods.get(m_id) or _family_mods.get(_family(m_id)) or ["text", "image"]
+            
+            if is_dict:
+                im = m_obj.get("im") or ["text"]
+                reasoning = m_obj.get("reasoning", False)
+                tools = m_obj.get("tools", False)
+                vision = m_obj.get("vision", False)
+                if vision and "image" not in im: im.append("image")
+            else:
+                im = mods.get(m_id) or _family_mods.get(_family(m_id)) or ["text", "image"]
+                reasoning = "reasoning" in m_id.lower() or "thinking" in m_id.lower()
+                tools = True
+                vision = "vision" in m_id.lower() or "vl" in m_id.lower()
+                
             out.append({
                 "model_name": key,
                 "label": f"{m_id.split('/', 1)[-1]}{' (free)' if free else ''} · {vendor}",
                 "vendor": vendor,
                 "free": free,
                 "input": im,
-                "caps": _caps(im)
+                "caps": _caps(im),
+                "reasoning": reasoning,
+                "tools": tools,
+                "vision": vision
             })
 
     providers = [p for p in chat_providers() if p not in custom_pids]
@@ -613,17 +698,7 @@ async def available_models() -> List[Dict[str, Any]]:
         mods = {}
         live = []
         try:
-            if p == "omni":
-                res = await client_for(p).models.list()
-                live = _omni_floor(res.data)
-                _omni_images[:] = _omni_floor(res.data, "image")
-                for m in (res.data if res else []):
-                    arch = (m.model_dump().get("architecture") or {}) if hasattr(m, "model_dump") else {}
-                    im = arch.get("input_modalities")
-                    if im:
-                        mods[m.id] = im
-                        _family_mods.setdefault(_family(m.id), im)
-            elif p == "anthropic":
+            if p == "anthropic":
                 key = _get_provider_key(p)
                 async with httpx.AsyncClient(timeout=10) as c:
                     r = await c.get("https://api.anthropic.com/v1/models", headers={"x-api-key": key, "anthropic-version": "2023-06-01"})
@@ -704,13 +779,21 @@ async def available_models() -> List[Dict[str, Any]]:
             seen_ids.add(key)
             free = i.endswith(":free") or p == "nvidia" or (p == "google" and "flash" in i) or bool(cfg.get("local"))
             im = mods.get(i) or _family_mods.get(_family(i)) or (["text", "image", "video", "audio", "file"] if p == "google" else ["text"])
+            
+            reasoning = "reasoning" in i.lower() or "thinking" in i.lower() or "o1" in i.lower() or "o3" in i.lower() or "r1" in i.lower()
+            tools = True
+            vision = "image" in im or "vision" in i.lower() or "vl" in i.lower()
+
             out.append({
                 "model_name": key,
                 "label": f"{i.split('/', 1)[-1]}{' (free)' if free else ''} · {vendor}",
                 "vendor": vendor,
                 "free": free,
                 "input": im,
-                "caps": _caps(im)
+                "caps": _caps(im),
+                "reasoning": reasoning,
+                "tools": tools,
+                "vision": vision
             })
 
     if gemini_cli_available():

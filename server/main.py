@@ -1035,6 +1035,25 @@ async def add_provider(req: AddProviderRequest):
     return {"ok": True, "provider": prov, "providers": agent.provider_status(), "default": agent.default_model()}
 
 
+
+@app.post("/api/providers/{pid}/filters")
+async def update_provider_filters(pid: str, body: dict):
+    custom = agent.get_custom_providers()
+    p = next((x for x in custom if x["id"] == pid), None)
+    if not p:
+        raise HTTPException(404, "Provider not found")
+    
+    if "filters" not in p:
+        p["filters"] = {}
+        
+    for k, v in body.items():
+        if k in ("reasoning", "tools", "vision"):
+            p["filters"][k] = bool(v)
+            
+    agent.save_custom_providers(custom)
+    agent._models_cache.clear()
+    return {"ok": True, "provider": p, "providers": agent.provider_status(), "default": agent.default_model()}
+
 @app.delete("/api/providers/{pid}")
 async def delete_provider(pid: str):
     success = agent.delete_custom_provider(pid)
@@ -1058,6 +1077,7 @@ async def test_provider(pid: str):
         raise HTTPException(404, "Provider not found.")
     res = await agent.test_provider_connection(p["base_url"], p.get("api_key", ""))
     if res["ok"] and res.get("models"):
+        # We store ALL models that are returned, no truncation.
         p["models"] = res["models"]
         agent.save_custom_providers(custom)
         agent._models_cache.clear()
