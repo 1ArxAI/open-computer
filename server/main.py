@@ -1108,6 +1108,7 @@ async def delete_skill(body: SkillName):
     d = agent.SKILLS_DIR / body.slug
     if d.exists() and d.resolve().parent == agent.SKILLS_DIR.resolve():
         shutil.rmtree(d)
+        agent._skills_cache.clear()
         return {"ok": True}
     raise HTTPException(404, "Skill not found")
 
