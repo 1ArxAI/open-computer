@@ -222,12 +222,17 @@ async def start_scheduler():
 
     async def _periodic_update_checker():
         await asyncio.sleep(5)
+        auto = agent.env().get("SU_AUTO_UPDATE", "0") == "1"  # SU_AUTO_UPDATE=1: pull and restart whenever origin moves ahead
+        interval = max(60, int(agent.env().get("SU_UPDATE_INTERVAL", 3600)))
         while True:
             try:
-                await updater.check_for_updates(force=False)
-            except Exception:
-                pass
-            await asyncio.sleep(3600)  # Check every hour in background
+                res = await updater.check_for_updates(force=auto)
+                if auto and res.get("update_available"):
+                    print(f"auto-update: {res.get('current_commit')} -> {res.get('latest_commit')}")
+                    await updater.apply_update()
+            except Exception as e:
+                print(f"update check failed: {e}")
+            await asyncio.sleep(interval)
 
     asyncio.create_task(_periodic_update_checker())
 
