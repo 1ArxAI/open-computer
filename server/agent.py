@@ -816,7 +816,9 @@ def default_model() -> str:
     custom = get_custom_providers()
     for p in custom:
         if p.get("enabled", True) and p.get("models"):
-            return f"{p['id']}:{p['models'][0]}"
+            first_m = p["models"][0]
+            first_id = first_m.get("id") if isinstance(first_m, dict) else first_m
+            return f"{p['id']}:{first_id}"
     if cc_available():
         return "claude-code:sonnet"
     ps = chat_providers()
@@ -1757,10 +1759,14 @@ def available_image_models() -> List[str]:
 
         # 1. Models dynamically discovered from provider /models endpoint
         for m in p.get("models", []):
-            m_low = m.lower()
-            if any(k in m_low for k in ("flux", "dall-e", "imagen", "recraft", "stable-diffusion", "sdxl", "-image", "/image")):
+            is_dict = isinstance(m, dict)
+            m_id = m.get("id") if is_dict else m
+            if not m_id:
+                continue
+            m_low = m_id.lower()
+            if any(k in m_low for k in ("flux", "dall-e", "imagen", "recraft", "stable-diffusion", "sdxl", "-image", "/image", "midjourney")):
                 if "vision" not in m_low or "image" in m_low:
-                    entry = f"{pid}:{m}"
+                    entry = f"{pid}:{m_id}"
                     if entry not in options:
                         options.append(entry)
 
