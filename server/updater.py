@@ -194,16 +194,16 @@ async def check_for_updates(force: bool = False) -> Dict[str, Any]:
 async def _schedule_restart():
     """Wait briefly for HTTP response to be flushed, then restart service."""
     await asyncio.sleep(1.5)
-    # 1. Try systemctl restart su (works if sudoers allows NOPASSWD or running as root)
-    try:
-        proc = await asyncio.create_subprocess_exec(
-            "sudo", "-n", "systemctl", "restart", "su",
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
-        await asyncio.wait_for(proc.wait(), timeout=3)
-    except Exception:
-        pass
+    for svc in ("zo-gateway", "su", "open-computer"):
+        try:
+            proc = await asyncio.create_subprocess_exec(
+                "sudo", "-n", "systemctl", "restart", svc,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
+            await asyncio.wait_for(proc.wait(), timeout=3)
+        except Exception:
+            pass
 
     # 2. In all cases, exiting the process causes systemd (Restart=always) to cleanly restart uvicorn
     os._exit(0)
