@@ -1451,7 +1451,10 @@
     }
     ::-webkit-scrollbar-thumb { background: color-mix(in oklab, var(--zo-border) 50%, transparent); }
     * { scrollbar-color: color-mix(in oklab, var(--zo-border) 50%, transparent) transparent; }
-  </style>
+  
+    .toggle-pill { cursor: pointer; user-select: none; opacity: 0.5; filter: grayscale(1); transition: 0.2s; }
+    .toggle-pill.active { opacity: 1; filter: none; background: rgba(var(--brand), 0.2); }
+</style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/@xterm/addon-fit@0.10.0/lib/addon-fit.min.js"></script>
@@ -1507,7 +1510,10 @@
           <div class="home-composer-bottom">
             <div class="home-composer-controls">
               <span class="zo-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">SU</text></svg></span>
-              <label class="zo-pill" title="Model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><select id="homeModelSelect" onchange="setModel(this.value)" aria-label="Model" title="Letters: T text · I image · V video · A audio · F file"><option value="">Loading models…</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+              <label class="zo-pill toggle-pill filter-reasoning" title="Require Reasoning" onclick="toggleModelFilter('reasoning')">🧠</label>
+            <label class="zo-pill toggle-pill filter-tools" title="Require Tools" onclick="toggleModelFilter('tools')">🔧</label>
+            <label class="zo-pill toggle-pill filter-vision" title="Require Vision" onclick="toggleModelFilter('vision')">👁️</label>
+            <label class="zo-pill" title="Model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><select id="homeModelSelect" onchange="setModel(this.value)" aria-label="Model" title="Letters: T text · I image · V video · A audio · F file"><option value="">Loading models…</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
               <label class="zo-pill" title="Mode"><select class="mode-select" onchange="setChatMode(this.value)" aria-label="How SU handles this message" title="Auto: SU decides · Chat: answer with web lookups, no tools · Build: straight to the build model"><option value="">Auto</option><option value="chat">Chat</option><option value="build">Build</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
             </div>
             <button class="zo-send" id="homeSendBtn" onclick="sendPromptFromHome()">Send</button>
@@ -2019,6 +2025,9 @@
         <textarea class="chat-textarea" id="chatInput" placeholder="What should we do today?" rows="2" oninput="document.getElementById('sendBtn').classList.toggle('ready', !!this.value.trim())"></textarea>
         <div class="composer-controls">
           <div class="selector-group">
+            <label class="zo-pill toggle-pill filter-reasoning" title="Require Reasoning" onclick="toggleModelFilter('reasoning')">🧠</label>
+            <label class="zo-pill toggle-pill filter-tools" title="Require Tools" onclick="toggleModelFilter('tools')">🔧</label>
+            <label class="zo-pill toggle-pill filter-vision" title="Require Vision" onclick="toggleModelFilter('vision')">👁️</label>
             <label class="zo-pill" title="Model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><select id="modelSelect" onchange="setModel(this.value)" title="Letters: T text · I image · V video · A audio · F file"><option value="">Loading models...</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
             <label class="zo-pill" title="Mode"><select class="mode-select" onchange="setChatMode(this.value)" aria-label="How SU handles this message" title="Auto: SU decides · Chat: answer with web lookups, no tools · Build: straight to the build model"><option value="">Auto</option><option value="chat">Chat</option><option value="build">Build</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
           </div>
@@ -4307,7 +4316,14 @@
     const chatInput = document.getElementById('chatInput');
     const msgsContainer = document.getElementById('messagesContainer');
     const sendBtn = document.getElementById('sendBtn');
-    let currentConversationId = null;
+    
+    let modelFilters = { reasoning: false, tools: false, vision: false };
+    function toggleModelFilter(key) {
+      modelFilters[key] = !modelFilters[key];
+      document.querySelectorAll('.filter-' + key).forEach(el => el.classList.toggle('active', modelFilters[key]));
+      renderModels();
+    }
+let currentConversationId = null;
     let currentModel = store.get('su_model') || '';
     let chatMode = '';  // Auto on every load; Chat and Build are chosen per session
     function setChatMode(v) { chatMode = v; document.querySelectorAll('.mode-select').forEach(el => { if (el.value !== v) el.value = v; }); const ph = v === 'chat' ? 'Ask anything. I will look it up.' : v === 'build' ? 'Describe what to build.' : 'What should we do today?'; [chatInput, document.getElementById('homeComposerInput')].forEach(el => { if (el) el.placeholder = ph; }); }
@@ -4427,10 +4443,37 @@
     }
     function fillModelSelect(sel, value, allowDefault) {
       sel.innerHTML = '';
-      if (allowDefault) { const d = (modelsCache && modelsCache.models || []).find(m => m.model_name === (modelsCache && modelsCache.default)); sel.appendChild(new Option('Default (' + ((modelsCache && modelsCache.default) || 'none') + ')' + (d && d.caps ? '  ·  ' + d.caps : ''), '')); }
-      if (!modelsCache || !modelsCache.models.length) { if (!allowDefault) sel.appendChild(new Option('No provider key · Settings › AI', '')); return; }
+      let filteredModels = (modelsCache && modelsCache.models) ? modelsCache.models.filter(m => {
+          if (modelFilters.reasoning && !m.reasoning) return false;
+          if (modelFilters.tools && !m.tools) return false;
+          if (modelFilters.vision && !m.vision) return false;
+          return true;
+      }) : [];
+      
+      if (allowDefault) { 
+        const d = (modelsCache && modelsCache.models || []).find(m => m.model_name === (modelsCache && modelsCache.default)); 
+        sel.appendChild(new Option('Default (' + ((modelsCache && modelsCache.default) || 'none') + ')' + (d && d.caps ? '  ·  ' + d.caps : ''), '')); 
+      }
+      
+      if (!modelsCache || !modelsCache.models.length) { 
+        if (!allowDefault) sel.appendChild(new Option('No provider key · Settings › AI', '')); 
+        return; 
+      }
+      if (filteredModels.length === 0) {
+        if (!allowDefault) sel.appendChild(new Option('No models match filters', ''));
+        return;
+      }
+      
       const groups = new Map();
-      modelsCache.models.forEach(m => { const v = m.vendor || m.model_name.split(':')[0]; if (!groups.has(v)) { const g = document.createElement('optgroup'); g.label = v; groups.set(v, g); sel.appendChild(g); } const o = new Option(m.label.replace(' · ' + v, '') + (m.caps ? '  ·  ' + m.caps : ''), m.model_name); if (m.caps) o.title = 'Accepts: ' + (m.input || []).join(', '); groups.get(v).appendChild(o); });
+      filteredModels.forEach(m => { 
+        const v = m.vendor || m.model_name.split(':')[0]; 
+        if (!groups.has(v)) { 
+          const g = document.createElement('optgroup'); g.label = v; groups.set(v, g); sel.appendChild(g); 
+        } 
+        const o = new Option(m.label.replace(' · ' + v, '') + (m.caps ? '  ·  ' + m.caps : ''), m.model_name); 
+        if (m.caps) o.title = 'Accepts: ' + (m.input || []).join(', '); 
+        groups.get(v).appendChild(o); 
+      });
       if (value && [...sel.options].some(o => o.value === value)) sel.value = value; else if (!allowDefault) sel.value = modelsCache.default;
     }
     function newChat() { if (chatAbort) { chatAbort.abort(); chatAbort = null; setSending(false); } currentConversationId = null; msgsContainer.innerHTML = ''; document.getElementById('chatTitle').textContent = 'New Chat'; document.getElementById('chatTitleBtn').title = 'New chat'; welcome(); renderSidebarChatHistory(); chatInput.focus(); }
