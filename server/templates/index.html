@@ -1452,9 +1452,32 @@
     ::-webkit-scrollbar-thumb { background: color-mix(in oklab, var(--zo-border) 50%, transparent); }
     * { scrollbar-color: color-mix(in oklab, var(--zo-border) 50%, transparent) transparent; }
   
-    .toggle-pill { cursor: pointer; user-select: none; opacity: 0.5; filter: grayscale(1); transition: 0.2s; }
-    .toggle-pill.active { opacity: 1; filter: none; background: rgba(var(--brand), 0.2); }
-  .ai-prov-filters { display: flex; gap: 8px; margin-top: 8px; }
+    .ai-filter-chip {
+      font-size: 11.5px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      background: var(--hover);
+      border: 1px solid var(--border);
+      color: var(--zo-fg-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      user-select: none;
+      transition: all 0.15s ease;
+      line-height: 1.4;
+    }
+    .ai-filter-chip:hover {
+      color: var(--zo-fg);
+      border-color: color-mix(in oklab, var(--zo-primary) 50%, var(--border));
+    }
+    .ai-filter-chip.active {
+      background: color-mix(in oklab, var(--zo-primary) 18%, transparent);
+      border-color: var(--zo-primary);
+      color: var(--zo-primary);
+      font-weight: 600;
+    }
+    .ai-prov-filters { display: flex; align-items: center; gap: 6px; margin-top: 8px; flex-wrap: wrap; }
 </style>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/css/xterm.min.css">
   <script src="https://cdn.jsdelivr.net/npm/@xterm/xterm@5.5.0/lib/xterm.min.js"></script>
@@ -4041,18 +4064,27 @@
     }
 
     
-    async function toggleProviderFilter(pid, key, currentVal) {
+    async function toggleProviderFilter(pid, key, btn) {
+      const wasActive = btn.classList.contains('active');
+      const nextVal = !wasActive;
+      btn.classList.toggle('active', nextVal);
       try {
         const payload = {};
-        payload[key] = !currentVal;
-        const res = await api(`/api/providers/${pid}/filters`, { method: 'POST', body: JSON.stringify(payload) });
-        if (res.ok) {
-          // Instead of manually testing which takes time, just reload the providers UI right away!
-          await loadProviders();
-          await loadModels();
+        payload[key] = nextVal;
+        const res = await api('/api/providers/' + encodeURIComponent(pid) + '/filters', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload)
+        });
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.detail || ('HTTP ' + res.status));
         }
+        await loadProviders();
+        await loadModels();
       } catch (e) {
-        console.error(e);
+        btn.classList.toggle('active', wasActive);
+        alert('Could not update filter: ' + e.message);
       }
     }
 async function deleteProvider(pid, name) {
@@ -4135,9 +4167,16 @@ async function deleteProvider(pid, name) {
                   </div>
                 ` : ''}
                 <div class="ai-prov-filters">
-                  <label class="zo-pill toggle-pill ${p.filters && p.filters.reasoning ? 'active' : ''}" onclick="toggleProviderFilter('${esc(p.id)}', 'reasoning', ${!!(p.filters && p.filters.reasoning)})" title="Require Reasoning">🧠</label>
-                  <label class="zo-pill toggle-pill ${p.filters && p.filters.tools ? 'active' : ''}" onclick="toggleProviderFilter('${esc(p.id)}', 'tools', ${!!(p.filters && p.filters.tools)})" title="Require Tools">🔧</label>
-                  <label class="zo-pill toggle-pill ${p.filters && p.filters.vision ? 'active' : ''}" onclick="toggleProviderFilter('${esc(p.id)}', 'vision', ${!!(p.filters && p.filters.vision)})" title="Require Vision">👁️</label>
+                  <span style="font-size: 11px; color: var(--zo-fg-muted); margin-right: 2px;">Filters:</span>
+                  <button type="button" class="ai-filter-chip ${p.filters && p.filters.reasoning ? 'active' : ''}" onclick="toggleProviderFilter('${esc(p.id)}', 'reasoning', this)" title="Filter for reasoning / thinking models">
+                    <span>🧠</span> Reasoning
+                  </button>
+                  <button type="button" class="ai-filter-chip ${p.filters && p.filters.tools ? 'active' : ''}" onclick="toggleProviderFilter('${esc(p.id)}', 'tools', this)" title="Filter for tool calling / function calling models">
+                    <span>🔧</span> Tools
+                  </button>
+                  <button type="button" class="ai-filter-chip ${p.filters && p.filters.vision ? 'active' : ''}" onclick="toggleProviderFilter('${esc(p.id)}', 'vision', this)" title="Filter for multimodal / vision models">
+                    <span>👁️</span> Vision
+                  </button>
                 </div>
               </div>
               <div class="ai-prov-actions">

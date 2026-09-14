@@ -260,19 +260,24 @@ async def test_provider_connection(base_url: str, api_key: str = "") -> Dict[str
                             
                         raw_models = []
                         for m in src_list:
-                            if not isinstance(m, dict): continue
-                            mid = m.get("id") or m.get("name")
+                            if isinstance(m, str):
+                                mid = m
+                                cap = {}
+                                im = ["text"]
+                            elif isinstance(m, dict):
+                                mid = m.get("id") or m.get("name")
+                                if not mid: continue
+                                cap = m.get("capabilities") or {}
+                                arch = m.get("architecture") or {}
+                                im = arch.get("input_modalities") or ["text"]
+                            else:
+                                continue
                             if not mid: continue
                             
-                            # Extract capabilities if available (like OpenRouter/OmniRouter schema)
-                            arch = m.get("architecture") or {}
-                            im = arch.get("input_modalities") or ["text"]
-                            om = arch.get("output_modalities") or []
-                            cap = m.get("capabilities") or {}
-                            
-                            is_reasoning = bool(cap.get("reasoning") or cap.get("thinking") or "reasoning" in mid.lower() or "thinking" in mid.lower())
-                            is_tools = bool(cap.get("tool_calling") or "tool" in mid.lower())
-                            is_vision = bool("image" in im or "vision" in mid.lower() or "vl" in mid.lower() or "multimodal" in mid.lower())
+                            mid_lower = mid.lower()
+                            is_reasoning = bool(cap.get("reasoning") or cap.get("thinking") or any(k in mid_lower for k in ("reasoning", "thinking", "r1", "o1", "o3", "deepseek-r1")))
+                            is_tools = bool(cap.get("tool_calling") or "tool" in mid_lower or any(k in mid_lower for k in ("claude", "gpt-4", "gpt-5", "deepseek", "qwen", "gemini")))
+                            is_vision = bool("image" in im or any(k in mid_lower for k in ("vision", "vl", "image", "multimodal", "gpt-4o", "flash", "gemini")))
                             
                             raw_models.append({
                                 "id": mid,
@@ -613,44 +618,43 @@ async def available_models() -> List[Dict[str, Any]]:
         vendor = p.get("name") or pid
         base_url = p.get("base_url", "")
         api_key = p.get("api_key", "")
+        
         cached = _models_cache.get(pid)
         if cached and time.time() - cached.get("t", 0) < 300:
             live = cached.get("live", [])
             mods = cached.get("mods", {})
         else:
-            test_res = await test_provider_connection(base_url, api_key)
+            stored = p.get("models") or []
             mods = {}
-            if test_res["ok"] and test_res["models"]:
-                raw_models = test_res["models"]
-                live = raw_models
-                p["models"] = live
-                save_custom_providers(custom)
-            else:
-                live = p.get("models") or []
+            if not stored:
+                test_res = await test_provider_connection(base_url, api_key)
+                if test_res["ok"] and test_res["models"]:
+                    stored = test_res["models"]
+                    p["models"] = stored
+                    save_custom_providers(custom)
             
             # Apply user-selected UI filters for this custom provider
             p_filters = p.get("filters") or {}
-            if p_filters.get("reasoning") or p_filters.get("tools") or p_filters.get("vision"):
-                filtered_live = []
-                for m in live:
-                    is_dict = isinstance(m, dict)
-                    m_id = m.get("id") if is_dict else m
-                    if not m_id: continue
+            live = []
+            for m in stored:
+                is_dict = isinstance(m, dict)
+                m_id = m.get("id") if is_dict else m
+                if not m_id: continue
+                
+                if is_dict:
+                    reasoning = m.get("reasoning", False)
+                    tools = m.get("tools", False)
+                    vision = m.get("vision", False)
+                else:
+                    mid_l = m_id.lower()
+                    reasoning = any(k in mid_l for k in ("reasoning", "thinking", "r1", "o1", "o3", "deepseek-r1"))
+                    tools = True
+                    vision = any(k in mid_l for k in ("vision", "vl", "image", "multimodal", "gpt-4o", "flash", "gemini"))
                     
-                    if is_dict:
-                        reasoning = m.get("reasoning", False)
-                        tools = m.get("tools", False)
-                        vision = m.get("vision", False)
-                    else:
-                        reasoning = "reasoning" in m_id.lower() or "thinking" in m_id.lower()
-                        tools = True
-                        vision = "vision" in m_id.lower() or "vl" in m_id.lower()
-                        
-                    if p_filters.get("reasoning") and not reasoning: continue
-                    if p_filters.get("tools") and not tools: continue
-                    if p_filters.get("vision") and not vision: continue
-                    filtered_live.append(m)
-                live = filtered_live
+                if p_filters.get("reasoning") and not reasoning: continue
+                if p_filters.get("tools") and not tools: continue
+                if p_filters.get("vision") and not vision: continue
+                live.append(m)
                 
             _models_cache[pid] = {"t": time.time(), "live": live, "mods": mods}
 

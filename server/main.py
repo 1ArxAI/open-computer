@@ -1037,18 +1037,23 @@ async def add_provider(req: AddProviderRequest):
 
 
 @app.post("/api/providers/{pid}/filters")
-async def update_provider_filters(pid: str, body: dict):
+async def update_provider_filters(pid: str, request: Request):
     custom = agent.get_custom_providers()
     p = next((x for x in custom if x["id"] == pid), None)
     if not p:
         raise HTTPException(404, "Provider not found")
     
-    if "filters" not in p:
+    try:
+        body = await request.json()
+    except Exception:
+        body = {}
+        
+    if "filters" not in p or not isinstance(p["filters"], dict):
         p["filters"] = {}
         
-    for k, v in body.items():
-        if k in ("reasoning", "tools", "vision"):
-            p["filters"][k] = bool(v)
+    for k in ("reasoning", "tools", "vision"):
+        if k in body:
+            p["filters"][k] = bool(body[k])
             
     agent.save_custom_providers(custom)
     agent._models_cache.clear()
