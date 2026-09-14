@@ -417,18 +417,39 @@ def runtimes() -> List[str]:
 
 
 def split_model(model: str):
+    if not model:
+        ps = configured_providers()
+        return (ps[0] if ps else "openai"), ""
+    custom = get_custom_providers()
+    custom_map = {}
+    for x in custom:
+        custom_map[x["id"]] = x["id"]
+        custom_map[x["id"].lower()] = x["id"]
+        if x.get("name"):
+            custom_map[x["name"].lower()] = x["id"]
+
     if ":" in model:
         p, m = model.split(":", 1)
-        custom_ids = {x["id"] for x in get_custom_providers()}
-        if p in custom_ids or p in PROVIDERS:
+        if p in custom_map:
+            return custom_map[p], m
+        if p.lower() in custom_map:
+            return custom_map[p.lower()], m
+        if p in PROVIDERS:
             return p, m
+    elif "/" in model:
+        prefix, rest = model.split("/", 1)
+        if prefix in custom_map:
+            return custom_map[prefix], model
+        if prefix.lower() in custom_map:
+            return custom_map[prefix.lower()], model
+
     ps = configured_providers()
     return (ps[0] if ps else "openai"), model
 
 
 def client_for(provider: str) -> AsyncOpenAI:
     custom = get_custom_providers()
-    p_match = next((p for p in custom if p["id"] == provider), None)
+    p_match = next((p for p in custom if p["id"] == provider or p["id"].lower() == provider.lower() or p.get("name", "").lower() == provider.lower()), None)
     if p_match:
         if not p_match.get("enabled", True):
             raise RuntimeError(f"{p_match.get('name', provider)} is switched offline in Settings > AI.")
@@ -1628,6 +1649,162 @@ def image_providers_online() -> List[str]:
     return res
 
 
+async def _save_image_data(img_source: str, path: Optional[str] = None) -> str:
+    """Save image from URL (http/https), data URI, or raw base64 string to disk."""
+    import base64
+    ext = "png"
+    img_bytes = None
+
+    img_source = (img_source or "").strip()
+    if not img_source:
+        return "Failed to save image: empty image data received."
+
+    if img_source.startswith("data:"):
+        header, b64_str = img_source.split(",", 1)
+        if "jpeg" in header or "jpg" in header:
+            ext = "jpg"
+        elif "webp" in header:
+            ext = "webp"
+        try:
+            img_bytes = base64.b64decode(b64_str.strip())
+        except Exception as e:
+            return f"Failed to decode base64 image data: {e}"
+    elif img_source.startswith("http://") or img_source.startswith("https://"):
+        safe, err = is_safe_url(img_source)
+        if not safe:
+            return f"Blocked unsafe image download URL '{img_source}': {err}"
+        try:
+            async with httpx.AsyncClient(timeout=120, follow_redirects=True) as c:
+                resp = await c.get(img_source)
+                if resp.status_code != 200:
+                    return f"Failed to download generated image: HTTP {resp.status_code}"
+                img_bytes = resp.content
+                ctype = resp.headers.get("content-type", "")
+                if "jpeg" in ctype or "jpg" in ctype:
+                    ext = "jpg"
+                elif "webp" in ctype:
+                    ext = "webp"
+        except Exception as e:
+            return f"Failed to download generated image: {e}"
+    else:
+        # Assume raw base64 string
+        try:
+            img_bytes = base64.b64decode(img_source)
+        except Exception:
+            return "Failed to decode image data."
+
+    if not img_bytes:
+        return "Failed to save image: received 0 bytes."
+
+    out = _media_out_path(path, ext)
+    out.write_bytes(img_bytes)
+    return f"Image saved to {out} ({out.stat().st_size // 1024} KB). View: /api/file/raw?path={out}"
+
+
+async def _generate_via_images_api(client: AsyncOpenAI, model: str, prompt: str, reference: Optional[str] = None) -> tuple[Optional[str], Optional[str]]:
+    """
+    Call POST /v1/images/generations (or edits if reference is provided).
+    Returns (img_source, error_message).
+    """
+    base_url = str(client.base_url).rstrip("/")
+    api_key = client.api_key or ""
+    last_err = None
+
+    # 1. If reference image exists, try client.images.edit first
+    if reference:
+        ref_path = Path(reference) if reference.startswith("/") else WORKSPACE / reference
+        if ref_path.exists():
+            try:
+                with open(ref_path, "rb") as img_file:
+                    res = await client.images.edit(image=img_file, prompt=prompt, model=model, n=1)
+                    if res and res.data:
+                        item = res.data[0]
+                        src = getattr(item, "url", None) or getattr(item, "b64_json", None)
+                        if src:
+                            return src, None
+            except Exception as e:
+                last_err = str(e)
+
+    # 2. Try client.images.generate (POST /v1/images/generations)
+    for kwargs in [{"size": "1024x1024"}, {}]:
+        try:
+            res = await client.images.generate(model=model, prompt=prompt, n=1, **kwargs)
+            if res and res.data:
+                item = res.data[0]
+                src = getattr(item, "url", None) or getattr(item, "b64_json", None)
+                if not src and isinstance(item, dict):
+                    src = item.get("url") or item.get("b64_json")
+                if src:
+                    return src, None
+        except Exception as e:
+            last_err = str(e)
+            err_lower = str(e).lower()
+            if any(k in err_lower for k in ("size", "dimension", "resolution", "parameter")):
+                continue
+            if "/" in model and ("model" in err_lower or "not found" in err_lower):
+                short_m = model.split("/", 1)[-1]
+                try:
+                    res = await client.images.generate(model=short_m, prompt=prompt, n=1, **kwargs)
+                    if res and res.data:
+                        item = res.data[0]
+                        src = getattr(item, "url", None) or getattr(item, "b64_json", None)
+                        if src:
+                            return src, None
+                except Exception as e2:
+                    last_err = str(e2)
+            break
+
+    # 3. Direct HTTP POST fallback to /images/generations
+    endpoints = [f"{base_url}/images/generations"]
+    if not base_url.endswith("/v1"):
+        endpoints.append(f"{base_url}/v1/images/generations")
+    else:
+        endpoints.append(f"{base_url.removesuffix('/v1')}/images/generations")
+
+    headers = {"Content-Type": "application/json"}
+    if api_key and api_key != "none":
+        headers["Authorization"] = f"Bearer {api_key}"
+
+    candidate_models = [model]
+    if "/" in model:
+        candidate_models.append(model.split("/", 1)[-1])
+
+    async with httpx.AsyncClient(timeout=120, follow_redirects=True) as http_client:
+        for ep in endpoints:
+            for cand in candidate_models:
+                for body in [{"model": cand, "prompt": prompt, "n": 1, "size": "1024x1024"},
+                             {"model": cand, "prompt": prompt, "n": 1},
+                             {"prompt": prompt, "n": 1}]:
+                    try:
+                        resp = await http_client.post(ep, headers=headers, json=body)
+                        if resp.status_code == 200:
+                            j = resp.json()
+                            if isinstance(j, dict):
+                                data_list = j.get("data") or j.get("images") or []
+                                if data_list and isinstance(data_list, list):
+                                    first = data_list[0]
+                                    if isinstance(first, dict):
+                                        src = first.get("url") or first.get("b64_json") or first.get("image") or first.get("image_url")
+                                        if src:
+                                            return src, None
+                                    elif isinstance(first, str):
+                                        return first, None
+                                src = j.get("url") or j.get("b64_json") or j.get("image")
+                                if src:
+                                    return src, None
+                            elif isinstance(j, list) and j:
+                                first = j[0]
+                                src = first.get("url") if isinstance(first, dict) else (first if isinstance(first, str) else None)
+                                if src:
+                                    return src, None
+                        elif resp.status_code not in (404, 405):
+                            last_err = f"HTTP {resp.status_code}: {resp.text[:300]}"
+                    except Exception as e3:
+                        last_err = str(e3)
+
+    return None, last_err
+
+
 async def generate_image(prompt: str, path: Optional[str] = None, reference: Optional[str] = None) -> str:
     model = media_models()["image"]
     if not model:
@@ -1640,26 +1817,17 @@ async def generate_image(prompt: str, path: Optional[str] = None, reference: Opt
             return "No image provider is online. Add an AI provider in Settings > AI."
         provider = online[0]
         m = "dall-e-3" if "openai" in provider else ("google/gemini-2.5-flash-image" if "openrouter" in provider else m)
-    if provider == "google" or "google" in provider:
+
+    # 1. Native Google SDK (if configured with google provider)
+    if provider == "google":
         try:
             return await _gemini_image(m, prompt, path, reference)
         except Exception as e:
             code = getattr(e, "code", None)
             hint = " Gemini image generation is not part of the free tier; enable billing on the key or turn OpenRouter on." if code == 429 else ""
             return f"Gemini image error: {str(e)[:300]}.{hint}"
-    if ("dall-e" in m.lower() or "openai" in provider.lower()) and not model.startswith("fal-ai/"):
-        try:
-            client = client_for(provider)
-            res = await client.images.generate(model=m, prompt=prompt, n=1, size="1024x1024")
-            url = res.data[0].url
-            if url:
-                async with httpx.AsyncClient(timeout=120) as c:
-                    img_data = (await c.get(url)).content
-                out = _media_out_path(path, "png")
-                out.write_bytes(img_data)
-                return f"Image saved to {out} ({out.stat().st_size // 1024} KB). View: /api/file/raw?path={out}"
-        except Exception as e:
-            pass
+
+    # 2. Fal.ai queue
     if provider in ("fal", "fal-ai") or model.startswith("fal-ai/"):
         fal_key = env().get("FAL_KEY")
         if not fal_key:
@@ -1675,43 +1843,39 @@ async def generate_image(prompt: str, path: Optional[str] = None, reference: Opt
                 j = r.json()
                 images = j.get("images", [])
                 if images and images[0].get("url"):
-                    url = images[0]["url"]
-                    img_data = (await c.get(url)).content
-                    out = _media_out_path(path, "png")
-                    out.write_bytes(img_data)
-                    return f"Image saved to {out} ({out.stat().st_size // 1024} KB). View: /api/file/raw?path={out}"
+                    return await _save_image_data(images[0]["url"], path)
                 return f"fal.ai error: {j.get('detail') or str(j)[:300]}"
         except Exception as e:
             return f"fal.ai image error: {str(e)[:300]}"
+
+    # 3. Universal image generation: POST /v1/images/generations
     client = client_for(provider)
-    content: Any = prompt
-    if reference:
-        ref = Path(reference) if reference.startswith("/") else WORKSPACE / reference
-        import base64
-        b64 = base64.b64encode(ref.read_bytes()).decode()
-        mime = "image/png" if ref.suffix.lower() == ".png" else "image/jpeg"
-        content = [{"type": "text", "text": prompt}, {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{b64}"}}]
-    r = await client.chat.completions.create(model=m, messages=[{"role": "user", "content": content}], extra_body={"modalities": ["image", "text"]})
-    msg = r.choices[0].message.model_dump()
-    imgs = msg.get("images") or []
-    if not imgs:
-        return f"The image model {model} returned no image. Text: {(msg.get('content') or '')[:300]}"
-    url = imgs[0].get("image_url", {}).get("url", "")
-    if url.startswith("data:"):
-        import base64
-        header, b64 = url.split(",", 1)
-        ext = "jpg" if "jpeg" in header else "png"
-        out = _media_out_path(path, ext)
-        out.write_bytes(base64.b64decode(b64))
-    else:
-        safe, err = is_safe_url(url)
-        if not safe:
-            return f"Blocked unsafe image download URL '{url}': {err}"
-        async with httpx.AsyncClient(timeout=120, follow_redirects=False) as c:
-            data = (await c.get(url)).content
-        out = _media_out_path(path, "png")
-        out.write_bytes(data)
-    return f"Image saved to {out} ({out.stat().st_size // 1024} KB). View: /api/file/raw?path={out}"
+    img_src, gen_err = await _generate_via_images_api(client, m, prompt, reference)
+    if img_src:
+        return await _save_image_data(img_src, path)
+
+    # 4. Fallback for endpoints that only support chat completions with image modality (e.g. legacy OpenRouter)
+    can_fallback_chat = gen_err and any(k in gen_err.lower() for k in ("404", "not found", "405", "unsupported"))
+    if can_fallback_chat:
+        try:
+            content: Any = prompt
+            if reference:
+                ref = Path(reference) if reference.startswith("/") else WORKSPACE / reference
+                import base64
+                b64 = base64.b64encode(ref.read_bytes()).decode()
+                mime = "image/png" if ref.suffix.lower() == ".png" else "image/jpeg"
+                content = [{"type": "text", "text": prompt}, {"type": "image_url", "image_url": {"url": f"data:{mime};base64,{b64}"}}]
+            r = await client.chat.completions.create(model=m, messages=[{"role": "user", "content": content}], extra_body={"modalities": ["image", "text"]})
+            msg = r.choices[0].message.model_dump()
+            imgs = msg.get("images") or []
+            if imgs:
+                u = imgs[0].get("image_url", {}).get("url", "")
+                if u:
+                    return await _save_image_data(u, path)
+        except Exception:
+            pass
+
+    return f"Image generation failed: {gen_err or 'No image returned by provider.'}"
 
 
 async def generate_video(prompt: str, path: Optional[str] = None, image: Optional[str] = None, seconds: int = 5) -> str:
