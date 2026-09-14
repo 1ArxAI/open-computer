@@ -2059,37 +2059,7 @@ async def _run(cmd: List[str], stdin: Optional[bytes] = None, timeout: int = 600
 AUDIO_DIR = Path(os.environ.get("SU_AUDIO_DIR", "/opt/su-audio"))
 
 
-async def audio_transcribe(path: str, language: str = "auto", engine: str = "whisper") -> str:
-    src = _ws_path(path)
-    if not src.is_file():
-        return f"No such file: {path}"
-    try:
-        text = await _run([str(AUDIO_DIR / "transcribe.sh"), str(src), re.sub(r"[^a-z]", "", language.lower()) or "auto"], timeout=1800)
-    except Exception as e:
-        return f"transcribe failed: {e}"
-    return text.strip() or "(no speech detected)"
 
-
-async def audio_speak(text: str, out_path: str, voice: str = "af_heart", lang: str = "a") -> str:
-    dst = _ws_path(out_path)
-    if dst.suffix.lower() != ".wav":
-        return "out_path must end in .wav"
-    dst.parent.mkdir(parents=True, exist_ok=True)
-    try:
-        info = await _run([str(AUDIO_DIR / "venv/bin/python"), str(AUDIO_DIR / "speak.py"), "--out", str(dst), "--voice", re.sub(r"[^a-z_]", "", voice) or "af_heart", "--lang", re.sub(r"[^a-z]", "", lang) or "a"],
-                          stdin=text.encode("utf-8"), timeout=900)
-    except Exception as e:
-        return f"speak failed: {e}"
-    return f"Wrote {dst.relative_to(WORKSPACE) if dst.is_relative_to(WORKSPACE) else dst} ({info.strip().split()[-1]})"
-
-
-async def audio_tts(text: str, voice: str = "bm_george", lang: str = "b") -> bytes:
-    """Kokoro speech for the UI's speaker button, from the always-on kokoro-tts service (127.0.0.1:3020). Returns wav bytes."""
-    async with httpx.AsyncClient(timeout=120) as c:
-        r = await c.post(env().get("SU_TTS_URL", "http://127.0.0.1:3020/speak"), json={"text": text, "voice": voice, "lang": lang})
-    if r.status_code != 200:
-        raise RuntimeError(f"tts service {r.status_code}: {r.text[:200]}")
-    return r.content
 
 
 # ---------------------------------------------------------------- tools
@@ -2115,7 +2085,6 @@ BUILTIN_TOOLS = [
     _tool("send_email", "Send an email to the owner (or a recipient). Uses SMTP_* or RESEND_API_KEY secrets.",
           {"subject": {"type": "string"}, "body": {"type": "string"}, "to": {"type": "string", "description": "Optional; defaults to NOTIFY_EMAIL"}}, ["subject", "body"]),
     _tool("send_telegram", "Send a Telegram message to the owner (TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID).", {"text": {"type": "string"}}),
-    _tool("call_owner", "Phone the owner through the ElevenLabs voice agent and speak this message first (use for urgent findings or when asked to call back).", {"message": {"type": "string"}}),
     _tool("generate_image", "Generate an image with the configured image model and save it as a file. Use this whenever the owner asks for an image, logo, illustration, thumbnail or picture; do not draw with code.",
           {"prompt": {"type": "string"}, "path": {"type": "string", "description": "Optional output path (.png), default Projects/media/"},
            "reference": {"type": "string", "description": "Optional path of an image to edit or use as reference"}}, ["prompt"]),
@@ -2462,8 +2431,6 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
             return await asyncio.to_thread(send_email, args["subject"], args["body"], args.get("to"))
         if name == "send_telegram":
             return await asyncio.to_thread(send_telegram, args["text"])
-        if name == "call_owner":
-            return await call_owner(args["message"])
         if name == "generate_image":
             return await generate_image(args["prompt"], args.get("path"), args.get("reference"))
         if name == "generate_video":
@@ -2937,7 +2904,7 @@ async def _veo_video(model: str, prompt: str, path: Optional[str], image: Option
 
 # ---------------------------------------------------------------- SU tools as an MCP server (so Claude Code sees them)
 
-SU_MCP_TOOLS = ["generate_image", "generate_video", "send_email", "send_telegram", "call_owner", "web_search", "web_fetch", "list_app_tools", "use_app",
+SU_MCP_TOOLS = ["generate_image", "generate_video", "send_email", "send_telegram", "web_search", "web_fetch", "list_app_tools", "use_app",
                 "create_automation", "list_automations", "update_automation", "delete_automation", "create_skill",
                 "create_task", "list_tasks", "control_task", "task_logs", "transcribe", "speak",
                 "list_agents", "create_agent", "search_app_catalog", "connect_app", "list_app_tools", "project_keys"]
@@ -3827,27 +3794,7 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
 
 # ---------------------------------------------------------------- call the owner back through the ElevenLabs agent (SIP trunk outbound)
 
-def elevenlabs_call_cfg() -> Optional[Dict[str, str]]:
-    e = env()
-    if not (e.get("ELEVENLABS_API_KEY") and e.get("ELEVENLABS_AGENT_ID") and e.get("ELEVENLABS_PHONE_NUMBER_ID") and e.get("OWNER_PHONE")):
-        return None
-    return {"key": e["ELEVENLABS_API_KEY"], "agent": e["ELEVENLABS_AGENT_ID"], "number": e["ELEVENLABS_PHONE_NUMBER_ID"], "to": e["OWNER_PHONE"]}
 
-
-async def call_owner(message: str) -> str:
-    """Place an outbound call from the ElevenLabs agent to the owner; the agent opens with `message` and then continues as SU."""
-    cfg = elevenlabs_call_cfg()
-    if not cfg:
-        return "Calling is not configured. Needed in Settings > Advanced: ELEVENLABS_API_KEY, ELEVENLABS_AGENT_ID, ELEVENLABS_PHONE_NUMBER_ID, OWNER_PHONE (E.164)."
-    body = {"agent_id": cfg["agent"], "agent_phone_number_id": cfg["number"], "to_number": cfg["to"],
-            "conversation_initiation_client_data": {"dynamic_variables": {"report": message[:1500]},
-                                                    "conversation_config_override": {"agent": {"first_message": message[:1500]}}}}
-    async with httpx.AsyncClient(timeout=30) as c:
-        r = await c.post("https://api.elevenlabs.io/v1/convai/sip-trunk/outbound-call", headers={"xi-api-key": cfg["key"]}, json=body)
-    if r.status_code >= 400:
-        return f"ElevenLabs call failed {r.status_code}: {r.text[:300]}"
-    j = r.json()
-    return f"Calling {cfg['to']} now (conversation {j.get('conversation_id')})." if j.get("success", True) else f"ElevenLabs did not place the call: {j.get('message')}"
 
 
 # ---------------------------------------------------------------- inbound channels: email (IMAP/SMTP) and Telegram, like Zo's channels
