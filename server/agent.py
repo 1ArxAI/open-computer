@@ -552,14 +552,14 @@ def client_for(provider: str) -> AsyncOpenAI:
     p_match = next((p for p in custom if p["id"] == provider or p["id"].lower() == provider.lower() or p.get("name", "").lower() == provider.lower()), None)
     if p_match:
         if not p_match.get("enabled", True):
-            raise RuntimeError(f"{p_match.get('name', provider)} is switched offline in Settings > AI.")
+            raise RuntimeError(f"{p_match.get('name', provider)} is switched offline in Settings > Models.")
         base_url = p_match["base_url"].rstrip("/")
         api_key = p_match.get("api_key") or "none"
         timeout = 600 if ("127.0.0.1" in base_url or "localhost" in base_url) else 180
         return AsyncOpenAI(base_url=base_url, api_key=api_key, timeout=timeout)
 
     if provider in disabled_providers():
-        raise RuntimeError(f"{provider} is switched offline in Settings > AI.")
+        raise RuntimeError(f"{provider} is switched offline in Settings > Models.")
     cfg = PROVIDERS.get(provider)
     e = env()
     if not cfg:
@@ -570,7 +570,7 @@ def client_for(provider: str) -> AsyncOpenAI:
         return AsyncOpenAI(base_url=base_url.rstrip("/"), api_key=key, timeout=180)
     key = _get_provider_key(provider)
     if not key:
-        raise RuntimeError(f"{cfg['label']} is not configured. Add it in Settings > AI.")
+        raise RuntimeError(f"{cfg['label']} is not configured. Add it in Settings > Models.")
     if cfg.get("local"):
         return AsyncOpenAI(base_url=key.rstrip("/"), api_key="local", timeout=600)
     base_url = cfg["base_url"]
@@ -1516,7 +1516,7 @@ def pd_config() -> Optional[Dict[str, str]]:
 async def pd_token() -> str:
     cfg = pd_config()
     if not cfg:
-        raise RuntimeError("Pipedream is not configured. Add PIPEDREAM_CLIENT_ID, PIPEDREAM_CLIENT_SECRET, PIPEDREAM_PROJECT_ID in Settings > Advanced.")
+        raise RuntimeError("Pipedream is not configured. Add PIPEDREAM_CLIENT_ID, PIPEDREAM_CLIENT_SECRET, PIPEDREAM_PROJECT_ID in Settings > Keys.")
     if _pd_token and time.time() < _pd_token["exp"]:
         return _pd_token["tok"]
     async with httpx.AsyncClient(timeout=30) as c:
@@ -2027,7 +2027,7 @@ async def generate_image(prompt: str, path: Optional[str] = None, reference: Opt
     online = image_providers_online()
     if provider not in online and not model.startswith("fal-ai/"):
         if not online:
-            return "No image provider is online. Add an AI provider in Settings > AI."
+            return "No image provider is online. Add an AI provider in Settings > Models."
         provider = online[0]
         m = "dall-e-3" if "openai" in provider else ("google/gemini-2.5-flash-image" if "openrouter" in provider else m)
 
@@ -2095,12 +2095,12 @@ async def generate_video(prompt: str, path: Optional[str] = None, image: Optiona
     model = media_models()["video"]
     e = env()
     if not model:
-        return ("No video model is configured. Add SU_VIDEO_MODEL in Settings > Advanced (a fal.ai model id such as "
+        return ("No video model is configured. Add SU_VIDEO_MODEL in Settings > Keys (a fal.ai model id such as "
                 "fal-ai/minimax/hailuo-02/standard/text-to-video for MiniMax Hailuo 6 s clips) together with FAL_KEY. Until then, tell the owner a video model is needed rather than building one by hand.")
     if model.startswith("google:"):
         return await _veo_video(model.split(":", 1)[1], prompt, path, image, seconds)
     if not e.get("FAL_KEY"):
-        return "SU_VIDEO_MODEL is set but FAL_KEY is missing in Settings > Advanced."
+        return "SU_VIDEO_MODEL is set but FAL_KEY is missing in Settings > Keys."
     # fal.ai queue API: submit, poll, download. ponytail: fal only; add other vendors when someone asks.
     allowed = (6, 10) if "hailuo" in model else (5, 10)  # fal.ai: Hailuo takes 6|10 s, Kling/others 5|10 s
     body: Dict[str, Any] = {"prompt": prompt, "duration": str(min(allowed, key=lambda a: abs(a - seconds)))}
@@ -2396,7 +2396,7 @@ def send_email(subject: str, body: str, to: Optional[str] = None) -> str:
     target_to = (to or "").strip()
     if not target_to:
         if not owner_recipients:
-            return "No recipient: set NOTIFY_EMAIL in Settings > Advanced."
+            return "No recipient: set NOTIFY_EMAIL in Settings > Keys."
         target_to = next(iter(owner_recipients))
     else:
         # Exfiltration protection: recipients must be the owner or listed in SU_MAIL_SEND_TO
@@ -2405,7 +2405,7 @@ def send_email(subject: str, body: str, to: Optional[str] = None) -> str:
         if not parsed_to or not _allowed(parsed_to):
             return (f"<security_error>Blocked: '{target_to}' is not an allowed recipient. SU emails the owner"
                     f"{' (' + ', '.join(sorted(owner_recipients)) + ')' if owner_recipients else ''} and addresses or @domains listed in "
-                    "SU_MAIL_SEND_TO in Settings > Advanced. Ask the owner to add it.</security_error>")
+                    "SU_MAIL_SEND_TO in Settings > Keys. Ask the owner to add it.</security_error>")
         target_to = parsed_to
 
     to = target_to
@@ -2428,13 +2428,13 @@ def send_email(subject: str, body: str, to: Optional[str] = None) -> str:
                 s.login(e["SMTP_USER"], e.get("SMTP_PASS", ""))
             s.send_message(msg)
         return f"Email sent to {to}"
-    return "No email provider: set RESEND_API_KEY or SMTP_HOST/SMTP_USER/SMTP_PASS in Settings > Advanced."
+    return "No email provider: set RESEND_API_KEY or SMTP_HOST/SMTP_USER/SMTP_PASS in Settings > Keys."
 
 
 def send_telegram(text: str) -> str:
     e = env()
     if not (e.get("TELEGRAM_BOT_TOKEN") and e.get("TELEGRAM_CHAT_ID")):
-        return "Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in Settings > Advanced."
+        return "Set TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in Settings > Keys."
     r = httpx.post(f"https://api.telegram.org/bot{e['TELEGRAM_BOT_TOKEN']}/sendMessage",
                    json={"chat_id": e["TELEGRAM_CHAT_ID"], "text": text[:4000]}, timeout=30)
     return f"Telegram {r.status_code}"
@@ -2561,12 +2561,12 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
             return task_logs(args["id"], int(args.get("lines") or 100)) or "(no output yet)"
         if name == "search_app_catalog":
             if not pd_config():
-                return "Pipedream is not configured (Settings > Advanced: PIPEDREAM_CLIENT_ID, PIPEDREAM_CLIENT_SECRET, PIPEDREAM_PROJECT_ID)."
+                return "Pipedream is not configured (Settings > Keys: PIPEDREAM_CLIENT_ID, PIPEDREAM_CLIENT_SECRET, PIPEDREAM_PROJECT_ID)."
             apps = await pd_apps(args["query"], 12)
             return "\n".join(f"- {a['slug']}: {a['name']} ({a['auth_type']}) {a['desc'][:90]}" for a in apps) or "No apps found."
         if name == "connect_app":
             if not pd_config():
-                return "Pipedream is not configured (Settings > Advanced: PIPEDREAM_CLIENT_ID, PIPEDREAM_CLIENT_SECRET, PIPEDREAM_PROJECT_ID)."
+                return "Pipedream is not configured (Settings > Keys: PIPEDREAM_CLIENT_ID, PIPEDREAM_CLIENT_SECRET, PIPEDREAM_PROJECT_ID)."
             url = await pd_connect_link(args["app_slug"])
             return f"Ask the owner to open this link to connect {url.rsplit('&app=', 1)[-1]}: {url}\nAfter they finish, the app's tools become available in the next conversation turn."
         if name == "list_app_tools":
@@ -2894,13 +2894,13 @@ def system_prompt(extra: str = "", tier: str = "build", projects: Optional[List[
         return (head + _FIXED + "Tools beyond the core set are loaded on demand: call more_tools(group) first, then the tool.\n\n"
                 + f"Installed skills (call read_skill before using one):\n{skills_txt}\n\n"
                 + f"{secrets}\n{agents_line}"
-                + "If a needed secret is missing, say exactly which KEY_NAME to add in Settings > Advanced.\n\n"
+                + "If a needed secret is missing, say exactly which KEY_NAME to add in Settings > Keys.\n\n"
                 + f"Owner rules and operating manual (digest, always apply):\n{dg}\n\n" + extra + date)
     return (
         head + _FIXED
         + f"Installed skills (call read_skill before using one):\n{skills_txt}\n\n"
         + f"{secrets}\n{agents_line}"
-        + "If a needed secret is missing, say exactly which KEY_NAME to add in Settings > Advanced.\n\n"
+        + "If a needed secret is missing, say exactly which KEY_NAME to add in Settings > Keys.\n\n"
         + (f"Owner rules (always apply):\n{rules}\n\n" if rules.strip() else "")
         + (f"Operating manual (workspace/SU.md):\n{manual}\n\n" if manual.strip() else "")
         + extra + date
@@ -2938,7 +2938,7 @@ async def _veo_video(model: str, prompt: str, path: Optional[str], image: Option
     """Veo via the Gemini API: predictLongRunning -> poll operation -> download. Paid feature on Google's side."""
     key = env().get("GEMINI_API_KEY")
     if not key:
-        return "GEMINI_API_KEY is missing in Settings > Advanced (needed for Veo video)."
+        return "GEMINI_API_KEY is missing in Settings > Keys (needed for Veo video)."
     base = "https://generativelanguage.googleapis.com/v1beta"
     h = {"x-goog-api-key": key, "Content-Type": "application/json"}
     inst: Dict[str, Any] = {"prompt": prompt}
@@ -3501,9 +3501,9 @@ def _gemini_client():
     from google import genai
     key = env().get("GEMINI_API_KEY")
     if not key:
-        raise RuntimeError("Gemini API is not configured. Add GEMINI_API_KEY in Settings > Advanced.")
+        raise RuntimeError("Gemini API is not configured. Add GEMINI_API_KEY in Settings > Keys.")
     if "google" in disabled_providers():
-        raise RuntimeError("Gemini API is switched offline in Settings > AI.")
+        raise RuntimeError("Gemini API is switched offline in Settings > Models.")
     return genai.Client(api_key=key)
 
 
@@ -3749,7 +3749,7 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
     conv["model"] = model
     if model.startswith("claude-code:"):
         if not cc_available():
-            msg = "Claude Code is not available (not installed, or switched offline in Settings > AI)."
+            msg = "Claude Code is not available (not installed, or switched offline in Settings > Models)."
             await emit({"type": "error", "text": msg})
             conv["messages"] += [{"role": "user", "content": user_input}, {"role": "assistant", "content": msg}]; save_conversation(conv)
             return msg
@@ -3767,7 +3767,7 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
         return await run_claude_code(conv, user_input, model.split(":", 1)[1], on_event, extra_system, scope=(persona or {}).get("scope", "all"), tier=tier, projects=projects)
     if model.startswith("gemini-cli:"):
         if not gemini_cli_available():
-            msg = "Gemini CLI is not available (needs GEMINI_API_KEY, or it is switched offline in Settings > AI)."
+            msg = "Gemini CLI is not available (needs GEMINI_API_KEY, or it is switched offline in Settings > Models)."
             await emit({"type": "error", "text": msg})
             conv["messages"] += [{"role": "user", "content": user_input}, {"role": "assistant", "content": msg}]; save_conversation(conv)
             return msg
@@ -4105,7 +4105,7 @@ async def telegram_channel_loop():
                         await c.post(f"{api}/sendMessage", json={"chat_id": chat_id, "text": f"This SU only talks to its owner. Your chat id is {chat_id}."})
                         continue
                     if not cfg["chat_id"]:
-                        await c.post(f"{api}/sendMessage", json={"chat_id": chat_id, "text": f"Set TELEGRAM_CHAT_ID={chat_id} in SU Settings > Advanced to enable this chat."})
+                        await c.post(f"{api}/sendMessage", json={"chat_id": chat_id, "text": f"Set TELEGRAM_CHAT_ID={chat_id} in SU Settings > Keys to enable this chat."})
                         continue
                     key = "telegram:" + chat_id
                     if text.lower() in ("/new", "/start"):

@@ -1426,6 +1426,11 @@ async def delete_secret(req: SecretDeleteRequest):
 
 # ==================== AI SETTINGS & PREFERENCES ====================
 
+@app.get("/api/search")
+async def search_status():
+    e = agent.env()
+    return {"provider": "tinyfish" if e.get("TINYFISH_API_KEY") else "duckduckgo", "location": e.get("SU_SEARCH_LOCATION", "")}
+
 @app.get("/api/rules")
 async def get_rules():
     return {"rules": agent.RULES_FILE.read_text(encoding="utf-8") if agent.RULES_FILE.exists() else ""}
@@ -1795,7 +1800,8 @@ async def su_mcp_delete():
 async def serve_dashboard():
     index_file = TEMPLATES_DIR / "index.html"
     if index_file.exists():
-        return HTMLResponse(content=index_file.read_text(encoding="utf-8").replace("__AGENT_NAME__", agent.AGENT_NAME))
+        html = index_file.read_text(encoding="utf-8").replace("__AGENT_INITIALS__", agent.AGENT_NAME[:2].upper()).replace("__AGENT_NAME__", agent.AGENT_NAME)
+        return HTMLResponse(content=html)
     return HTMLResponse("<html><body><h1>Open Computer is starting...</h1></body></html>")
 
 
