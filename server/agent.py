@@ -4,6 +4,7 @@ plus the stores (conversations, automations, runs, skills, MCP) the loop needs.
 import asyncio
 import hashlib
 import json
+import logging
 import os
 import re
 import shutil
@@ -28,7 +29,9 @@ import httpx
 import yaml
 from openai import AsyncOpenAI
 
-HOME = Path(os.environ.get("SU_HOME", str(Path(__file__).resolve().parent.parent)))  # the install folder
+log = logging.getLogger("su")
+
+HOME =Path(os.environ.get("SU_HOME", str(Path(__file__).resolve().parent.parent)))  # the install folder
 WORKSPACE = HOME / "workspace"
 SKILLS_DIR = WORKSPACE / "Skills"
 DATA = HOME / "data" / "su"
@@ -1406,6 +1409,9 @@ _catalog_cache: Dict[str, Any] = {}
 async def skills_catalog() -> Dict:
     if _catalog_cache and time.time() - _catalog_cache["t"] < 3600:
         return _catalog_cache["data"]
+    safe, err = is_safe_url(SKILLS_MANIFEST)
+    if not safe:
+        raise ValueError(f"Unsafe skills manifest URL: {err}")
     async with httpx.AsyncClient(timeout=30, follow_redirects=True) as c:
         data = (await c.get(SKILLS_MANIFEST)).json()
     _catalog_cache.update(t=time.time(), data=data)
@@ -2565,10 +2571,10 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
             safe, err, root = is_safe_file_path(raw, allow_write=False)
             if not safe:
                 return f"<security_error>Blocked grep: {err}</security_error>"
-            proc = await asyncio.create_subprocess_shell(f"grep -rnIE --exclude-dir=.git --exclude-dir=node_modules --exclude-dir=.ssh --exclude=.env* -- {json.dumps(args['pattern'])} {json.dumps(str(root))} | head -200",
-                                                         stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
+            proc = await asyncio.create_subprocess_exec("grep", "-rnIE", "--exclude-dir=.git", "--exclude-dir=node_modules", "--exclude-dir=.ssh", "--exclude=.env*",
+                                                        "--", args["pattern"], str(root), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
             out, _ = await asyncio.wait_for(proc.communicate(), timeout=60)
-            return out.decode("utf-8", "replace") or "No matches."
+            return "\n".join(out.decode("utf-8", "replace").splitlines()[:200]) or "No matches."
         if name == "glob":
             hits = sorted(str(p.relative_to(WORKSPACE)) for p in WORKSPACE.glob(args["pattern"]) if p.is_file())[:300]
             return "\n".join(hits) or "No files."

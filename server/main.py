@@ -95,9 +95,7 @@ def _set_session_cookie(resp, request: Request, value: str, max_age: int):
 
 
 def is_authed(request: Request) -> bool:
-    if SU_TOKEN and request.headers.get("authorization", "") == f"Bearer {SU_TOKEN}":
-        return True
-    if SU_TOKEN and request.query_params.get("token") == SU_TOKEN:
+    if SU_TOKEN and hmac.compare_digest(request.headers.get("authorization", ""), f"Bearer {SU_TOKEN}"):
         return True
     return bool(verify_session(request.cookies.get("su_session")))
 
@@ -240,9 +238,13 @@ async def start_scheduler():
 async def get_channels():
     return agent.channels_status()
 
+_cors_origins = [o.strip() for o in agent.env().get("SU_CORS_ORIGINS", _DEFAULT_ORIGINS).split(",") if o.strip()]
+if "*" in _cors_origins:  # credentialed requests must never be wildcard-open
+    print("SU_CORS_ORIGINS: '*' is not allowed with cookies; ignoring it. List exact origins instead.")
+    _cors_origins = [o for o in _cors_origins if o != "*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in agent.env().get("SU_CORS_ORIGINS", _DEFAULT_ORIGINS).split(",") if o.strip()],
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -578,12 +580,16 @@ async def list_files_tree(max_files: int = 500):
     items.sort(key=lambda x: (not x["is_dir"], x["path"].lower()))
     return {"items": items}
 
-def _under_home(path: str) -> Path:
-    """Accept absolute paths or paths relative to the home directory; refuse anything outside it."""
+def _under_home(path: str, write: bool = False) -> Path:
+    """Accept absolute paths or paths relative to the home directory; refuse anything outside it,
+    and apply the same policy as the agent's file tools (.env, SSH keys, server code)."""
     raw = Path(path) if path.startswith("/") else WORKSPACE_DIR / path
     target = raw.resolve()
     if target != WORKSPACE_DIR and WORKSPACE_DIR not in target.parents:
         raise HTTPException(status_code=403, detail="Access denied")
+    safe, err, _ = agent.is_safe_file_path(target, allow_write=write)
+    if not safe:
+        raise HTTPException(status_code=403, detail=err)
     return target
 
 class FileContentRequest(BaseModel):
@@ -624,7 +630,7 @@ async def read_file_raw(path: str = Query(...)):
 
 @app.post("/api/file")
 async def write_file(req: FileContentRequest):
-    target = _under_home(req.path)
+    target = _under_home(req.path, write=True)
     try:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(req.content, encoding="utf-8")
@@ -643,11 +649,11 @@ class NewItemRequest(BaseModel):
 
 @app.post("/api/files/new")
 async def create_new_item(req: NewItemRequest):
-    parent = _under_home(req.path)
+    parent = _under_home(req.path, write=True)
     name = req.name.strip()
-    if not name:
-        raise HTTPException(status_code=400, detail="Name is required")
-    target = parent / name
+    if not name or "/" in name or name in (".", ".."):
+        raise HTTPException(status_code=400, detail="Name is required and may not contain slashes")
+    target = _under_home(str(parent / name), write=True)
     if req.is_dir:
         target.mkdir(parents=True, exist_ok=True)
     else:
@@ -660,14 +666,14 @@ async def create_new_item(req: NewItemRequest):
 async def upload_files(dir: str = Form(""), files: List[UploadFile] = File(...), paths: List[str] = Form([])):
     """Multipart upload into a workspace folder. `paths[i]` (optional) is the file's relative path for folder uploads
     (the browser's webkitRelativePath); otherwise the file name is used."""
-    base = _under_home(dir or str(FILES_ROOT))
+    base = _under_home(dir or str(FILES_ROOT), write=True)
     base.mkdir(parents=True, exist_ok=True)
     written = []
     for i, up in enumerate(files):
         rel = (paths[i] if i < len(paths) and paths[i] else up.filename or f"file{i}").replace("\\", "/").lstrip("/")
         if ".." in rel.split("/"):
             raise HTTPException(status_code=400, detail=f"Bad path: {rel}")
-        target = _under_home(str(base / rel))
+        target = _under_home(str(base / rel), write=True)
         target.parent.mkdir(parents=True, exist_ok=True)
         with open(target, "wb") as f:
             while chunk := await up.read(1 << 20):
@@ -681,10 +687,10 @@ class MoveRequest(BaseModel):
 
 @app.post("/api/files/move")
 async def move_item(req: MoveRequest):
-    src = _under_home(req.src)
+    src = _under_home(req.src, write=True)
     if src == WORKSPACE_DIR or not src.exists():
         raise HTTPException(status_code=404, detail="Source not found")
-    dest = _under_home(req.dest)
+    dest = _under_home(req.dest, write=True)
     if dest.is_dir():
         dest = dest / src.name
     if dest == src:
@@ -702,7 +708,7 @@ class TrashRequest(BaseModel):
 
 @app.post("/api/files/trash")
 async def move_to_trash(req: TrashRequest):
-    target = _under_home(req.path)
+    target = _under_home(req.path, write=True)
     if target == WORKSPACE_DIR:
         raise HTTPException(status_code=403, detail="Access denied")
     if not target.exists():
@@ -788,7 +794,7 @@ async def restore_from_trash(req: RestoreRequest):
         except:
             pass
     
-    target = _under_home(orig_path)
+    target = _under_home(orig_path, write=True)
     if target.exists():
         target = target.with_name(f"{target.name}.restored-{int(time.time())}")
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -1239,15 +1245,35 @@ def parse_env_file() -> List[Dict[str, str]]:
                 
                 secrets.append({
                     "key": k,
-                    "value": v,
                     "masked": masked,
                     "project": proj,
                 })
     return secrets
 
+
+def _env_value(key: str) -> Optional[str]:
+    if not ENV_PATH.exists():
+        return None
+    for line in ENV_PATH.read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if s and not s.startswith("#") and "=" in s and s.split("=", 1)[0].strip() == key:
+            return s.split("=", 1)[1].strip().strip('"').strip("'")
+    return None
+
 @app.get("/api/secrets")
 async def get_secrets():
+    """Names and masked values only. A value is fetched one at a time through /api/secrets/{key}/reveal."""
     return {"secrets": parse_env_file()}
+
+@app.get("/api/secrets/{key}/reveal")
+async def reveal_secret(key: str):
+    k = key.strip().upper()
+    if k in agent.HIDDEN_KEYS:
+        raise HTTPException(status_code=403, detail="This key is managed by the gateway and cannot be shown")
+    v = _env_value(k)
+    if v is None:
+        raise HTTPException(status_code=404, detail="Key not found")
+    return {"key": k, "value": v}
 
 class SecretUpdateRequest(BaseModel):
     key: str
@@ -1762,7 +1788,8 @@ async def serve_dashboard():
 # ==================== NATIVE LINUX PTY WEBSOCKET ====================
 
 @app.websocket("/api/terminal/ws")
-async def terminal_ws(websocket: WebSocket, token: Optional[str] = None):
+async def terminal_ws(websocket: WebSocket):
+    token = websocket.headers.get("authorization", "")[len("Bearer "):] if websocket.headers.get("authorization", "").startswith("Bearer ") else None
     origin = websocket.headers.get("origin", "").rstrip("/")
     host = (websocket.headers.get("x-forwarded-host") or websocket.headers.get("host") or "").split(":")[0].lower()
     allowed = {o.strip().rstrip("/").lower() for o in agent.env().get("SU_CORS_ORIGINS", _DEFAULT_ORIGINS).split(",") if o.strip()}
@@ -1773,7 +1800,7 @@ async def terminal_ws(websocket: WebSocket, token: Optional[str] = None):
     if origin and origin.lower() not in allowed and not is_same_origin:
         await websocket.close(code=4403)
         return
-    if not ((SU_TOKEN and token == SU_TOKEN) or verify_session(websocket.cookies.get("su_session"))):
+    if not ((SU_TOKEN and token and hmac.compare_digest(token, SU_TOKEN)) or verify_session(websocket.cookies.get("su_session"))):
         await websocket.close(code=4401)
         return
     await websocket.accept()

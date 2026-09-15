@@ -2525,7 +2525,7 @@
 
     function connectTerminalSocket() {
       const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${location.host}/api/terminal/ws` + (SU_TOKEN ? '?token=' + encodeURIComponent(SU_TOKEN) : '');
+      const wsUrl = `${protocol}//${location.host}/api/terminal/ws`;
       if (terminalSocket && terminalSocket.readyState === WebSocket.CONNECTING) return;
       terminalSocket = new WebSocket(wsUrl);
       terminalSocket.binaryType = 'arraybuffer';
@@ -2961,7 +2961,7 @@
 
     const MEDIA_KINDS = { image: ['png','jpg','jpeg','gif','webp','svg','bmp','ico','avif'], video: ['mp4','webm','mov','m4v','ogv'], audio: ['mp3','wav','ogg','m4a','flac','aac','opus'], pdf: ['pdf'] };
     function mediaKind(path) { const ext = (path.split('.').pop() || '').toLowerCase(); return Object.keys(MEDIA_KINDS).find(k => MEDIA_KINDS[k].includes(ext)) || null; }
-    function rawUrl(path) { return '/api/file/raw?path=' + encodeURIComponent(path) + (SU_TOKEN ? '&token=' + encodeURIComponent(SU_TOKEN) : ''); }
+    function rawUrl(path) { return '/api/file/raw?path=' + encodeURIComponent(path); }
     async function openFileInEditor(filePath) {
       if (editorDirty && activeEditingPath && activeEditingPath !== filePath && !confirm('Discard unsaved changes?')) return;
       activeEditingPath = filePath; editorDirty = false;
@@ -3494,7 +3494,8 @@
     }
 
     // Secrets (Settings > Advanced). Values live in memory, never in DOM attributes.
-    const secretValues = new Map();
+    // Values never arrive with the list; each is fetched on demand when the owner clicks Show or Edit.
+    async function secretValue(key) { try { return (await fetchJson('/api/secrets/' + encodeURIComponent(key) + '/reveal')).value || ''; } catch (e) { alert('Could not read ' + key + ': ' + e.message); return ''; } }
     const SECRET_ICONS = { copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>', check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>', eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>', pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>', trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' };
     let secretProjects = { projects: [], keys: {} };
     const BUILTIN_GROUPS = { profile: 'Profile', ai: 'AI', tools: 'Tools' };  // shown in their own settings tabs, not under Advanced
@@ -3517,7 +3518,6 @@
         (adv || prof).innerHTML = `<div class="pg-empty" style="color: var(--accent-red);">Could not load secrets: ${esc(err.message)}</div>`;
         return;
       }
-      secretValues.clear(); secrets.forEach(sec => secretValues.set(sec.key, sec.value));
       const sel = document.getElementById('advSecretProject'); if (sel) projectOptions(sel, sel.value);
       Object.entries(builtinLists).forEach(([gid, box]) => {
         if (!box) return;
@@ -3553,22 +3553,23 @@
         proj.onchange = async () => { try { await fetchJson('/api/projects/assign', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: sec.key, project: proj.value || null }) }); loadAdvSecrets(); await loadProviders(); await loadMedia(); loadModels(); } catch (e) { alert('Could not move ' + sec.key + ': ' + e.message); } };
         const view = mk(SECRET_ICONS.eye, 'Show'); view.setAttribute('aria-pressed', 'false');
         // Show reveals the value and turns the button into Copy; clicking the revealed value hides it again.
-        const setRevealed = (on) => {
-          valBox.textContent = on ? secretValues.get(sec.key) : sec.masked; valBox.classList.toggle('revealed', on);
+        const setRevealed = async (on) => {
+          valBox.textContent = on ? await secretValue(sec.key) : sec.masked; valBox.classList.toggle('revealed', on);
           valBox.title = on ? 'Click to hide' : ''; valBox.tabIndex = on ? 0 : -1; if (on) valBox.setAttribute('role', 'button'); else valBox.removeAttribute('role');
           view.setAttribute('aria-pressed', String(on)); view.classList.toggle('active', on);
           view.innerHTML = on ? SECRET_ICONS.copy : SECRET_ICONS.eye; view.title = on ? 'Copy' : 'Show'; view.setAttribute('aria-label', (on ? 'Copy' : 'Show') + ' ' + sec.key);
         };
         view.onclick = async () => {
           if (view.getAttribute('aria-pressed') !== 'true') return setRevealed(true);
-          try { await navigator.clipboard.writeText(secretValues.get(sec.key) || ''); view.innerHTML = SECRET_ICONS.check; view.title = 'Copied'; setTimeout(() => { if (view.getAttribute('aria-pressed') === 'true') { view.innerHTML = SECRET_ICONS.copy; view.title = 'Copy'; } }, 1500); }
-          catch (e) { prompt('Copy this:', secretValues.get(sec.key) || ''); }
+          try { await navigator.clipboard.writeText(await secretValue(sec.key)); view.innerHTML = SECRET_ICONS.check; view.title = 'Copied'; setTimeout(() => { if (view.getAttribute('aria-pressed') === 'true') { view.innerHTML = SECRET_ICONS.copy; view.title = 'Copy'; } }, 1500); }
+          catch (e) { prompt('Copy this:', valBox.textContent || ''); }
         };
         const hide = () => { if (valBox.classList.contains('revealed') && !valBox.querySelector('input')) setRevealed(false); };
         valBox.onclick = hide; valBox.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hide(); } };
         const edit = mk(SECRET_ICONS.pen, 'Edit');
-        edit.onclick = () => {
-          valBox.innerHTML = ''; const input = document.createElement('input'); input.type = 'text'; input.className = 'secret-input-val'; input.style.width = '100%'; input.value = secretValues.get(sec.key) || ''; input.setAttribute('aria-label', 'New value for ' + sec.key); valBox.appendChild(input);
+        edit.onclick = async () => {
+          const current = await secretValue(sec.key);
+          valBox.innerHTML = ''; const input = document.createElement('input'); input.type = 'text'; input.className = 'secret-input-val'; input.style.width = '100%'; input.value = current; input.setAttribute('aria-label', 'New value for ' + sec.key); valBox.appendChild(input);
           actions.innerHTML = ''; const save = document.createElement('button'); save.className = 'zo-btn-primary'; save.textContent = 'Save'; const cancel = document.createElement('button'); cancel.className = 'zo-pill'; cancel.textContent = 'Cancel';
           save.onclick = () => saveSecretValue(sec.key, input.value.trim()); cancel.onclick = () => loadAdvSecrets();
           input.onkeydown = (e) => { if (e.key === 'Enter') save.click(); if (e.key === 'Escape') cancel.click(); };
