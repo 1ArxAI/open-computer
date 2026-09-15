@@ -1,6 +1,6 @@
 # Contributing
 
-The whole product is three files: `server/main.py` (gateway), `server/agent.py` (agent, tools, scheduler) and `server/templates/index.html` (UI). Read the one you are changing end to end first.
+The product is `server/main.py` (gateway and routes), the `server/su/` package (one module per concern: providers, tools, loop, planner, scheduler, channels, media...; `server/agent.py` re-exports it all) and `server/templates/index.html` (UI). Read the module you are changing end to end first.
 
 ## Rules
 
@@ -13,7 +13,7 @@ The whole product is three files: `server/main.py` (gateway), `server/agent.py` 
 ## Before you push
 
 ```bash
-cd server && venv/bin/python -m py_compile main.py agent.py && SU_HOME=$(mktemp -d) venv/bin/python test_agent.py
+cd server && venv/bin/python -m py_compile main.py agent.py su/*.py && SU_HOME=$(mktemp -d) venv/bin/python test_agent.py
 ```
 
 Then run it: `sudo systemctl restart su`, sign in, send a chat, run one automation, start one task.

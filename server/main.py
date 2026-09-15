@@ -211,7 +211,7 @@ def _channel_run(conv, kind, coro_factory):
 
 @app.on_event("startup")
 async def start_scheduler():
-    agent.channel_run_hook = _channel_run
+    agent.channels.channel_run_hook = _channel_run
     if agent.env().get("SU_SCHEDULER", "1") != "0":  # SU_SCHEDULER=0: a standby or rehearsal gateway that must not run automations or poll channels
         asyncio.create_task(agent.scheduler_loop())
         asyncio.create_task(agent.telegram_channel_loop())

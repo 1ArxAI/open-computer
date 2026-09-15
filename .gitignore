@@ -1,7 +1,7 @@
 .env
 server/venv/
 server/settings.json
-server/__pycache__/
+__pycache__/
 data/
 workspace/*
 !workspace/SU.md
