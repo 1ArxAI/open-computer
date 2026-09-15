@@ -42,8 +42,8 @@ class FakeClient:
 
 async def main():
     fake = FakeClient()
-    agent.client_for = lambda provider: fake
-    agent.configured_providers = lambda: ["openrouter"]
+    agent.providers.client_for = lambda provider: fake
+    agent.providers.configured_providers = lambda: ["openrouter"]
     events = []
     conv = agent.new_conversation("New chat")
     out = await agent.run_agent(conv, "write hello then read it", "openrouter:x", lambda e: e["type"] not in ("status", "timing", "delta") and events.append(e["type"]))

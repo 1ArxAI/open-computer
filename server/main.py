@@ -8,8 +8,6 @@ import struct
 import asyncio
 from fastapi import WebSocket, WebSocketDisconnect
 import os
-import sys
-import uuid
 import json
 import time
 import subprocess
@@ -17,9 +15,9 @@ import shutil
 import getpass
 from pathlib import Path
 from typing import Optional, Dict, Any, List
-from fastapi import FastAPI, File, Form, Header, HTTPException, Request, Query, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, FileResponse, RedirectResponse, Response, PlainTextResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, FileResponse, RedirectResponse, PlainTextResponse
 from urllib.parse import urlparse
 import hmac, hashlib, base64, secrets as _secrets
 try:
@@ -34,7 +32,7 @@ import updater
 from pydantic import BaseModel
 import httpx
 
-app = FastAPI(title="SU Computer Gateway & Dashboard", version="3.0.0")
+app = FastAPI(title="Open Computer", version="3.0.0")
 SU_TOKEN = agent.env().get("SU_TOKEN", "").strip()
 _DEFAULT_ORIGINS = ",".join(o for o in ("http://localhost:8000", "http://127.0.0.1:8000", agent.env().get("SU_PUBLIC_URL", "").rstrip("/")) if o)
 LOGIN_USER = agent.env().get("SU_LOGIN_USER", getpass.getuser())  # the Linux user the gateway runs as
@@ -95,20 +93,18 @@ def _set_session_cookie(resp, request: Request, value: str, max_age: int):
 
 
 def is_authed(request: Request) -> bool:
-    if SU_TOKEN and request.headers.get("authorization", "") == f"Bearer {SU_TOKEN}":
-        return True
-    if SU_TOKEN and request.query_params.get("token") == SU_TOKEN:
+    if SU_TOKEN and hmac.compare_digest(request.headers.get("authorization", ""), f"Bearer {SU_TOKEN}"):
         return True
     return bool(verify_session(request.cookies.get("su_session")))
 
 
-LOGIN_HTML = """<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Sign in · SU Computer</title>
+LOGIN_HTML = """<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Sign in · Open Computer</title>
 <style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f1013;color:#e5e7eb;font:14px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 form{width:320px;background:#17181c;border:1px solid #26272b;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:10px}
 h1{font-size:16px;margin:0 0 6px}label{font-size:12px;color:#9ca3af}input{background:#0f1013;border:1px solid #26272b;color:#fff;border-radius:8px;padding:10px 12px;font-size:14px}
 input:focus{outline:2px solid #2563eb;border-color:#2563eb}button{margin-top:6px;background:#2563eb;color:#fff;border:0;border-radius:8px;padding:10px;font-weight:600;font-size:14px;cursor:pointer}
 button:disabled{opacity:.6}.err{color:#f87171;font-size:12px;min-height:16px;line-height:1.4}</style></head><body>
-<form id=f><h1>SU Computer</h1><label>Username</label><input name=username placeholder="Username" autocomplete=username autofocus required><label>Password</label><input name=password type=password placeholder="Password" autocomplete=current-password required>
+<form id=f><h1>Open Computer</h1><label>Username</label><input name=username placeholder="Username" autocomplete=username autofocus required><label>Password</label><input name=password type=password placeholder="Password" autocomplete=current-password required>
 <div class=err id=err></div><button id=b>Sign in</button></form>
 <script>const f=document.getElementById('f'),e=document.getElementById('err'),b=document.getElementById('b');
 const params=new URLSearchParams(location.search);
@@ -123,7 +119,7 @@ async def auth_gate(request: Request, call_next):
     path = request.url.path
     if path in ("/health", "/login", "/auth/login", "/robots.txt", "/favicon.ico") or request.method == "OPTIONS":
         resp = await call_next(request)
-    elif path.startswith(("/api/", "/zo/", "/models", "/personas", "/auth/", "/mcp")) and not is_authed(request):
+    elif path.startswith(("/api/", "/zo/", "/models", "/auth/", "/mcp")) and not is_authed(request):
         resp = JSONResponse({"detail": "Unauthorized. Sign in at /login."}, status_code=401)
     elif path == "/" and not is_authed(request):
         resp = RedirectResponse("/login", status_code=302)
@@ -215,7 +211,7 @@ def _channel_run(conv, kind, coro_factory):
 
 @app.on_event("startup")
 async def start_scheduler():
-    agent.channel_run_hook = _channel_run
+    agent.channels.channel_run_hook = _channel_run
     if agent.env().get("SU_SCHEDULER", "1") != "0":  # SU_SCHEDULER=0: a standby or rehearsal gateway that must not run automations or poll channels
         asyncio.create_task(agent.scheduler_loop())
         asyncio.create_task(agent.telegram_channel_loop())
@@ -240,9 +236,13 @@ async def start_scheduler():
 async def get_channels():
     return agent.channels_status()
 
+_cors_origins = [o.strip() for o in agent.env().get("SU_CORS_ORIGINS", _DEFAULT_ORIGINS).split(",") if o.strip()]
+if "*" in _cors_origins:  # credentialed requests must never be wildcard-open
+    print("SU_CORS_ORIGINS: '*' is not allowed with cookies; ignoring it. List exact origins instead.")
+    _cors_origins = [o for o in _cors_origins if o != "*"]
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[o.strip() for o in agent.env().get("SU_CORS_ORIGINS", _DEFAULT_ORIGINS).split(",") if o.strip()],
+    allow_origins=_cors_origins,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -257,7 +257,6 @@ TRASH_INFO_DIR.mkdir(parents=True, exist_ok=True)
 ENV_PATH = agent.HOME / ".env"
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
-SETTINGS_FILE = Path(__file__).resolve().parent / "settings.json"
 
 def get_env_vars() -> Dict[str, str]:
     env = dict(os.environ)
@@ -280,7 +279,8 @@ class AskRequest(BaseModel):
     persona_id: Optional[str] = None  # agent id or handle (Zo-compatible name)
     agent: Optional[str] = None
     output_format: Optional[Dict[str, Any]] = None  # JSON Schema: the answer comes back as an object in `output`
-    mode: Optional[str] = None  # "chat" (live web answer, no machine tools) or "build" (straight to the build model); None = SU decides
+    mode: Optional[str] = None  # "chat" (live web answer, no machine tools) or "build" (read the request, then plan or do); None behaves like build
+    approve: Optional[bool] = False  # run the plan this conversation is waiting on (the Run button); never inferred from the text
     refs: Optional[List[Dict[str, Any]]] = None  # [{type: chat|automation|task, id, name}] the owner referenced with @ in the composer
 
 @app.get("/robots.txt", response_class=PlainTextResponse)
@@ -436,6 +436,10 @@ async def zo_ask(req: AskRequest):
     conv = agent.load_conversation(req.conversation_id) if req.conversation_id else None
     if not conv:
         conv = agent.new_conversation(req.input.strip().splitlines()[0][:60] if req.input.strip() else "New chat")
+    if req.approve and not conv.get("pending_build"):
+        raise HTTPException(409, "There is no plan waiting to run in this conversation.")
+    if req.approve and not req.input.strip():
+        req.input = "Run the plan."
     agent_id = req.agent or req.persona_id
 
     schema = json.dumps(req.output_format) if req.output_format else ""
@@ -443,7 +447,8 @@ async def zo_ask(req: AskRequest):
     extra += agent.refs_context(req.refs)
 
     async def work(on_event):
-        out = await agent.run_agent(conv, req.input, req.model_name, on_event, extra_system=extra, agent_id=agent_id, plan_first=True, mode=req.mode if req.mode in ('chat', 'build') else None)
+        out = await agent.run_agent(conv, req.input, req.model_name, on_event, extra_system=extra, agent_id=agent_id, plan_first=True,
+                                    mode=req.mode if req.mode in ('chat', 'build') else None, approve=bool(req.approve))
         asyncio.create_task(agent.remember_turn(conv, req.input, out or ""))
         return {"title": conv.get("title"), "model": conv.get("model")}
 
@@ -578,12 +583,16 @@ async def list_files_tree(max_files: int = 500):
     items.sort(key=lambda x: (not x["is_dir"], x["path"].lower()))
     return {"items": items}
 
-def _under_home(path: str) -> Path:
-    """Accept absolute paths or paths relative to the home directory; refuse anything outside it."""
+def _under_home(path: str, write: bool = False) -> Path:
+    """Accept absolute paths or paths relative to the home directory; refuse anything outside it,
+    and apply the same policy as the agent's file tools (.env, SSH keys, server code)."""
     raw = Path(path) if path.startswith("/") else WORKSPACE_DIR / path
     target = raw.resolve()
     if target != WORKSPACE_DIR and WORKSPACE_DIR not in target.parents:
         raise HTTPException(status_code=403, detail="Access denied")
+    safe, err, _ = agent.is_safe_file_path(target, allow_write=write)
+    if not safe:
+        raise HTTPException(status_code=403, detail=err)
     return target
 
 class FileContentRequest(BaseModel):
@@ -624,7 +633,7 @@ async def read_file_raw(path: str = Query(...)):
 
 @app.post("/api/file")
 async def write_file(req: FileContentRequest):
-    target = _under_home(req.path)
+    target = _under_home(req.path, write=True)
     try:
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(req.content, encoding="utf-8")
@@ -643,11 +652,11 @@ class NewItemRequest(BaseModel):
 
 @app.post("/api/files/new")
 async def create_new_item(req: NewItemRequest):
-    parent = _under_home(req.path)
+    parent = _under_home(req.path, write=True)
     name = req.name.strip()
-    if not name:
-        raise HTTPException(status_code=400, detail="Name is required")
-    target = parent / name
+    if not name or "/" in name or name in (".", ".."):
+        raise HTTPException(status_code=400, detail="Name is required and may not contain slashes")
+    target = _under_home(str(parent / name), write=True)
     if req.is_dir:
         target.mkdir(parents=True, exist_ok=True)
     else:
@@ -660,14 +669,14 @@ async def create_new_item(req: NewItemRequest):
 async def upload_files(dir: str = Form(""), files: List[UploadFile] = File(...), paths: List[str] = Form([])):
     """Multipart upload into a workspace folder. `paths[i]` (optional) is the file's relative path for folder uploads
     (the browser's webkitRelativePath); otherwise the file name is used."""
-    base = _under_home(dir or str(FILES_ROOT))
+    base = _under_home(dir or str(FILES_ROOT), write=True)
     base.mkdir(parents=True, exist_ok=True)
     written = []
     for i, up in enumerate(files):
         rel = (paths[i] if i < len(paths) and paths[i] else up.filename or f"file{i}").replace("\\", "/").lstrip("/")
         if ".." in rel.split("/"):
             raise HTTPException(status_code=400, detail=f"Bad path: {rel}")
-        target = _under_home(str(base / rel))
+        target = _under_home(str(base / rel), write=True)
         target.parent.mkdir(parents=True, exist_ok=True)
         with open(target, "wb") as f:
             while chunk := await up.read(1 << 20):
@@ -681,10 +690,10 @@ class MoveRequest(BaseModel):
 
 @app.post("/api/files/move")
 async def move_item(req: MoveRequest):
-    src = _under_home(req.src)
+    src = _under_home(req.src, write=True)
     if src == WORKSPACE_DIR or not src.exists():
         raise HTTPException(status_code=404, detail="Source not found")
-    dest = _under_home(req.dest)
+    dest = _under_home(req.dest, write=True)
     if dest.is_dir():
         dest = dest / src.name
     if dest == src:
@@ -702,7 +711,7 @@ class TrashRequest(BaseModel):
 
 @app.post("/api/files/trash")
 async def move_to_trash(req: TrashRequest):
-    target = _under_home(req.path)
+    target = _under_home(req.path, write=True)
     if target == WORKSPACE_DIR:
         raise HTTPException(status_code=403, detail="Access denied")
     if not target.exists():
@@ -788,7 +797,7 @@ async def restore_from_trash(req: RestoreRequest):
         except:
             pass
     
-    target = _under_home(orig_path)
+    target = _under_home(orig_path, write=True)
     if target.exists():
         target = target.with_name(f"{target.name}.restored-{int(time.time())}")
     target.parent.mkdir(parents=True, exist_ok=True)
@@ -821,29 +830,6 @@ async def delete_from_trash(req: DeleteTrashRequest):
     return {"ok": True, "deleted": req.name}
 
 # ==================== TERMINAL & EXECUTION ====================
-
-class ExecRequest(BaseModel):
-    command: str
-    cwd: Optional[str] = None
-
-@app.post("/api/terminal")
-async def terminal_exec(req: ExecRequest):
-    target_cwd = (WORKSPACE_DIR / (req.cwd or "").lstrip("/")).resolve()
-    if not str(target_cwd).startswith(str(WORKSPACE_DIR)):
-        target_cwd = WORKSPACE_DIR
-
-    try:
-        # run in a worker thread so a long command never blocks the event loop (chats, SSE, other requests)
-        res = await asyncio.to_thread(subprocess.run, req.command, shell=True, cwd=str(target_cwd), capture_output=True, text=True, timeout=45)
-        return {
-            "exit_code": res.returncode,
-            "stdout": res.stdout,
-            "stderr": res.stderr
-        }
-    except subprocess.TimeoutExpired:
-        return {"exit_code": 124, "stdout": "", "stderr": "Command timed out after 45s"}
-    except Exception as e:
-        return {"exit_code": 1, "stdout": "", "stderr": str(e)}
 
 # ==================== AUTOMATIONS ====================
 
@@ -956,12 +942,6 @@ async def stop_task(tid: str):
         raise HTTPException(404, "Task not found")
     return await agent.stop_task(tid)
 
-@app.get("/api/tasks/{tid}/logs")
-async def task_log(tid: str, lines: int = 200):
-    if not agent.get_task(tid):
-        raise HTTPException(404, "Task not found")
-    return {"log": agent.task_logs(tid, lines)}
-
 @app.post("/api/automations/parse-schedule")
 async def parse_schedule(body: ScheduleText):
     try:
@@ -991,10 +971,6 @@ class AgentBody(BaseModel):
 @app.get("/api/agents")
 async def get_agents():
     return {"agents": agent.list_agents(), "scopes": list(agent.SCOPES)}
-
-@app.get("/personas/available")
-async def personas_available():
-    return {"personas": [{"id": a["id"], "name": a["name"], "handle": a["handle"], "model": a.get("model"), "scope": a.get("scope")} for a in agent.list_agents()]}
 
 @app.post("/api/agents")
 async def upsert_agent(body: AgentBody):
@@ -1156,8 +1132,18 @@ def _system_stats_sync():
     disk_out = subprocess.run("df -h / | awk 'NR==2{print $3 \" / \" $2 \" (\" $5 \")\"}'", shell=True, capture_output=True, text=True).stdout.strip()
     uptime_out = subprocess.run("uptime -p", shell=True, capture_output=True, text=True).stdout.strip()
     mi = {}
-    for line in open("/proc/meminfo"):
-        k, v = line.split(":", 1); mi[k] = int(v.split()[0])
+    try:
+        for line in open("/proc/meminfo"):
+            k, v = line.split(":", 1); mi[k] = int(v.split()[0])
+    except OSError:
+        pass
+    os_name = "Linux"
+    try:
+        for line in open("/etc/os-release"):
+            if line.startswith("PRETTY_NAME="):
+                os_name = line.split("=", 1)[1].strip().strip('"')
+    except OSError:
+        pass
     du = shutil.disk_usage("/")
     cores = os.cpu_count() or 1
 
@@ -1174,14 +1160,14 @@ def _system_stats_sync():
                 })
 
     return {
-        "os": "Ubuntu",
+        "os": os_name,
         "cores": os.cpu_count(),
         "memory": free_out,
         "disk": disk_out,
         "uptime": uptime_out,
         "cpu_pct": round(os.getloadavg()[0] / cores * 100),  # 1-min load as share of all threads
-        "mem_used_gb": round((mi["MemTotal"] - mi["MemAvailable"]) / 1048576, 1),
-        "mem_total_gb": round(mi["MemTotal"] / 1048576),
+        "mem_used_gb": round((mi.get("MemTotal", 0) - mi.get("MemAvailable", 0)) / 1048576, 1),
+        "mem_total_gb": round(mi.get("MemTotal", 0) / 1048576),
         "disk_used_gb": round(du.used / 1e9),
         "disk_total_gb": round(du.total / 1e9),
         "containers": containers
@@ -1193,11 +1179,6 @@ def _system_stats_sync():
 @app.get("/api/update/check")
 async def check_updates(force: bool = False):
     return await updater.check_for_updates(force=force)
-
-
-@app.get("/api/update/version")
-async def get_version():
-    return updater.get_current_version()
 
 
 @app.post("/api/update/apply")
@@ -1239,15 +1220,35 @@ def parse_env_file() -> List[Dict[str, str]]:
                 
                 secrets.append({
                     "key": k,
-                    "value": v,
                     "masked": masked,
                     "project": proj,
                 })
     return secrets
 
+
+def _env_value(key: str) -> Optional[str]:
+    if not ENV_PATH.exists():
+        return None
+    for line in ENV_PATH.read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if s and not s.startswith("#") and "=" in s and s.split("=", 1)[0].strip() == key:
+            return s.split("=", 1)[1].strip().strip('"').strip("'")
+    return None
+
 @app.get("/api/secrets")
 async def get_secrets():
+    """Names and masked values only. A value is fetched one at a time through /api/secrets/{key}/reveal."""
     return {"secrets": parse_env_file()}
+
+@app.get("/api/secrets/{key}/reveal")
+async def reveal_secret(key: str):
+    k = key.strip().upper()
+    if k in agent.HIDDEN_KEYS:
+        raise HTTPException(status_code=403, detail="This key is managed by the gateway and cannot be shown")
+    v = _env_value(k)
+    if v is None:
+        raise HTTPException(status_code=404, detail="Key not found")
+    return {"key": k, "value": v}
 
 class SecretUpdateRequest(BaseModel):
     key: str
@@ -1385,6 +1386,11 @@ async def delete_secret(req: SecretDeleteRequest):
     return {"ok": True, "key": k, "deleted": found}
 
 # ==================== AI SETTINGS & PREFERENCES ====================
+
+@app.get("/api/search")
+async def search_status():
+    e = agent.env()
+    return {"provider": "tinyfish" if e.get("TINYFISH_API_KEY") else "duckduckgo", "location": e.get("SU_SEARCH_LOCATION", "")}
 
 @app.get("/api/rules")
 async def get_rules():
@@ -1673,13 +1679,6 @@ async def apps_connect(slug: str):
     except Exception as e:
         raise HTTPException(502, f"Pipedream error: {e}")
 
-@app.get("/api/apps/{slug}/tools")
-async def apps_tools(slug: str, refresh: bool = False):
-    try:
-        return {"slug": slug, "tools": await agent.pd_app_tools(slug, refresh)}
-    except Exception as e:
-        raise HTTPException(502, f"Pipedream error: {e}")
-
 @app.delete("/api/apps/accounts/{account_id}")
 async def apps_disconnect(account_id: str):
     ok = await agent.pd_delete_account(account_id)
@@ -1755,14 +1754,16 @@ async def su_mcp_delete():
 async def serve_dashboard():
     index_file = TEMPLATES_DIR / "index.html"
     if index_file.exists():
-        return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
-    return HTMLResponse("<html><body><h1>SU Computer Dashboard initializing...</h1></body></html>")
+        html = index_file.read_text(encoding="utf-8").replace("__AGENT_INITIALS__", agent.AGENT_NAME[:2].upper()).replace("__AGENT_NAME__", agent.AGENT_NAME)
+        return HTMLResponse(content=html)
+    return HTMLResponse("<html><body><h1>Open Computer is starting...</h1></body></html>")
 
 
 # ==================== NATIVE LINUX PTY WEBSOCKET ====================
 
 @app.websocket("/api/terminal/ws")
-async def terminal_ws(websocket: WebSocket, token: Optional[str] = None):
+async def terminal_ws(websocket: WebSocket):
+    token = websocket.headers.get("authorization", "")[len("Bearer "):] if websocket.headers.get("authorization", "").startswith("Bearer ") else None
     origin = websocket.headers.get("origin", "").rstrip("/")
     host = (websocket.headers.get("x-forwarded-host") or websocket.headers.get("host") or "").split(":")[0].lower()
     allowed = {o.strip().rstrip("/").lower() for o in agent.env().get("SU_CORS_ORIGINS", _DEFAULT_ORIGINS).split(",") if o.strip()}
@@ -1773,7 +1774,7 @@ async def terminal_ws(websocket: WebSocket, token: Optional[str] = None):
     if origin and origin.lower() not in allowed and not is_same_origin:
         await websocket.close(code=4403)
         return
-    if not ((SU_TOKEN and token == SU_TOKEN) or verify_session(websocket.cookies.get("su_session"))):
+    if not ((SU_TOKEN and token and hmac.compare_digest(token, SU_TOKEN)) or verify_session(websocket.cookies.get("su_session"))):
         await websocket.close(code=4401)
         return
     await websocket.accept()

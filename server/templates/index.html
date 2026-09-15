@@ -3,33 +3,25 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SU Computer</title>
+  <title>Open Computer</title>
   <meta name="su-build" content="dev">
   <script>
-    // Zo themes: [background, foreground, card, primary, primary-fg, muted, muted-fg, accent, border, input, sidebar, sidebar-accent, destructive]
-    const ZO_THEMES = {"In the Zone":{"dark":["lab(17.8584% -.546753 -1.61707)","lab(91.8792% -.430316 -1.2359)","lab(21.559% -.537768 -1.58297)","lab(58.1591% -2.49425 -49.0636)","lab(7.34432% -.680842 -11.9944)","lab(21.559% -.537768 -1.58297)","lab(65.52% -1.31929 -3.90199)","lab(25.4204% -2.28751 -15.7596)","lab(30.3856% -.760198 -2.24963)","lab(24.6664% -.777587 -2.3176)","lab(15.4918% -.556231 -1.65128)","lab(25.4204% -2.28751 -15.7596)","lab(50.309% 54.7405 38.5285)"],"light":["lab(93.7124% -.0796616 -1.09791)","lab(10.6194% -.573106 -1.7191)","lab(98.8863% -.354588 -.126779)","lab(49.3077% .859261 -53.6375)","#fff","lab(91.8792% -.430316 -1.2359)","lab(41.5581% -1.44988 -5.53988)","lab(84.8219% -3.22303 -15.0732)","lab(80.8115% -.512391 -2.39121)","#fff","lab(89.0823% -.315368 -1.86188)","lab(84.8219% -3.22303 -15.0732)","lab(45.3642% 53.9003 40.627)"]},"Claude Zo":{"dark":["oklch(0.2779 0.0062 78.2263)","oklch(0.8074 0.0142 93.0137)","oklch(0.3069 0.0083 75.2677)","oklch(0.6724 0.1308 38.7559)","#fff","oklch(0.3069 0.0083 75.2677)","oklch(0.7168 0.0154 84.5906)","oklch(0.3315 0.0154 79.6268)","oklch(0.3845 0.0128 81.7518)","oklch(0.3321 0.0125 72.3999)","oklch(0.2523 0.0040 84.5846)","oklch(0.3315 0.0154 79.6268)","oklch(0.5693 0.1647 33.1988)"],"light":["oklch(0.9445 0.0091 78.2807)","oklch(0.2671 0.0196 98.9390)","oklch(0.9848 0.0054 95.0983)","oklch(0.6171 0.1375 39.0427)","#fff","oklch(0.9291 0.0103 81.7947)","oklch(0.5107 0.0223 90.6668)","oklch(0.9054 0.0203 84.5913)","oklch(0.8161 0.0154 80.6995)","#fff","oklch(0.9200 0.0104 81.7946)","oklch(0.9054 0.0203 84.5913)","oklch(0.5364 0.1533 33.9452)"]},"T3 Zo":{"dark":["oklch(0.2409 0.0201 307.5346)","oklch(0.8398 0.0387 309.5390)","oklch(0.2803 0.0232 307.5413)","oklch(0.4607 0.1853 4.0994)","oklch(0.8560 0.0618 346.3683)","oklch(0.2634 0.0219 309.4747)","oklch(0.7940 0.0372 307.1032)","oklch(0.3649 0.0508 308.4911)","oklch(0.3286 0.0154 343.4460)","oklch(0.3387 0.0195 332.8347)","oklch(0.1893 0.0163 331.0475)","oklch(0.3649 0.0508 308.4911)","oklch(0.6555 0.1842 5.7650)"],"light":["oklch(0.9754 0.0084 325.6412)","oklch(0.3257 0.1161 325.0372)","oklch(0.9754 0.0084 325.6412)","oklch(0.5316 0.1409 355.1999)","#fff","oklch(0.9395 0.0260 331.5453)","oklch(0.4924 0.1244 324.4523)","oklch(0.8696 0.0675 334.8991)","oklch(0.8568 0.0829 328.9110)","oklch(0.8517 0.0558 336.6002)","oklch(0.9360 0.0288 320.5788)","oklch(0.8568 0.0829 328.9110)","oklch(0.5248 0.1368 20.8317)"]},"Root Zone":{"dark":["oklch(0.2068 0.0247 224.4533)","oklch(0.9612 0 0)","oklch(0.2293 0.0276 216.0674)","oklch(0.8520 0.1269 195.0354)","oklch(0.2068 0.0247 224.4533)","oklch(0.2894 0.0412 218.8153)","oklch(0.6611 0.0975 195.0526)","oklch(0.3775 0.0564 216.5010)","oklch(0.4534 0.0628 207.1987)","oklch(0.3775 0.0564 216.5010)","oklch(0.2068 0.0247 224.4533)","oklch(0.3775 0.0564 216.5010)","oklch(0.6168 0.2086 25.8088)"],"light":["oklch(0.9491 0.0085 197.0128)","oklch(0.3772 0.0619 212.6640)","oklch(0.9724 0.0053 197.0695)","oklch(0.5624 0.0947 203.2755)","#fff","oklch(0.9295 0.0107 196.9725)","oklch(0.5428 0.0594 201.5662)","oklch(0.9021 0.0297 201.8916)","oklch(0.7214 0.0570 203.2546)","oklch(0.8473 0.0392 202.5020)","oklch(0.9280 0.0183 205.3152)","oklch(0.9021 0.0297 201.8916)","oklch(0.5732 0.1901 25.5409)"]},"Comfort Zone":{"dark":["oklch(0.2166 0.0215 292.8474)","oklch(0.9053 0.0245 293.5569)","oklch(0.2544 0.0301 292.7315)","oklch(0.7058 0.0777 302.0489)","oklch(0.2166 0.0215 292.8474)","oklch(0.2560 0.0320 294.8380)","oklch(0.6974 0.0282 300.0614)","oklch(0.3181 0.0321 308.6149)","oklch(0.3842 0.0426 295.3349)","oklch(0.3462 0.0469 292.2637)","oklch(0.1985 0.0200 293.6639)","oklch(0.3181 0.0321 308.6149)","oklch(0.6875 0.1420 21.4566)"],"light":["oklch(0.9777 0.0041 301.4254)","oklch(0.3651 0.0325 287.0807)","oklch(1 0 0)","oklch(0.6104 0.0767 299.7335)","oklch(0.9777 0.0041 301.4254)","oklch(0.8906 0.0139 299.7753)","oklch(0.5288 0.0375 290.7895)","oklch(0.8957 0.0265 300.2416)","oklch(0.7748 0.0288 299.4105)","oklch(0.8756 0.0224 300.1616)","oklch(0.9554 0.0082 301.3540)","oklch(0.8957 0.0265 300.2416)","oklch(0.6332 0.1578 22.6734)"]},"Garbanzo":{"dark":["oklch(0.2598 0.0306 262.6666)","oklch(0.9219 0 0)","oklch(0.3106 0.0301 268.6365)","oklch(0.6397 0.1720 36.4421)","#fff","oklch(0.3095 0.0266 266.7132)","oklch(0.7155 0 0)","oklch(0.3380 0.0589 267.5867)","oklch(0.4976 0.0366 269.3687)","oklch(0.4385 0.0315 266.2503)","oklch(0.3100 0.0283 267.7408)","oklch(0.3380 0.0589 267.5867)","oklch(0.6368 0.2078 25.3313)"],"light":["oklch(0.9383 0.0042 236.4995)","oklch(0.3211 0 0)","oklch(1 0 0)","oklch(0.6397 0.1720 36.4421)","#fff","oklch(0.9846 0.0017 247.8394)","oklch(0.5510 0.0234 264.3637)","oklch(0.9119 0.0222 243.8174)","oklch(0.7204 0.0129 259.8246)","oklch(0.8439 0.0094 258.3392)","oklch(0.9030 0.0046 258.3258)","oklch(0.9119 0.0222 243.8174)","oklch(0.6368 0.2078 25.3313)"]},"Intermezzo":{"dark":["oklch(0.1743 0.0227 283.7998)","oklch(0.9185 0.0257 285.8834)","oklch(0.2284 0.0384 282.9324)","oklch(0.7162 0.1597 290.3962)","oklch(0.1743 0.0227 283.7998)","oklch(0.2710 0.0621 281.4377)","oklch(0.7166 0.0462 285.1741)","oklch(0.3354 0.0828 280.9705)","oklch(0.3929 0.0669 286.3183)","oklch(0.3261 0.0597 282.5832)","oklch(0.2284 0.0384 282.9324)","oklch(0.3354 0.0828 280.9705)","oklch(0.6861 0.2061 14.9941)"],"light":["oklch(0.9730 0.0133 286.1503)","oklch(0.3015 0.0572 282.4176)","oklch(1 0 0)","oklch(0.5417 0.1790 288.0332)","#fff","oklch(0.9580 0.0133 286.1453)","oklch(0.5426 0.0465 284.7435)","oklch(0.9221 0.0373 262.1410)","oklch(0.7663 0.0397 285.4245)","oklch(0.8650 0.0330 285.6901)","oklch(0.9580 0.0133 286.1453)","oklch(0.9221 0.0373 262.1410)","oklch(0.6861 0.2061 14.9941)"]},"Espreszo":{"dark":["oklch(0.2435 0.0058 91.6006)","oklch(0.9317 0.0087 84.5736)","oklch(0.2652 0.0079 84.5931)","oklch(0.8138 0.0558 72.3130)","oklch(0.2339 0.0168 58.6839)","oklch(0.2652 0.0079 84.5931)","oklch(0.7474 0.0162 77.0388)","oklch(0.2817 0.0132 87.5692)","oklch(0.3285 0.0112 67.4221)","oklch(0.2824 0.0100 80.6424)","oklch(0.2232 0.0065 78.1888)","oklch(0.2817 0.0132 87.5692)","oklch(0.5693 0.1647 33.1988)"],"light":["oklch(0.9440 0.0074 80.7207)","oklch(0.2244 0.0074 67.4370)","oklch(0.9820 0.0041 91.4458)","oklch(0.3975 0.0402 41.9515)","#fff","oklch(0.9203 0.0092 78.2795)","oklch(0.4093 0.0127 67.4607)","oklch(0.8158 0.0124 79.7765)","oklch(0.7430 0.0127 79.7708)","#fff","oklch(0.8428 0.0089 84.5760)","oklch(0.8158 0.0124 79.7765)","oklch(0.5364 0.1533 33.9452)"]},"Why Zo Serious":{"dark":["oklch(0 0 0)","oklch(1 0 0)","oklch(0.14 0 0)","oklch(1 0 0)","oklch(0 0 0)","oklch(0.23 0 0)","oklch(0.72 0 0)","oklch(0.32 0 0)","oklch(0.36 0 0)","oklch(0.40 0 0)","oklch(0.18 0 0)","oklch(0.32 0 0)","oklch(0.69 0.20 23.91)"],"light":["oklch(0.99 0 0)","oklch(0 0 0)","oklch(1 0 0)","oklch(0 0 0)","oklch(1 0 0)","oklch(0.97 0 0)","oklch(0.44 0 0)","oklch(0.94 0 0)","oklch(0.82 0 0)","oklch(0.88 0 0)","oklch(0.99 0 0)","oklch(0.94 0 0)","oklch(0.63 0.19 23.03)"]},"Protozoa":{"dark":["oklch(0.2683 0.0279 150.7681)","oklch(0.9423 0.0097 72.6594)","oklch(0.3327 0.0271 146.9867)","oklch(0.6731 0.1624 144.2083)","oklch(0.2157 0.0453 145.7257)","oklch(0.3327 0.0271 146.9867)","oklch(0.8579 0.0174 76.0955)","oklch(0.5752 0.1446 144.1813)","oklch(0.3942 0.0265 142.9926)","oklch(0.3942 0.0265 142.9926)","oklch(0.2683 0.0279 150.7681)","oklch(0.5752 0.1446 144.1813)","oklch(0.5386 0.1937 26.7249)"],"light":["oklch(0.9711 0.0074 80.7211)","oklch(0.3000 0.0358 30.2042)","oklch(0.9711 0.0074 80.7211)","oklch(0.5234 0.1347 144.1672)","#fff","oklch(0.9370 0.0142 74.4218)","oklch(0.4495 0.0486 39.2110)","oklch(0.8952 0.0504 146.0366)","oklch(0.8079 0.0230 80.6699)","oklch(0.8079 0.0230 80.6699)","oklch(0.9370 0.0142 74.4218)","oklch(0.8952 0.0504 146.0366)","oklch(0.5386 0.1937 26.7249)"]},"All Systems Zo":{"dark":["oklch(0.1822 0 0)","oklch(0.9288 0.0126 255.5079)","oklch(0.2046 0 0)","oklch(0.4365 0.1044 156.7556)","oklch(0.9213 0.0135 167.1558)","oklch(0.2393 0 0)","oklch(0.7122 0 0)","oklch(0.3132 0 0)","oklch(0.4091 0 0)","oklch(0.3485 0 0)","oklch(0.1822 0 0)","oklch(0.3132 0 0)","oklch(0.6488 0.1973 28.4268)"],"light":["oklch(0.9911 0 0)","oklch(0.2046 0 0)","oklch(0.9911 0 0)","oklch(0.8348 0.1302 160.9080)","oklch(0.2626 0.0147 166.4589)","oklch(0.9461 0 0)","oklch(0.2435 0 0)","oklch(0.9461 0 0)","oklch(0.7058 0 0)","oklch(0.8328 0 0)","oklch(0.9911 0 0)","oklch(0.9461 0 0)","oklch(0.5523 0.1927 32.7272)"]},"Ozone":{"dark":["oklch(0.2046 0 0)","oklch(0.9219 0 0)","oklch(0.2686 0 0)","oklch(0.6231 0.1880 259.8145)","#fff","oklch(0.2686 0 0)","oklch(0.7155 0 0)","oklch(0.3791 0.1378 265.5222)","oklch(0.4091 0 0)","oklch(0.4091 0 0)","oklch(0.2046 0 0)","oklch(0.3791 0.1378 265.5222)","oklch(0.6368 0.2078 25.3313)"],"light":["oklch(1 0 0)","oklch(0.3211 0 0)","oklch(1 0 0)","oklch(0.6231 0.1880 259.8145)","#fff","oklch(0.9846 0.0017 247.8394)","oklch(0.5510 0.0234 264.3637)","oklch(0.9514 0.0250 236.8242)","oklch(0.8445 0.0119 264.5024)","oklch(0.8823 0.0114 269.5382)","oklch(0.9846 0.0017 247.8394)","oklch(0.9514 0.0250 236.8242)","oklch(0.6368 0.2078 25.3313)"]},"ZOTech":{"dark":["oklch(0.1655 0.0254 236.8469)","oklch(0.9506 0.0240 253.9483)","oklch(0.2004 0.0342 239.8937)","oklch(0.6911 0.1725 246.4822)","oklch(0.1616 0.0249 220.3104)","oklch(0.2381 0.0402 241.0850)","oklch(0.7583 0.0375 249.6132)","oklch(0.5707 0.2087 21.1426)","oklch(0.3409 0.0536 244.2431)","oklch(0.2724 0.0442 237.4922)","oklch(0.1377 0.0213 233.5661)","oklch(0.7473 0.1266 197.3962)","oklch(0.6892 0.2004 22.3840)"],"light":["oklch(0.9722 0.0034 247.8583)","oklch(0.2050 0.0200 248.8302)","oklch(1 0 0)","oklch(0.5500 0.1327 242.8940)","#fff","oklch(0.9175 0.0092 258.3369)","oklch(0.4076 0.0338 253.5110)","oklch(0.6708 0.2165 25.1926)","oklch(0.2050 0.0200 248.8302)","oklch(0.7982 0.0197 255.5528)","oklch(0.9297 0.0092 258.3366)","oklch(0.6522 0.1109 197.8593)","oklch(0.5707 0.2087 21.1426)"]},"LFZ":{"dark":["oklch(0.2077 0.0398 265.7549)","oklch(0.9288 0.0126 255.5079)","oklch(0.2795 0.0368 260.0310)","oklch(0.6801 0.1583 276.9349)","oklch(0.2077 0.0398 265.7549)","oklch(0.2795 0.0368 260.0310)","oklch(0.7137 0.0192 261.3247)","oklch(0.3729 0.0306 259.7329)","oklch(0.4461 0.0263 256.8018)","oklch(0.4461 0.0263 256.8018)","oklch(0.2795 0.0368 260.0310)","oklch(0.3729 0.0306 259.7329)","oklch(0.6368 0.2078 25.3313)"],"light":["oklch(0.9842 0.0034 247.8578)","oklch(0.2795 0.0368 260.0310)","oklch(1 0 0)","oklch(0.5854 0.2041 277.1173)","#fff","oklch(0.9670 0.0029 264.5420)","oklch(0.5510 0.0234 264.3637)","oklch(0.9299 0.0334 272.7879)","oklch(0.8717 0.0093 258.3383)","oklch(0.8717 0.0093 258.3383)","oklch(0.9670 0.0029 264.5420)","oklch(0.9299 0.0334 272.7879)","oklch(0.6368 0.2078 25.3313)"]},"Hadal Zone":{"dark":["oklch(0.2178 0 0)","oklch(0.8853 0 0)","oklch(0.2435 0 0)","oklch(0.7058 0 0)","oklch(0.2178 0 0)","oklch(0.2850 0 0)","oklch(0.5999 0 0)","oklch(0.3715 0 0)","oklch(0.3290 0 0)","oklch(0.3092 0 0)","oklch(0.2393 0 0)","oklch(0.3715 0 0)","oklch(0.6591 0.1530 22.1703)"],"light":["oklch(1 0 0)","oklch(0 0 0)","oklch(1 0 0)","oklch(0.6489 0.2370 26.9728)","#fff","oklch(0.9551 0 0)","oklch(0.3211 0 0)","oklch(0.5635 0.2408 260.8178)","oklch(0 0 0)","oklch(0 0 0)","oklch(0.9551 0 0)","oklch(0.5635 0.2408 260.8178)","oklch(0 0 0)"]},"ZOMG":{"dark":["oklch(0 0 0)","oklch(1 0 0)","oklch(0.3211 0 0)","oklch(0.7044 0.1872 23.1858)","oklch(0 0 0)","oklch(0.3211 0 0)","oklch(0.8452 0 0)","oklch(0.6755 0.1765 252.2592)","oklch(1 0 0)","oklch(1 0 0)","oklch(0 0 0)","oklch(0.6755 0.1765 252.2592)","oklch(1 0 0)"],"light":["oklch(0.9856 0.0084 56.3167)","oklch(0.3353 0.0132 2.7675)","oklch(1 0 0)","oklch(0.7357 0.1641 34.7091)","#fff","oklch(0.9656 0.0176 39.4008)","oklch(0.5534 0.0116 58.0708)","oklch(0.8278 0.1131 57.9984)","oklch(0.8325 0.0785 42.4412)","oklch(0.9296 0.0370 38.6868)","oklch(0.9656 0.0176 39.4008)","oklch(0.8278 0.1131 57.9984)","oklch(0.6122 0.2082 22.2410)"]},"Zo Hot Right Now":{"dark":["oklch(0.2569 0.0169 352.4041)","oklch(0.9397 0.0119 51.3155)","oklch(0.3184 0.0176 341.4465)","oklch(0.7357 0.1641 34.7091)","#fff","oklch(0.3184 0.0176 341.4465)","oklch(0.8378 0.0237 52.6345)","oklch(0.8278 0.1131 57.9984)","oklch(0.4353 0.0197 348.3711)","oklch(0.3637 0.0203 342.2663)","oklch(0.2569 0.0169 352.4041)","oklch(0.8278 0.1131 57.9984)","oklch(0.6122 0.2082 22.2410)"],"light":["oklch(0.9692 0.0192 343.9343)","oklch(0.4426 0.1653 352.3762)","oklch(0.9837 0.0107 339.3286)","oklch(0.6002 0.2414 0.1348)","#fff","oklch(0.9429 0.0363 344.2604)","oklch(0.5740 0.1732 352.0544)","oklch(0.8766 0.0828 344.8849)","oklch(0.7959 0.1068 348.4070)","oklch(0.8633 0.0710 344.6750)","oklch(0.9629 0.0227 345.7485)","oklch(0.8766 0.0828 344.8849)","oklch(0.5831 0.1911 6.3410)"]},"Zodiac":{"dark":["oklch(0.1808 0.0535 313.7159)","oklch(0.8624 0.1307 326.6356)","oklch(0.2398 0.0661 313.2337)","oklch(0.7543 0.2319 332.0212)","oklch(0.1608 0.0493 327.5673)","oklch(0.2701 0.0770 312.3525)","oklch(0.7116 0.1623 327.1132)","oklch(0.3558 0.1201 325.7655)","oklch(0.4197 0.1425 315.9912)","oklch(0.3750 0.1169 318.3453)","oklch(0.1941 0.0504 311.3983)","oklch(0.3558 0.1201 325.7655)","oklch(0.6539 0.2441 7.1740)"],"light":["oklch(0.9751 0.0127 244.2508)","oklch(0.3729 0.0306 259.7329)","oklch(1 0 0)","oklch(0.7227 0.1920 149.5793)","#fff","oklch(0.9670 0.0029 264.5420)","oklch(0.5510 0.0234 264.3637)","oklch(0.9505 0.0507 163.0508)","oklch(0.8712 0.0111 256.7003)","oklch(0.9276 0.0058 264.5313)","oklch(0.9514 0.0250 236.8242)","oklch(0.9505 0.0507 163.0508)","oklch(0.6368 0.2078 25.3313)"]},"Zombocom":{"dark":["oklch(0.2077 0.0398 265.7549)","oklch(0.8717 0.0093 258.3383)","oklch(0.2795 0.0368 260.0310)","oklch(0.7729 0.1535 163.2231)","oklch(0.2077 0.0398 265.7549)","oklch(0.2795 0.0368 260.0310)","oklch(0.5510 0.0234 264.3637)","oklch(0.3729 0.0306 259.7329)","oklch(0.5037 0.0303 259.0296)","oklch(0.4461 0.0263 256.8018)","oklch(0.2795 0.0368 260.0310)","oklch(0.3729 0.0306 259.7329)","oklch(0.6368 0.2078 25.3313)"],"light":["oklch(0.9689 0.0090 314.7817)","oklch(0.3729 0.0306 259.7329)","oklch(1 0 0)","oklch(0.7090 0.1592 293.5412)","#fff","oklch(0.9464 0.0327 307.1744)","oklch(0.5510 0.0234 264.3637)","oklch(0.9376 0.0260 321.9388)","oklch(0.8061 0.0736 301.7901)","oklch(0.9073 0.0530 306.0902)","oklch(0.9073 0.0530 306.0902)","oklch(0.9376 0.0260 321.9388)","oklch(0.8077 0.1035 19.5706)"]},"Zo Cool":{"dark":["oklch(0.2161 0.0061 56.0433)","oklch(0.9299 0.0334 272.7879)","oklch(0.2805 0.0309 307.2326)","oklch(0.7874 0.1179 295.7538)","oklch(0.2161 0.0061 56.0433)","oklch(0.2805 0.0309 307.2326)","oklch(0.7137 0.0192 261.3247)","oklch(0.3858 0.0509 304.6383)","oklch(0.4230 0.0445 303.8670)","oklch(0.3416 0.0444 308.8496)","oklch(0.3416 0.0444 308.8496)","oklch(0.3858 0.0509 304.6383)","oklch(0.8077 0.1035 19.5706)"],"light":["oklch(0.9383 0.0042 236.4995)","oklch(0.3211 0 0)","oklch(1 0 0)","oklch(0.6397 0.1720 36.4421)","#fff","oklch(0.9846 0.0017 247.8394)","oklch(0.5510 0.0234 264.3637)","oklch(0.9119 0.0222 243.8174)","oklch(0.7204 0.0129 259.8246)","oklch(0.8439 0.0094 258.3392)","oklch(0.9030 0.0046 258.3258)","oklch(0.9119 0.0222 243.8174)","oklch(0.6368 0.2078 25.3313)"]}};
-    const ZO_THEME_ORDER = ["In the Zone", "Claude Zo", "T3 Zo", "Root Zone", "Comfort Zone", "Garbanzo", "Intermezzo", "Espreszo", "Why Zo Serious", "Protozoa", "All Systems Zo", "Ozone", "ZOTech", "LFZ", "Hadal Zone", "ZOMG", "Zo Hot Right Now", "Zodiac", "Zombocom", "Zo Cool"];
+    // Palette: [background, foreground, card, primary, primary-fg, muted, muted-fg, accent, border, input, sidebar, sidebar-accent, destructive]
+    const PALETTE = {"dark": ["oklch(0.2598 0.0306 262.6666)", "oklch(0.9219 0 0)", "oklch(0.3106 0.0301 268.6365)", "oklch(0.6397 0.1720 36.4421)", "#fff", "oklch(0.3095 0.0266 266.7132)", "oklch(0.7155 0 0)", "oklch(0.3380 0.0589 267.5867)", "oklch(0.4976 0.0366 269.3687)", "oklch(0.4385 0.0315 266.2503)", "oklch(0.3100 0.0283 267.7408)", "oklch(0.3380 0.0589 267.5867)", "oklch(0.6368 0.2078 25.3313)"], "light": ["oklch(0.9383 0.0042 236.4995)", "oklch(0.3211 0 0)", "oklch(1 0 0)", "oklch(0.6397 0.1720 36.4421)", "#fff", "oklch(0.9846 0.0017 247.8394)", "oklch(0.5510 0.0234 264.3637)", "oklch(0.9119 0.0222 243.8174)", "oklch(0.7204 0.0129 259.8246)", "oklch(0.8439 0.0094 258.3392)", "oklch(0.9030 0.0046 258.3258)", "oklch(0.9119 0.0222 243.8174)", "oklch(0.6368 0.2078 25.3313)"]};
     const ZO_VARS = ['--zo-bg','--zo-fg','--zo-card','--zo-primary','--zo-primary-fg','--zo-muted','--zo-fg-muted','--zo-accent','--zo-border','--zo-input','--zo-sidebar','--zo-sidebar-accent','--zo-destructive'];
     const themePref = { get(k, d) { try { return localStorage.getItem(k) || d; } catch (e) { return d; } }, set(k, v) { try { localStorage.setItem(k, v); } catch (e) {} } };
     function resolvedMode(mode) { return mode === 'system' ? (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark') : mode; }
-    function applyTheme(name, mode) {
-      if (!ZO_THEMES[name]) name = 'Garbanzo';
-      mode = ['light', 'dark', 'system'].includes(mode) ? mode : 'dark';
-      const m = resolvedMode(mode), vals = ZO_THEMES[name][m], st = document.documentElement.style;
+    function applyTheme(mode) {
+      mode = ['light', 'dark', 'system'].includes(mode) ? mode : 'system';
+      const m = resolvedMode(mode), vals = PALETTE[m], st = document.documentElement.style;
       ZO_VARS.forEach((v, i) => st.setProperty(v, vals[i]));
       document.documentElement.classList.toggle('light', m === 'light');
-      document.documentElement.dataset.theme = name; document.documentElement.dataset.mode = mode;
-      themePref.set('su_theme', name); themePref.set('su_mode', mode);
+      document.documentElement.dataset.mode = mode;
+      themePref.set('su_mode', mode);
       if (window.onThemeApplied) window.onThemeApplied();
     }
-    // Surprise me: a different palette on every load (Settings › UX switch). Manual picks turn it off.
-    (function () {
-      const cur = themePref.get('su_theme', 'Garbanzo');
-      let name = cur;
-      if (themePref.get('su_theme_shuffle', '1') === '1') { const pool = ZO_THEME_ORDER.filter(n => n !== cur); name = pool[Math.floor(Math.random() * pool.length)] || cur; }
-      applyTheme(name, themePref.get('su_mode', 'dark'));
-    })();
-    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (document.documentElement.dataset.mode === 'system') applyTheme(document.documentElement.dataset.theme, 'system'); });
+    applyTheme(themePref.get('su_mode', 'system'));
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', () => { if (document.documentElement.dataset.mode === 'system') applyTheme('system'); });
   </script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -46,18 +38,6 @@
     }
     ::-webkit-scrollbar-track {
       background: transparent;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.14);
-      border-radius: 6px;
-      border: 2px solid transparent;
-      background-clip: padding-box;
-      transition: background-color 0.2s ease;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.3);
-      border: 2px solid transparent;
-      background-clip: padding-box;
     }
     ::-webkit-scrollbar-corner {
       background: transparent;
@@ -201,22 +181,8 @@
       object-fit: contain;
     }
 
-    .app-status-badge.connected {
-      color: #34d399;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-    }
 
-    .btn-app-config.connected {
-      background: #23252c;
-      color: #d1d5db;
-      border: 1px solid var(--border);
-    }
 
-    .btn-app-config.connected:hover {
-      background: #2e303a;
-      color: var(--zo-primary-fg);
-    }
 
     /* Connection Modal Drawer */
     .app-drawer-overlay {
@@ -337,11 +303,6 @@
       font-weight: 600;
     }
 
-    .settings-billing-btn.active {
-      background: #1d4ed8;
-      color: var(--zo-primary-fg);
-      border-color: var(--zo-primary);
-    }
 
     .settings-subtab-pane {
       display: none;
@@ -507,28 +468,11 @@
     }
 
     :root {
-      --bg-main: var(--zo-bg);
-      --bg-sidebar: var(--zo-sidebar);
-      --bg-pane: var(--zo-bg);
-      --bg-card: var(--zo-card);
-      --bg-card-hover: var(--zo-accent);
-      --bg-input: var(--zo-muted);
-      --border: var(--border);
-      --border-light: rgba(255, 255, 255, 0.07);
-      --border-focus: var(--zo-primary);
-      --text-main: var(--zo-fg);
-      --text-muted: var(--zo-fg-muted);
-      --accent-blue: var(--zo-primary);
-      --accent-blue-hover: var(--accent-blue-hover);
       --accent-green: #10b981;
       --accent-yellow: #f59e0b;
       --accent-purple: #8b5cf6;
       --accent-red: #ef4444;
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 14px;
       --radius-pill: 9999px;
-      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
       --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     }
 
@@ -619,12 +563,6 @@
     }
     .tab-content.active { display: flex; }
 
-    .auto-toggle-btn.active {
-      background: var(--bg-card);
-      color: var(--text-main);
-      border-color: var(--accent-blue);
-      font-weight: 600;
-    }
 
     .btn-sm {
       background: var(--bg-card);
@@ -739,17 +677,6 @@
       align-items: center;
       gap: 8px;
     }
-    .dropdown-select {
-      background: var(--zo-bg);
-      color: var(--text-muted);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 11.5px;
-      padding: 4px 8px;
-      outline: none;
-      cursor: pointer;
-    }
-    .dropdown-select:hover { color: var(--zo-primary-fg); border-color: var(--border-focus); }
     .send-btn {
       background: var(--accent-blue);
       color: var(--zo-primary-fg);
@@ -767,9 +694,7 @@
     .send-btn:hover { background: var(--accent-blue-hover); }
     .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .modal-overlay.active { display: flex; }
 
-    .modal-nav-item.active { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); font-weight: 600; }
 
     /* v3: agent trace, automations, skills, mcp */
     .trace { display: flex; flex-direction: column; gap: 3px; margin: 4px 0 8px; }
@@ -902,8 +827,6 @@
     .tb-btn { height: 32px; min-width: 32px; padding: 0 7px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 7.5px; border: 1px solid transparent; background: transparent; color: color-mix(in oklab, var(--zo-fg) 72%, transparent); cursor: pointer; font-size: 14px; }
     .tb-btn:hover { background: var(--hover); color: var(--zo-fg); }
     .tb-btn svg { width: 18px; height: 18px; flex: none; }
-    .tb-link { text-decoration: none; font-size: 13px; }
-    .tb-links { display: inline-flex; align-items: center; gap: 2px; margin-right: 4px; }
     #chatTitleBtn { min-width: 0; flex: 1 1 auto; max-width: calc(100% - 44px); justify-content: flex-start; }
     #chatTitle { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .tb-chat-toggle { background: var(--zo-primary); color: var(--zo-primary-fg); }
@@ -946,11 +869,6 @@
     body.chat-full #chat-card > * { width: 100%; max-width: 800px; align-self: center; }
     #workspace-card .tab-content { flex: 1; min-height: 0; }
     #content-terminal { background: var(--zo-bg) !important; }
-    .terminal-trash-bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 6px 14px; background: color-mix(in oklab, var(--zo-card) 95%, transparent); border-top: 1px solid var(--border); font-size: 12px; color: var(--zo-fg-muted); flex: none; z-index: 5; }
-    .terminal-trash-bar .tb-left { display: flex; align-items: center; gap: 8px; }
-    .terminal-trash-bar .tb-right { display: flex; align-items: center; gap: 6px; }
-    .terminal-trash-bar .trash-pill-count { display: inline-flex; align-items: center; gap: 4px; padding: 1px 7px; border-radius: 999px; font-size: 11px; background: color-mix(in oklab, var(--zo-fg) 8%, transparent); color: var(--zo-fg-muted); }
-    .terminal-trash-bar .trash-pill-count.has-items { background: color-mix(in oklab, var(--accent-red) 15%, transparent); color: var(--accent-red); font-weight: 500; }
     .nav-badge { margin-left: auto; margin-right: 8px; font-size: 11px; font-weight: 500; padding: 1px 6px; border-radius: 999px; background: color-mix(in oklab, var(--zo-fg) 10%, transparent); color: var(--zo-fg-muted); }
     .nav-badge[hidden] { display: none !important; }
     .nav-item.active .nav-badge { background: color-mix(in oklab, var(--zo-primary) 20%, transparent); color: var(--zo-primary-fg); }
@@ -982,7 +900,6 @@
     .chat-textarea::placeholder { color: var(--zo-fg-muted); }
     .composer-controls { border-top: none; padding: 0 8px 8px; }
     .selector-group { gap: 4px; }
-    .dropdown-select { height: 32px; max-width: 220px; padding: 0 28px 0 10px; font-size: 13px; color: var(--zo-fg); background: color-mix(in oklab, var(--zo-bg) 50%, transparent) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>") no-repeat right 8px center / 14px; border: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); border-radius: 10px; appearance: none; -webkit-appearance: none; text-overflow: ellipsis; }
     .send-btn { height: 32px; padding: 0 12px; border-radius: 10px; background: var(--zo-accent); color: var(--zo-fg-muted); font-size: 13px; font-weight: 400; }
     .send-btn.ready, .send-btn:not(:disabled):hover { background: var(--zo-primary); color: var(--zo-primary-fg); }
     .mention-pop { position: fixed; z-index: 60; min-width: 240px; max-width: 360px; max-height: 260px; overflow: auto; padding: 4px; border-radius: 10px; background: var(--zo-bg); border: 1px solid color-mix(in oklab, var(--zo-border) 40%, transparent); box-shadow: 0 8px 24px rgba(0,0,0,.25); transform: translateY(-100%); }
@@ -1005,9 +922,6 @@
     /* home */
     .home-hw { font-size: 12px; line-height: 16px; color: var(--zo-fg-muted); margin-left: 8px; white-space: nowrap; }
     .home-hw:empty { display: none; }
-    .home-theme { flex: none; display: inline-flex; align-items: center; gap: 5px; height: 24px; padding: 0 7px; margin-left: 4px; border: 0; border-radius: 6px; background: transparent; font: inherit; font-size: 12px; color: var(--zo-fg-muted); cursor: pointer; white-space: nowrap; }
-    .home-theme:hover { background: var(--hover); color: var(--zo-fg); }
-    .home-theme svg { width: 14px; height: 14px; flex: none; }
     .home-center-container { max-width: 768px; padding: 0 16px 24px; }
     .home-composer-card { background: var(--zo-muted); border: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); border-radius: 15px; box-shadow: inset 0 1px 0 rgba(255,255,255,.12); padding: 0; gap: 0; margin-bottom: 12px; }
     .home-composer-input { font-size: 18px; line-height: 1.625; padding: 16px 16px 8px; min-height: 100px; color: var(--zo-fg); }
@@ -1028,13 +942,40 @@
     .zo-iconbtn:hover { background: var(--hover); color: var(--zo-fg); }
     .zo-send { height: 32px; padding: 0 12px; border-radius: 10px; border: 1px solid transparent; background: var(--zo-accent); color: var(--zo-fg-muted); font-size: 13px; cursor: pointer; }
     .zo-send.ready { background: var(--zo-primary); color: var(--zo-primary-fg); }
-    #homeChipList { display: contents; }
     /* page chrome shared by list tabs */
     .pg-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 8px 16px; flex: none; }
     .pg-sub { font-size: 14px; color: var(--zo-fg-muted); }
     .zo-btn-primary { height: 32px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px 0 10px; border-radius: 10px; border: 1px solid transparent; background: var(--zo-primary); color: var(--zo-primary-fg); font-size: 13px; font-weight: 500; cursor: pointer; }
     .zo-btn-primary:hover { background: var(--accent-blue-hover); }
     .zo-btn-primary svg { width: 18px; height: 18px; }
+    .zo-btn-primary:disabled { opacity: .55; cursor: default; }
+    /* Chat / Build segmented control */
+    .mode-seg { display: inline-flex; height: 32px; border: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); border-radius: 10px; overflow: hidden; background: color-mix(in oklab, var(--zo-bg) 50%, transparent); }
+    .mode-btn { height: 100%; padding: 0 12px; border: 0; background: transparent; color: var(--zo-fg-muted); font: inherit; font-size: 13px; cursor: pointer; }
+    .mode-btn + .mode-btn { border-left: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); }
+    .mode-btn[aria-checked="true"] { background: var(--zo-primary); color: var(--zo-primary-fg); }
+    .mode-btn:focus-visible { outline: 2px solid var(--zo-primary); outline-offset: -2px; }
+    /* Plan card: what Build understood and will do, waiting for Run */
+    .plan-card { border: 1px solid var(--zo-primary); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; background: color-mix(in oklab, var(--zo-primary) 6%, transparent); }
+    .plan-head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; font-size: 12px; color: var(--zo-fg-muted); }
+    .plan-head strong { color: var(--zo-fg); font-size: 13px; }
+    .plan-body { font-size: 14px; line-height: 1.5; white-space: normal; }
+    .plan-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .plan-card.done { border-color: var(--zo-border); background: transparent; }
+    .plan-card.done .plan-actions { display: none; }
+    .plan-state { font-size: 12px; color: var(--zo-fg-muted); }
+    .toasts { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); display: flex; flex-direction: column; gap: 8px; z-index: 10000; pointer-events: none; width: max-content; max-width: min(92vw, 520px); }
+    .toast { pointer-events: auto; padding: 10px 14px; border-radius: 10px; background: var(--zo-card); color: var(--zo-fg); border: 1px solid var(--border); font-size: 13px; line-height: 1.4; box-shadow: 0 8px 24px rgba(0,0,0,.25); }
+    .toast.error { border-color: var(--accent-red); }
+    .name-dialog { border: 1px solid var(--border); border-radius: 12px; background: var(--zo-card); color: var(--zo-fg); padding: 18px; width: min(92vw, 420px); }
+    .name-dialog::backdrop { background: rgba(0,0,0,.55); }
+    .name-dialog form { display: flex; flex-direction: column; gap: 10px; margin: 0; }
+    .name-dialog label { font-size: 13px; color: var(--zo-fg-muted); }
+    .name-dialog .zo-input { width: 100%; min-width: 0; box-sizing: border-box; }
+    .name-dialog-actions { display: flex; justify-content: flex-end; gap: 8px; }
+    .chat-welcome { margin: auto; text-align: center; color: var(--zo-fg-muted); font-size: 13.5px; display: flex; flex-direction: column; gap: 6px; padding: 24px; max-width: 46ch; }
+    .cw-title { font-size: 18px; font-weight: 600; color: var(--zo-fg); margin-bottom: 4px; }
+    .cw-line b { color: var(--zo-fg); font-weight: 500; }
     .pg-search { display: flex; align-items: center; padding: 4px 16px 12px; flex: none; }
     .zo-search { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; height: 32px; padding: 5px 10px; border-radius: 10px; border: 1px solid var(--zo-border); background: color-mix(in oklab, var(--zo-bg) 60%, transparent); color: var(--zo-fg-muted); cursor: text; }
     .zo-search input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--zo-fg); font-size: 13px; }
@@ -1109,9 +1050,6 @@
     .zo-list { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; background: color-mix(in oklab, var(--zo-muted) 40%, transparent); overflow: hidden; }
     .zo-list-row { display: flex; align-items: center; gap: 12px; min-height: 53px; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--zo-fg); background: transparent; border-left: none; border-right: none; border-top: none; text-align: left; width: 100%; }
     .zo-list-row:last-child { border-bottom: none; }
-    .zo-list-link { cursor: pointer; }
-    .zo-list-link:hover { background: var(--hover); }
-    .zo-list-link > svg { color: var(--zo-fg-muted); }
     .zo-list-label { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
     .zo-list-sub { font-size: 12px; color: var(--zo-fg-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .zo-status-ok { font-size: 13px; color: var(--accent-green); padding: 0 10px; }
@@ -1160,7 +1098,6 @@
     .secret-row-item:last-child { border-bottom: none; }
     .secret-row-item:hover { background: var(--hover); }
 
-    @media (max-width: 900px) { }
     .auto-editor textarea#autoPrompt { font-size: 18px; line-height: 1.625; padding: 16px; min-height: 260px; background: var(--zo-muted); border: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); border-radius: 15px; box-shadow: inset 0 1px 0 rgba(255,255,255,.12); color: var(--zo-fg); }
     .auto-editor textarea#autoPrompt::placeholder { color: var(--zo-fg-muted); }
     .daychip { padding: 3px 8px; font-size: 12px; }
@@ -1215,7 +1152,6 @@
     .zo-iconbtn.zo-primary { background: var(--zo-primary); color: var(--zo-primary-fg); }
     .zo-iconbtn.zo-primary:hover { background: var(--accent-blue-hover); color: var(--zo-primary-fg); }
     .zo-iconbtn.active { color: var(--zo-primary); background: var(--zo-accent); }
-    .files-badge { position: absolute; top: 2px; right: 2px; min-width: 14px; height: 14px; padding: 0 3px; border-radius: 7px; background: var(--zo-primary); color: var(--zo-primary-fg); font-size: 9px; line-height: 14px; text-align: center; }
     .zo-iconbtn { position: relative; }
     .sk-actions { gap: 4px; }
     .int-disconnect { opacity: 0; }
@@ -1264,10 +1200,7 @@
     .file-viewer-audio { display: flex; flex-direction: column; align-items: center; gap: 16px; }
     .file-viewer-name { font-size: 14px; color: var(--zo-fg-muted); }
     #fileOpenRaw { text-decoration: none; }
-    .files-trash-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 8px 16px 12px; border-bottom: 1px solid var(--border); font-size: 14px; }
-    .files-trash-head .muted { font-size: 12px; color: var(--zo-fg-muted); }
     .zo-pill.zo-danger { color: var(--accent-red); }
-    #trashListContainer { padding: 8px 12px; overflow-y: auto; }
     .ft-trash-row { height: auto; padding: 6px 8px; }
     .ft-trash-row .ft-name { display: flex; flex-direction: column; line-height: 18px; }
     .ft-sub { font-size: 12px; color: var(--zo-fg-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1362,8 +1295,6 @@
     .chan-facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; font-size: 13px; }
     .chan-facts dt { color: var(--zo-fg-muted); } .chan-facts dd { margin: 0; color: var(--zo-fg); overflow-wrap: anywhere; }
     .chan-keys { display: flex; flex-wrap: wrap; gap: 4px; }
-    .chan-webhook { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; }
-    .chan-webhook code { font-family: var(--font-mono); font-size: 12px; padding: 4px 8px; border-radius: 7.5px; background: var(--zo-bg); border: 1px solid var(--border); overflow-wrap: anywhere; }
     .chan-key { cursor: pointer; font-family: var(--font-mono); border: 1px dashed var(--zo-border); background: transparent; }
     .chan-key.set { border-style: solid; color: var(--zo-fg); }
     .chan-key.opt { opacity: .7; }
@@ -1372,21 +1303,16 @@
     .chi-src { display: inline-flex; flex: none; color: var(--zo-fg-muted); margin: 0 2px 0 4px; }
     .mode-row { width: auto; }
     .mode-row button { height: 32px; min-width: 40px; padding: 0 10px; }
-    .theme-row { justify-content: flex-start; gap: 12px; cursor: pointer; font: inherit; color: var(--zo-fg); text-align: left; width: 100%; }
-    .theme-row svg { margin-left: auto; color: var(--zo-fg-muted); }
-    .theme-dot { width: 18px; height: 18px; border-radius: 50%; flex: none; border: 1px solid color-mix(in oklab, var(--zo-fg) 15%, transparent); }
-    .theme-name { font-size: 14px; }
     /* accessibility */
     :focus-visible { outline: 2px solid var(--zo-primary); outline-offset: 0; }
-    .nav-item:focus-visible, .zo-iconbtn:focus-visible, .zo-pill:focus-visible, .tb-btn:focus-visible, .popular-card:focus-visible, .zo-send:focus-visible, .send-btn:focus-visible, .zo-btn-primary:focus-visible, .daychip:focus-visible, .preset-row button:focus-visible { outline: 2px solid var(--zo-primary); outline-offset: -1px; }
+    .nav-item:focus-visible, .zo-iconbtn:focus-visible, .zo-pill:focus-visible, .tb-btn:focus-visible, .zo-send:focus-visible, .send-btn:focus-visible, .zo-btn-primary:focus-visible, .daychip:focus-visible, .preset-row button:focus-visible { outline: 2px solid var(--zo-primary); outline-offset: -1px; }
     /* text fields: show focus on the field border, not a ring that overlaps neighbours */
     input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; border-color: var(--zo-primary); }
     .home-composer-input:focus, .chat-textarea:focus, .home-composer-input:focus-visible, .chat-textarea:focus-visible { outline: none; border-color: transparent; box-shadow: none; }
     .home-composer-card:focus-within, #chat-card .composer-card:focus-within { border-color: var(--zo-input); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 0 0 1px var(--zo-input); }
     .zo-pill:focus-within, .zo-search:focus-within, .sb-search-box:focus-within { border-color: var(--zo-primary); }
-    .zo-pill select:focus-visible, .zo-search input:focus-visible, .sb-search-box input:focus-visible, .dropdown-select:focus-visible { outline: none; }
-    .dropdown-select:focus-visible { border-color: var(--zo-primary); }
-    button.popular-card, button.daychip { font: inherit; }
+    .zo-pill select:focus-visible, .zo-search input:focus-visible, .sb-search-box input:focus-visible { outline: none; }
+    button.daychip { font: inherit; }
 
     .daychip { background: transparent; color: var(--zo-fg-muted); }
     .daychip.on { color: var(--zo-primary-fg); }
@@ -1405,7 +1331,7 @@
       .home-center-container { padding: 0 8px 16px; }
       .home-composer-input { font-size: 16px; }
       .int-grid { grid-template-columns: 1fr; }
-      .integrations-view, .browser-view, .auto-editor { padding-left: 12px; padding-right: 12px; }
+      .integrations-view, .auto-editor { padding-left: 12px; padding-right: 12px; }
       .zo-list-row { flex-wrap: wrap; gap: 8px; }
       .pg-head { flex-wrap: wrap; gap: 8px; }
       .sk-tabs button { min-width: 0; }
@@ -1450,7 +1376,6 @@
       .ft-more { display: inline-flex; }
     }
     ::-webkit-scrollbar-thumb { background: color-mix(in oklab, var(--zo-border) 50%, transparent); }
-    * { scrollbar-color: color-mix(in oklab, var(--zo-border) 50%, transparent) transparent; }
   
     .ai-filter-chip {
       font-size: 11.5px;
@@ -1488,7 +1413,7 @@
   <!-- 1. LEFT SIDEBAR -->
   <aside id="sidebar">
     <div class="sb-top">
-      <span class="sb-brand" aria-label="SU"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">SU</text></svg><span class="home-hw" id="homeHw"></span></span>
+      <span class="sb-brand" aria-label="__AGENT_NAME__"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">__AGENT_INITIALS__</text></svg><span class="home-hw" id="homeHw"></span></span>
       <button class="sb-iconbtn" title="Collapse sidebar" aria-label="Collapse sidebar" onclick="toggleSidebar(true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M9 3v18"></path><path d="m16 15-3-3 3-3"></path></svg></button>
     </div>
     <nav class="nav-list">
@@ -1524,18 +1449,18 @@
 
   <!-- DEDICATED FULL-SCREEN HOME VIEW (MATCHING ZO COMPUTER) -->
   <div id="home-view" style="display: flex;">
-    <div class="topbar"><button class="tb-btn" onclick="newTab()" title="New tab" aria-label="New tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><span class="home-hw" id="homeStats" aria-live="off"></span><button class="home-theme" id="homeTheme" onclick="keepTheme()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.1-.7-.4-1-.2-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5-4.5-9-10-9z"/></svg><span id="homeThemeName"></span></button><span class="tb-links" style="margin-left:auto"><a class="tb-btn tb-link" href="https://supabase.rajoka.com" target="_blank" rel="noopener">Supabase</a></span></div>
+    <div class="topbar"><button class="tb-btn" onclick="newTab()" title="New tab" aria-label="New tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><span class="home-hw" id="homeStats" aria-live="off"></span></div>
     <div class="zo-card">
-      <div class="lock-banner" id="lockBanner" style="display:none">This gateway is open on the LAN with no token. Add <b>SU_TOKEN</b> in <a onclick="openSettings('advanced')">Settings › Advanced</a> and restart to lock it.</div>
+      <div class="lock-banner" id="lockBanner" style="display:none">This gateway is open on the LAN with no token. Add <b>SU_TOKEN</b> in <a onclick="openSettings('advanced')">Settings › Keys</a> and restart to lock it.</div>
       <button class="home-runs" id="homeRuns" hidden onclick="openChatsView()"></button>
       <div class="home-center-container">
         <div class="home-composer-card">
           <textarea id="homeComposerInput" class="home-composer-input" placeholder="What should we do today?" rows="3" onkeydown="handleHomeComposerKey(event)" oninput="document.getElementById('homeSendBtn').classList.toggle('ready', !!this.value.trim())"></textarea>
           <div class="home-composer-bottom">
             <div class="home-composer-controls">
-              <span class="zo-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">SU</text></svg></span>
+              <span class="zo-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">__AGENT_INITIALS__</text></svg></span>
             <label class="zo-pill" title="Model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><select id="homeModelSelect" onchange="setModel(this.value)" aria-label="Model" title="Letters: T text · I image · V video · A audio · F file"><option value="">Loading models…</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
-              <label class="zo-pill" title="Mode"><select class="mode-select" onchange="setChatMode(this.value)" aria-label="How SU handles this message" title="Auto: SU decides · Chat: answer with web lookups, no tools · Build: straight to the build model"><option value="">Auto</option><option value="chat">Chat</option><option value="build">Build</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+              <div class="mode-seg" role="radiogroup" aria-label="How __AGENT_NAME__ handles this message"><button type="button" class="mode-btn" data-mode="chat" role="radio" aria-checked="true" onclick="setChatMode('chat')" title="Answers with web lookups. No access to this machine.">Chat</button><button type="button" class="mode-btn" data-mode="build" role="radio" aria-checked="false" onclick="setChatMode('build')" title="Reads the request, shows a plan for multi-step work, then does it with full tools.">Build</button></div>
             </div>
             <button class="zo-send" id="homeSendBtn" onclick="sendPromptFromHome()">Send</button>
           </div>
@@ -1550,7 +1475,6 @@
       <div class="tabstrip" id="tabStrip" role="tablist" aria-label="Open tabs"></div>
       <button class="tb-btn" onclick="newTab()" title="New tab" aria-label="New tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
-        <span class="tb-links"><a class="tb-btn tb-link" href="https://supabase.rajoka.com" target="_blank" rel="noopener">Supabase</a></span>
         <button class="tb-btn tb-chat-toggle" id="btnOpenChatPanel" onclick="toggleChatPanel(false)" title="Open chat (Ctrl+\\)" aria-label="Open chat" style="display: none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m8 9 3 3-3 3"/></svg></button>
       </div>
     </div>
@@ -1572,27 +1496,6 @@
     <!-- VIEW 1: TERMINAL (Native Arch Linux PTY via xterm.js) -->
     <section class="tab-content" id="content-terminal" style="padding: 0; flex-direction: column; overflow: hidden; background: var(--zo-bg);">
       <div id="terminalContainer" style="flex: 1; min-height: 0; width: 100%; overflow: hidden; padding: 8px 0 4px 8px;"></div>
-      <!-- Recycle Bin footer bar under the terminal view -->
-      <div class="terminal-trash-bar" id="terminalTrashBar">
-        <div class="tb-left">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></svg>
-          <span style="font-weight: 500; color: var(--zo-fg);">Recycle Bin</span>
-          <span id="terminalTrashCount" class="trash-pill-count">0 items</span>
-        </div>
-        <div class="tb-right">
-          <button class="zo-pill" id="terminalToggleTrashDrawerBtn" onclick="toggleTerminalTrashDrawer()" title="Quick view trashed items">Quick View</button>
-          <button class="zo-pill" onclick="openInTab('trash')" title="Open full Recycle Bin tab">Open Tab</button>
-          <button class="zo-pill zo-danger" id="terminalEmptyTrashBtn" onclick="emptyTrashConfirm()" title="Empty trash" style="display: none;">Empty</button>
-        </div>
-      </div>
-      <!-- Collapsible inline drawer under terminal -->
-      <div id="terminalTrashDrawer" style="display: none; height: 180px; flex: none; border-top: 1px solid var(--border); background: var(--zo-card); flex-direction: column; overflow: hidden;">
-        <div style="display: flex; align-items: center; justify-content: space-between; padding: 6px 12px; border-bottom: 1px solid var(--border); font-size: 12px; color: var(--zo-fg-muted);">
-          <span>Recent items in Recycle Bin</span>
-          <button class="zo-iconbtn" onclick="toggleTerminalTrashDrawer()" title="Close quick view" style="width: 22px; height: 22px;">✕</button>
-        </div>
-        <div class="files-list-table" id="terminalTrashDrawerList" style="flex: 1; overflow-y: auto; padding: 4px 8px;"></div>
-      </div>
     </section>
 
     <!-- VIEW: RECYCLE BIN / TRASH -->
@@ -1626,7 +1529,7 @@
     <section class="tab-content" id="content-automations" style="padding: 0; flex-direction: column; overflow: hidden;">
       <div id="autoListView" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
         <div class="pg-head">
-          <span class="pg-sub">Trigger SU on a schedule or set reminders</span>
+          <span class="pg-sub">Trigger __AGENT_NAME__ on a schedule or set reminders</span>
           <button class="zo-btn-primary" onclick="openAutomation(null)"><svg viewBox="0 0 24 24" fill="none" width="18" height="18" aria-hidden="true"><path d="M12.001 5.00003V19.002" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19.002 12.002L4.99998 12.002" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><span>New</span></button>
         </div>
         <div class="pg-search">
@@ -1670,9 +1573,9 @@
               <select id="autoNotify" aria-label="Notify" style="padding: 5px 8px;">
                 <option value="none">None</option><option value="email">Email</option>
               </select>
-              <span id="notifyHint">No routine messages; SU emails you if the automation fails</span>
+              <span id="notifyHint">No routine messages; __AGENT_NAME__ emails you if the automation fails</span>
             </div>
-            <textarea id="autoPrompt" aria-label="Automation prompt" placeholder="What should SU do on each run?"></textarea>
+            <textarea id="autoPrompt" aria-label="Automation prompt" placeholder="What should __AGENT_NAME__ do on each run?"></textarea>
             <div class="sched-detail">
               <span>Model</span>
               <select id="autoModel" aria-label="Model" style="padding: 5px 8px; max-width: 360px;"><option value="">Default</option></select>
@@ -1696,7 +1599,7 @@
     <section class="tab-content" id="content-tasks" style="padding: 0; flex-direction: column; overflow: hidden;">
       <div id="taskListView" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
         <div class="pg-head">
-          <span class="pg-sub">Processes SU keeps running: scrapers, watchers, bots</span>
+          <span class="pg-sub">Processes __AGENT_NAME__ keeps running: scrapers, watchers, bots</span>
           <button class="zo-btn-primary" onclick="openTask(null)"><svg viewBox="0 0 24 24" fill="none" width="18" height="18" aria-hidden="true"><path d="M12.001 5.00003V19.002" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19.002 12.002L4.99998 12.002" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><span>New</span></button>
         </div>
         <div class="pg-search">
@@ -1740,7 +1643,6 @@
         <span class="files-status" id="filesStatus" hidden></span>
         <button class="zo-iconbtn" onclick="loadFiles()" title="Refresh" aria-label="Refresh"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M21 12a9 9 0 1 1-2.64-6.36"/><path d="M21 3v6h-6"/></svg></button>
         <div style="margin-left:auto; display:flex; align-items:center; gap:4px; position:relative;">
-          <button class="zo-iconbtn" id="btnToggleTrash" onclick="toggleTrashView()" title="Trash" aria-label="Trash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></svg><span id="trashBadgeCount" class="files-badge" hidden>0</span></button>
           <button class="zo-iconbtn" id="btnToggleHidden" onclick="toggleHiddenFiles()" title="Show hidden files" aria-label="Show hidden files" aria-pressed="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3"/><path d="M1 14h6M9 8h6M17 16h6"/></svg></button>
           <button class="zo-iconbtn" id="btnFilesView" onclick="toggleFilesView()" title="Grid view" aria-label="Grid view"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><rect width="7" height="7" x="3" y="3" rx="1"/><rect width="7" height="7" x="14" y="3" rx="1"/><rect width="7" height="7" x="14" y="14" rx="1"/><rect width="7" height="7" x="3" y="14" rx="1"/></svg></button>
           <button class="zo-iconbtn" onclick="document.getElementById('fileFilterInput').focus()" title="Search" aria-label="Search"><svg viewBox="0 0 24 24" fill="none" width="18" height="18" aria-hidden="true"><path d="M17 17L21 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg></button>
@@ -1754,16 +1656,6 @@
       <div id="normalFilesContainer" style="display: flex; flex: 1; min-height: 0; flex-direction: column; overflow: hidden;">
         <div class="files-search"><input type="search" id="fileFilterInput" class="files-search-box" placeholder="Search..." oninput="filterFilesList(this.value)" aria-label="Search files"></div>
         <div class="files-tree" id="fileTreeContainer"></div>
-      </div>
-      <div id="trashViewContainer" style="display: none; flex: 1; min-height: 0; flex-direction: column; overflow: hidden;">
-        <div class="files-trash-head">
-          <div><strong>Trash</strong><div class="muted">Items deleted from My Files are held here.</div></div>
-          <div style="display: flex; gap: 8px;">
-            <button class="zo-pill" onclick="toggleTrashView()">Back to files</button>
-            <button class="zo-pill zo-danger" onclick="emptyTrashConfirm()">Empty trash</button>
-          </div>
-        </div>
-        <div class="files-list-table" id="trashListContainer"></div>
       </div>
     </section>
 
@@ -1795,7 +1687,7 @@
           <button class="active" id="skTabInstalled" onclick="switchSkillsTab('installed')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span>Installed</span></button>
           <button id="skTabCatalog" onclick="switchSkillsTab('catalog')"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M2.00127 8.5L1.99911 13.997C1.99782 17.2979 1.99717 18.9484 3.02235 19.974C4.04754 20.9996 5.69801 20.9996 8.99895 20.9997L15 20.9998C18.2994 20.9999 19.949 21 20.9741 19.9751C21.9992 18.9502 21.9996 17.3005 22.0002 14.0012L22.0013 8.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M8.49857 6.5C8.49857 5.09554 8.49857 4.39331 8.83563 3.88886C8.98154 3.67048 9.16904 3.48298 9.38743 3.33706C9.89187 3 10.5941 3 11.9986 3C13.403 3 14.1053 3 14.6097 3.33706C14.8281 3.48298 15.0156 3.67048 15.1615 3.88886C15.4986 4.39331 15.4986 5.09554 15.4986 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19.998 6.50016L3.99885 6.5C2.8944 6.50007 1.99876 7.39568 1.99866 8.50013C1.99876 10.7091 3.79005 12.5004 5.99901 12.5006H17.9978C20.2068 12.5005 21.998 10.7093 21.9981 8.5003C21.998 7.39582 21.1024 6.50023 19.998 6.50016Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M9.99857 12.5V13.5C9.99857 13.965 9.99857 14.1975 10.0497 14.3882C10.1884 14.9059 10.5927 15.3102 11.1103 15.4489C11.3011 15.5 11.5336 15.5 11.9986 15.5C12.4636 15.5 12.696 15.5 12.8868 15.4489C13.4044 15.3102 13.8088 14.9059 13.9475 14.3882C13.9986 14.1975 13.9986 13.965 13.9986 13.5V12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><span>Catalog</span></button>
         </div>
-        <span class="pg-sub" style="font-size: 13px;">Skills help SU do more complex tasks for you.</span>
+        <span class="pg-sub" style="font-size: 13px;">Skills help __AGENT_NAME__ do more complex tasks for you.</span>
       </div>
       <div class="pg-search" style="padding-left: 12px; padding-right: 12px;"><label class="zo-search" style="border-radius: 10px;"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M17 17L21 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><input type="search" id="skillSearch" placeholder="Search..." oninput="renderSkills()" aria-label="Search skills"></label></div>
       <div style="overflow-y: auto; flex: 1; min-height: 0; padding: 0 12px 20px;" id="skillsList"></div>
@@ -1804,10 +1696,10 @@
     <section class="tab-content" id="content-integrations">
       <div class="integrations-view">
         <div class="int-quick">
-          <button class="int-quick-item" onclick="openSettings('channels')"><span class="int-quick-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 16 0z"/></svg></span><span>Reach SU by email or phone</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="int-quick-item" onclick="openSettings('channels')"><span class="int-quick-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 16 0z"/></svg></span><span>Reach __AGENT_NAME__ by email or phone</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="int-quick-item" onclick="switchNav('files')"><span class="int-quick-ico"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M8 7H16.75C18.8567 7 19.91 7 20.6667 7.50559C20.9943 7.72447 21.2755 8.00572 21.4944 8.33329C22 9.08996 22 10.1433 22 12.25C22 15.7612 22 17.5167 21.1573 18.7779C20.7926 19.3238 20.3238 19.7926 19.7779 20.1573C18.5167 21 16.7612 21 13.25 21H12C7.28595 21 4.92893 21 3.46447 19.5355C2 18.0711 2 15.714 2 11V7.94427C2 6.1278 2 5.21956 2.38032 4.53806C2.65142 4.05227 3.05227 3.65142 3.53806 3.38032C4.21956 3 5.1278 3 6.94427 3C8.10802 3 8.6899 3 9.19926 3.19101C10.3622 3.62712 10.8418 4.68358 11.3666 5.73313L12 7" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path></svg></span><span>Browse and edit files in My Files</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         </div>
-        <div class="int-notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><div><strong>Don't see an integration?</strong> Ask SU to help you integrate any service. Add your API key in <a onclick="openSettings('advanced')">Settings &gt; Advanced</a>. You can also add a custom MCP server below.</div></div>
+        <div class="int-notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><div><strong>Don't see an integration?</strong> Ask __AGENT_NAME__ to help you integrate any service. Add your API key in <a onclick="openSettings('advanced')">Settings &gt; Advanced</a>. You can also add a custom MCP server below.</div></div>
         <div class="int-grid" id="integrationsConnected"></div>
         <div id="mcpList" class="int-grid"></div>
         <div class="int-search-row">
@@ -1823,16 +1715,14 @@
       <div class="settings-view">
         <div class="settings-subnav-container">
           <div class="settings-pill-nav">
-            <button class="settings-nav-item" id="snav-profile" onclick="switchSettingsSubTab('profile')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Profile</span></button>
-            <button class="settings-nav-item active" id="snav-ai" onclick="switchSettingsSubTab('ai')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><span>AI</span></button>
-            <button class="settings-nav-item" id="snav-channels" onclick="switchSettingsSubTab('channels')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 16 0z"/></svg><span>Channels</span></button>
-            <button class="settings-nav-item" id="snav-tools" onclick="switchSettingsSubTab('tools')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span>Tools</span></button>
-            <button class="settings-nav-item" id="snav-ux" onclick="switchSettingsSubTab('ux')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg><span>UX</span></button>
-            <button class="settings-nav-item" id="snav-advanced" onclick="switchSettingsSubTab('advanced')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M2 18v3h3l9.5-9.5a4.5 4.5 0 1 0-3-3z"/><circle cx="16.5" cy="7.5" r="1"/></svg><span>Advanced</span></button>
+            <button class="settings-nav-item active" id="snav-models" onclick="switchSettingsSubTab('models')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><span>Models</span></button>
+            <button class="settings-nav-item" id="snav-agent" onclick="switchSettingsSubTab('agent')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Agent</span></button>
+            <button class="settings-nav-item" id="snav-keys" onclick="switchSettingsSubTab('keys')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15 19 4l2 2-3 3-2-2-2 2 2 2-1.5 1.5"/></svg><span>Keys</span></button>
+            <button class="settings-nav-item" id="snav-system" onclick="switchSettingsSubTab('system')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M12 20h9"/><path d="M4 4h16v10H4z"/><path d="M8 20l4-6 4 6"/></svg><span>System</span></button>
           </div>
         </div>
 
-        <div class="settings-subtab-pane active" id="spane-ai">
+        <div class="settings-subtab-pane active" id="spane-models">
           <div class="settings-section-title">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg>
             <span>AI Providers</span>
@@ -1899,7 +1789,19 @@
             </div>
           </div>
 
-          <!-- RULES -->
+          <!-- SEARCH -->
+          <div class="settings-section-title" style="margin-top: 28px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg><span>Web search</span></div>
+          <div class="settings-section-subtitle">Search is powered by <a href="https://tinyfish.ai" target="_blank" rel="noopener" style="color: var(--zo-primary);">TinyFish</a>. Without a key, __AGENT_NAME__ falls back to scraping DuckDuckGo, which is slower and rate limited.</div>
+          <div class="zo-list">
+            <div class="zo-list-row"><span class="zo-list-label"><span>Status</span><span class="zo-list-sub" id="searchStatus">Checking…</span></span></div>
+            <div class="zo-list-row"><span class="zo-list-label"><span>TinyFish API key</span><span class="zo-list-sub">Saved as TINYFISH_API_KEY</span></span><span style="display: flex; gap: 8px; align-items: center;"><input type="password" id="searchKeyInput" class="zo-input" placeholder="paste key" aria-label="TinyFish API key" autocomplete="new-password" onkeydown="if(event.key==='Enter')saveSearchKey()"><button class="zo-btn-primary" onclick="saveSearchKey()">Save</button></span></div>
+            <div class="zo-list-row"><span class="zo-list-label"><span>Result country</span><span class="zo-list-sub">Optional two-letter code such as US or DE (SU_SEARCH_LOCATION)</span></span><input id="searchLocInput" class="zo-input" style="min-width: 80px; max-width: 110px;" maxlength="2" placeholder="any" aria-label="Search country code" onchange="saveSearchLocation(this.value)"></div>
+          </div>
+        </div>
+
+        <div class="settings-subtab-pane" id="spane-agent">
+          <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Agent</span></div>
+          <div class="settings-section-subtitle">How __AGENT_NAME__ behaves. Its operating manual is <code>workspace/SU.md</code>; its name comes from SU_AGENT_NAME under Keys › System.</div>
           <div class="settings-section-title" style="margin-top: 28px;">
             <svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M8 7H16.75C18.8567 7 19.91 7 20.6667 7.50559C20.9943 7.72447 21.2755 8.00572 21.4944 8.33329C22 9.08996 22 10.1433 22 12.25C22 15.7612 22 17.5167 21.1573 18.7779C20.7926 19.3238 20.3238 19.7926 19.7779 20.1573C18.5167 21 16.7612 21 13.25 21H12C7.28595 21 4.92893 21 3.46447 19.5355C2 18.0711 2 15.714 2 11V7.94427C2 6.1278 2 5.21956 2.38032 4.53806C2.65142 4.05227 3.05227 3.65142 3.53806 3.38032C4.21956 3 5.1278 3 6.94427 3C8.10802 3 8.6899 3 9.19926 3.19101C10.3622 3.62712 10.8418 4.68358 11.3666 5.73313L12 7" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path></svg>
             <span>Rules</span>
@@ -1907,50 +1809,50 @@
           <div class="settings-section-subtitle">System instructions applied to every chat and automation (saved to workspace/RULES.md).</div>
           <textarea id="rulesText" class="zo-textarea" aria-label="Rules" placeholder="e.g. Always reply in British English. Never delete files outside Projects/."></textarea>
           <div style="display: flex; justify-content: flex-end; margin-top: 8px;"><button class="zo-btn-primary" id="rulesSaveBtn" onclick="saveRules()">Save rules</button></div>
+
+          <div class="settings-section-title" style="margin-top: 28px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M12 3a4 4 0 0 0-4 4v1a4 4 0 0 0-3 3.9A4 4 0 0 0 8 19h1a3 3 0 0 0 6 0h1a4 4 0 0 0 3-7.1A4 4 0 0 0 16 8V7a4 4 0 0 0-4-4z"/></svg><span>Memory</span></div>
+          <div class="settings-section-subtitle">Durable facts __AGENT_NAME__ kept from earlier chats and uses in new ones. Forget anything wrong or private.</div>
+          <div class="zo-list" id="memoryList"><div class="pg-empty">Loading…</div></div>
         </div>
 
-        <div class="settings-subtab-pane" id="spane-channels">
-          <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 16 0z"/></svg><span>Channels</span></div>
-          <div class="settings-section-subtitle">Inbound channels: email SU or call it while you are away. Automations with Notify use email.</div>
-          <div id="channelsList" class="chan-list"><div class="pg-empty">Loading…</div></div>
-        </div>
+        <div class="settings-subtab-pane" id="spane-keys">
+          <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M2 18v3h3l9.5-9.5a4.5 4.5 0 1 0-3-3z"/><circle cx="16.5" cy="7.5" r="1"/></svg><span>Secrets</span></div>
+          <div class="settings-section-subtitle secret-sub-row">
+            <span>Every key and secret lives in .env. System, AI provider and tool keys have their own groups; group the rest by project so you can say "use the Stripe keys" in chat. __AGENT_NAME__ sees the names, never the values.</span>
+            <button class="zo-btn-primary" onclick="toggleImport()" aria-expanded="false" id="importToggle">Import .env</button>
+          </div>
+          <div class="secret-add-bar">
+            <input type="text" id="advProjName" class="secret-input-key" aria-label="Project name" autocomplete="off" placeholder="New project name">
+            <input type="text" id="advProjNote" class="secret-input-val" aria-label="Project note" autocomplete="off" placeholder="one-line note (what it is, which database)" onkeydown="if(event.key==='Enter')addProject()">
+            <button class="zo-pill" onclick="addProject()">Add project</button>
+          </div>
 
-        <div class="settings-subtab-pane" id="spane-ux">
-          <div class="pg-head" style="padding: 0 0 12px;">
-            <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="20" height="20" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.7-.7 1.7-1.7 0-.4-.2-.8-.4-1.1-.3-.3-.4-.7-.4-1.1 0-.9.8-1.7 1.7-1.7H16c3.3 0 6-2.7 6-6C22 6 17.5 2 12 2z"/></svg><span>Theme</span></div>
-            <div class="preset-row mode-row" role="group" aria-label="Appearance">
-              <button type="button" id="mode-light" onclick="setMode('light')" aria-label="Light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
-              <button type="button" id="mode-dark" onclick="setMode('dark')" aria-label="Dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
-              <button type="button" id="mode-system" onclick="setMode('system')" aria-label="System" title="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+          <!-- Add Secret Bar -->
+          <div class="secret-add-bar">
+            <input type="text" id="advSecretKey" class="secret-input-key" aria-label="Secret name" autocomplete="off" spellcheck="false" placeholder="KEY_NAME (or paste .env)" onpaste="handleSecretPaste(event)">
+            <input type="text" id="advSecretVal" class="secret-input-val" placeholder="value" aria-label="Secret value" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')addAdvSecret()">
+            <select id="advSecretProject" class="secret-proj" aria-label="Project for the new key"></select>
+            <button class="zo-btn-primary" onclick="addAdvSecret()">Add</button>
+          </div>
+          <div class="secret-import" id="secretImport" hidden>
+            <textarea id="importText" class="zo-textarea" rows="6" placeholder="Paste .env contents here (KEY=VALUE per line; comments and export prefixes are fine)" aria-label="Paste .env contents" spellcheck="false"></textarea>
+            <div class="secret-import-row">
+              <label class="zo-pill" style="cursor: pointer;"><input type="file" id="importFile" accept=".env,text/plain,.txt" style="display:none" onchange="readImportFile(this)">Choose file…</label>
+              <label class="secret-import-check"><input type="checkbox" id="importOverwrite" checked> Overwrite existing</label>
+              <span class="zo-list-sub" id="importStatus"></span>
+              <button class="zo-btn-primary" id="importBtn" onclick="importSecrets()" style="margin-left: auto;">Import</button>
             </div>
           </div>
-          <div class="zo-list" style="margin-bottom: 12px;"><label class="zo-list-row" style="display: flex; align-items: center; gap: 12px; cursor: pointer;"><span style="flex: 1; min-width: 0;"><span style="display: block;">Surprise me</span><span style="display: block; font-size: 12px; color: var(--zo-fg-muted);">A different theme on every load. Picking a theme below turns this off.</span></span><span class="zo-switch"><input type="checkbox" id="themeShuffle" onchange="setThemeShuffle(this.checked)"><span class="zo-switch-track"></span></span></label></div>
-          <div class="zo-list" id="themeList" role="radiogroup" aria-label="Theme"></div>
+
+          <!-- Dynamic Secrets List with View, Edit, Delete -->
+          <div id="advSecretsList" class="secrets-list">
+            <p style="color: var(--text-muted); font-size: 12px; padding: 14px;">Loading environment variables...</p>
+          </div>
         </div>
 
-        <div class="settings-subtab-pane" id="spane-tools">
-          <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span>Tools</span></div>
-          <div class="settings-section-subtitle">What SU can operate on this box.</div>
-          <div class="zo-list">
-            <button class="zo-list-row zo-list-link" onclick="switchNav('integrations')"><span class="int-quick-ico"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M9.14339 10.691L9.35031 10.4841C11.329 8.50532 14.5372 8.50532 16.5159 10.4841C18.4947 12.4628 18.4947 15.671 16.5159 17.6497L13.6497 20.5159C11.671 22.4947 8.46279 22.4947 6.48405 20.5159C4.50532 18.5372 4.50532 15.329 6.48405 13.3503L6.9484 12.886" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path><path d="M17.0516 11.114L17.5159 10.6497C19.4947 8.67095 19.4947 5.46279 17.5159 3.48405C15.5372 1.50532 12.329 1.50532 10.3503 3.48405L7.48405 6.35031C5.50532 8.32904 5.50532 11.5372 7.48405 13.5159C9.46279 15.4947 12.671 15.4947 14.6497 13.5159L14.8566 13.309" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path></svg></span><span class="zo-list-label"><span>Integrations &amp; MCP servers</span><span class="zo-list-sub">API keys and remote MCP tools</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-            <button class="zo-list-row zo-list-link" onclick="switchNav('files')"><span class="int-quick-ico"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M8 7H16.75C18.8567 7 19.91 7 20.6667 7.50559C20.9943 7.72447 21.2755 8.00572 21.4944 8.33329C22 9.08996 22 10.1433 22 12.25C22 15.7612 22 17.5167 21.1573 18.7779C20.7926 19.3238 20.3238 19.7926 19.7779 20.1573C18.5167 21 16.7612 21 13.25 21H12C7.28595 21 4.92893 21 3.46447 19.5355C2 18.0711 2 15.714 2 11V7.94427C2 6.1278 2 5.21956 2.38032 4.53806C2.65142 4.05227 3.05227 3.65142 3.53806 3.38032C4.21956 3 5.1278 3 6.94427 3C8.10802 3 8.6899 3 9.19926 3.19101C10.3622 3.62712 10.8418 4.68358 11.3666 5.73313L12 7" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path></svg></span><span class="zo-list-label"><span>Workspace files</span><span class="zo-list-sub" id="toolsWorkspacePath">Workspace folder</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
-          </div>
-
-          <div class="settings-section-title" style="margin-top: 28px;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M2 18v3h3l9.5-9.5a4.5 4.5 0 1 0-3-3z"/><circle cx="16.5" cy="7.5" r="1"/></svg><span>Tool keys</span></div>
-          <div class="settings-section-subtitle">Keys for connected tools and apps, such as Pipedream.</div>
-          <div class="secret-add-bar">
-            <input type="text" id="toolsSecretKey" class="secret-input-key" aria-label="Secret name" autocomplete="off" spellcheck="false" placeholder="KEY_NAME">
-            <input type="text" id="toolsSecretVal" class="secret-input-val" placeholder="value" aria-label="Secret value" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')addSecretFrom('toolsSecretKey','toolsSecretVal','tools')">
-            <button class="zo-btn-primary" onclick="addSecretFrom('toolsSecretKey','toolsSecretVal','tools')">Add</button>
-          </div>
-          <div id="toolsSecretsList" class="secrets-list"><div class="pg-empty">Loading…</div></div>
-        </div>
-
-        <!-- 5. ADVANCED SUBTAB: FULL SECRETS CRUD (.ENV) -->
-        <div class="settings-subtab-pane" id="spane-profile">
-          <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Profile</span></div>
-          <div class="settings-section-subtitle">SU's own identity and system keys: its email and password, your phone, mail servers, model and app keys. Project keys live under Advanced.</div>
-
+        <div class="settings-subtab-pane" id="spane-system">
+          <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M12 20h9"/><path d="M4 4h16v10H4z"/><path d="M8 20l4-6 4 6"/></svg><span>System</span></div>
+          <div class="settings-section-subtitle">Updates, appearance and inbound channels. Server settings such as SU_TZ, SU_PORT and SU_AGENT_NAME are keys under Keys › System; the service restarts to apply them.</div>
           <!-- SYSTEM & UPDATES CARD -->
           <div class="system-update-card" id="systemUpdateCard">
             <div class="suc-header">
@@ -1983,51 +1885,20 @@
             </div>
           </div>
 
-          <div class="settings-section-subtitle" style="margin-top: 24px; font-weight: 600; color: var(--text-primary);">System Environment Variables</div>
-          <div class="secret-add-bar">
-            <input type="text" id="profSecretKey" class="secret-input-key" aria-label="Secret name" autocomplete="off" spellcheck="false" placeholder="KEY_NAME">
-            <input type="text" id="profSecretVal" class="secret-input-val" placeholder="value" aria-label="Secret value" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')addSecretFrom('profSecretKey','profSecretVal','profile')">
-            <button class="zo-btn-primary" onclick="addSecretFrom('profSecretKey','profSecretVal','profile')">Add</button>
-          </div>
-          <div id="profSecretsList" class="secrets-list"><div class="pg-empty">Loading…</div></div>
+          <div class="settings-section-subtitle" style="margin-top: 24px; font-weight: 600; color: var(--zo-fg);">Appearance</div>
+          <div class="zo-list" style="margin-bottom: 24px;"><div class="zo-list-row"><span class="zo-list-label"><span>Theme</span><span class="zo-list-sub">Light, dark, or follow the system</span></span><div class="preset-row mode-row" role="group" aria-label="Appearance">
+              <button type="button" id="mode-light" onclick="setMode('light')" aria-label="Light" title="Light"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg></button>
+              <button type="button" id="mode-dark" onclick="setMode('dark')" aria-label="Dark" title="Dark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></button>
+              <button type="button" id="mode-system" onclick="setMode('system')" aria-label="System" title="System"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg></button>
+            </div></div></div>
+
+          <div class="settings-section-subtitle" style="font-weight: 600; color: var(--zo-fg);">Inbound channels</div>
+          <div class="settings-section-subtitle">Inbound channels: email __AGENT_NAME__ or call it while you are away. Automations with Notify use email.</div>
+          <div id="channelsList" class="chan-list"><div class="pg-empty">Loading…</div></div>
         </div>
 
-        <div class="settings-subtab-pane" id="spane-advanced">
-          <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M2 18v3h3l9.5-9.5a4.5 4.5 0 1 0-3-3z"/><circle cx="16.5" cy="7.5" r="1"/></svg><span>Secrets</span></div>
-          <div class="settings-section-subtitle secret-sub-row">
-            <span>Project keys, grouped so you can say "use the PI keys" in chat. SU sees the names, never the values. Keys not in any project sit under Other.</span>
-            <button class="zo-btn-primary" onclick="toggleImport()" aria-expanded="false" id="importToggle">Import .env</button>
-          </div>
-          <div class="secret-add-bar">
-            <input type="text" id="advProjName" class="secret-input-key" aria-label="Project name" autocomplete="off" placeholder="New project name">
-            <input type="text" id="advProjNote" class="secret-input-val" aria-label="Project note" autocomplete="off" placeholder="one-line note (what it is, which database)" onkeydown="if(event.key==='Enter')addProject()">
-            <button class="zo-pill" onclick="addProject()">Add project</button>
-          </div>
-
-          <!-- Add Secret Bar -->
-          <div class="secret-add-bar">
-            <input type="text" id="advSecretKey" class="secret-input-key" aria-label="Secret name" autocomplete="off" spellcheck="false" placeholder="KEY_NAME (or paste .env)" onpaste="handleSecretPaste(event)">
-            <input type="text" id="advSecretVal" class="secret-input-val" placeholder="value" aria-label="Secret value" autocomplete="off" spellcheck="false" onkeydown="if(event.key==='Enter')addAdvSecret()">
-            <select id="advSecretProject" class="secret-proj" aria-label="Project for the new key"></select>
-            <button class="zo-btn-primary" onclick="addAdvSecret()">Add</button>
-          </div>
-          <div class="secret-import" id="secretImport" hidden>
-            <textarea id="importText" class="zo-textarea" rows="6" placeholder="Paste .env contents here (KEY=VALUE per line; comments and export prefixes are fine)" aria-label="Paste .env contents" spellcheck="false"></textarea>
-            <div class="secret-import-row">
-              <label class="zo-pill" style="cursor: pointer;"><input type="file" id="importFile" accept=".env,text/plain,.txt" style="display:none" onchange="readImportFile(this)">Choose file…</label>
-              <label class="secret-import-check"><input type="checkbox" id="importOverwrite" checked> Overwrite existing</label>
-              <span class="zo-list-sub" id="importStatus"></span>
-              <button class="zo-btn-primary" id="importBtn" onclick="importSecrets()" style="margin-left: auto;">Import</button>
-            </div>
-          </div>
-
-          <!-- Dynamic Secrets List with View, Edit, Delete -->
-          <div id="advSecretsList" class="secrets-list">
-            <p style="color: var(--text-muted); font-size: 12px; padding: 14px;">Loading environment variables...</p>
-          </div>
-        </div>
-
-        </section>
+      </div>
+    </section>
     </div>
   </main>
 
@@ -2047,7 +1918,7 @@
         <div class="composer-controls">
           <div class="selector-group">
             <label class="zo-pill" title="Model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><select id="modelSelect" onchange="setModel(this.value)" title="Letters: T text · I image · V video · A audio · F file"><option value="">Loading models...</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
-            <label class="zo-pill" title="Mode"><select class="mode-select" onchange="setChatMode(this.value)" aria-label="How SU handles this message" title="Auto: SU decides · Chat: answer with web lookups, no tools · Build: straight to the build model"><option value="">Auto</option><option value="chat">Chat</option><option value="build">Build</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+            <div class="mode-seg" role="radiogroup" aria-label="How __AGENT_NAME__ handles this message"><button type="button" class="mode-btn" data-mode="chat" role="radio" aria-checked="true" onclick="setChatMode('chat')" title="Answers with web lookups. No access to this machine.">Chat</button><button type="button" class="mode-btn" data-mode="build" role="radio" aria-checked="false" onclick="setChatMode('build')" title="Reads the request, shows a plan for multi-step work, then does it with full tools.">Build</button></div>
           </div>
           <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
         </div>
@@ -2234,7 +2105,7 @@
     }
     async function deleteChat(id, title) {
       if (!confirm('Delete chat “' + title + '”?')) return;
-      try { await fetchJson('/api/conversations/' + id, { method: 'DELETE' }); } catch (e) { alert('Could not delete chat: ' + e.message); return; }
+      try { await fetchJson('/api/conversations/' + id, { method: 'DELETE' }); } catch (e) { notify('Could not delete chat: ' + e.message); return; }
       if (id === currentConversationId) newChat(); else renderSidebarChatHistory();
     }
     let sidebarSearchTimer = null;
@@ -2322,7 +2193,7 @@
       strip.innerHTML = wsTabs.map(t => `<div class="wtab${t === activeTab ? ' active' : ''}" role="tab" tabindex="0" aria-selected="${t === activeTab}" onclick="focusTab('${t}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();focusTab('${t}')}" onauxclick="if(event.button===1)closeTab('${t}')">${tabIcon(t)}<span class="wtab-label">${esc(TAB_META[t])}</span><button class="wtab-x" onclick="event.stopPropagation();closeTab('${t}')" title="Close tab" aria-label="Close ${esc(TAB_META[t])}">${X_ICON}</button></div>`).join('');
       const a = strip.querySelector('.wtab.active'); if (a) a.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     }
-    function openInTab(name, inNew) {
+    function openInTab(name) {
       if (activeTab === 'newtab') {
         const i = wsTabs.indexOf('newtab');
         if (i >= 0) wsTabs.splice(i, 1);
@@ -2440,19 +2311,13 @@
       }
     }
 
-    function injectHomePrompt(text) {
-      const el = document.getElementById('homeComposerInput');
-      el.value = text; el.focus(); el.dispatchEvent(new Event('input'));
-    }
-
     function sendPromptFromHome() {
       const input = document.getElementById('homeComposerInput');
       const text = input.value.trim();
       if (!text) return;
       input.value = '';
-      switchNav('files');
+      showWorkspaceView();
       toggleChatPanel(false);
-      
       // Inject into chat drawer composer and send
       const chatInput = document.getElementById('chatInput');
       chatInput.value = text;
@@ -2525,7 +2390,7 @@
 
     function connectTerminalSocket() {
       const protocol = location.protocol === 'https:' ? 'wss:' : 'ws:';
-      const wsUrl = `${protocol}//${location.host}/api/terminal/ws` + (SU_TOKEN ? '?token=' + encodeURIComponent(SU_TOKEN) : '');
+      const wsUrl = `${protocol}//${location.host}/api/terminal/ws`;
       if (terminalSocket && terminalSocket.readyState === WebSocket.CONNECTING) return;
       terminalSocket = new WebSocket(wsUrl);
       terminalSocket.binaryType = 'arraybuffer';
@@ -2579,43 +2444,18 @@
 
     async function updateTrashBadge() {
       try {
-        const res = await api('/api/files/trash');
-        const d = await res.json();
+        const d = await (await api('/api/files/trash')).json();
         const count = d.count || 0;
-
-        // 1. Files tab toolbar badge
-        const badge = document.getElementById('trashBadgeCount');
-        if (badge) { badge.textContent = count || '0'; badge.hidden = !count; }
-        const b = document.getElementById('btnToggleTrash');
-        if (b) b.setAttribute('aria-label', 'Trash, ' + count + ' items');
-
-        // 2. Sidebar navigation badge (under Terminal)
         const navBadge = document.getElementById('navTrashBadge');
-        if (navBadge) {
-          navBadge.textContent = count;
-          navBadge.hidden = !count;
-        }
-
-        // 3. Terminal bottom bar trash count
-        const termCount = document.getElementById('terminalTrashCount');
-        if (termCount) {
-          termCount.textContent = count === 1 ? '1 item' : `${count} items`;
-          termCount.classList.toggle('has-items', count > 0);
-        }
-        const termEmptyBtn = document.getElementById('terminalEmptyTrashBtn');
-        if (termEmptyBtn) termEmptyBtn.style.display = count > 0 ? 'inline-flex' : 'none';
-
-        // 4. Dedicated tab count label & empty button
+        if (navBadge) { navBadge.textContent = count; navBadge.hidden = !count; }
         const dedCount = document.getElementById('dedicatedTrashCountLabel');
         if (dedCount) dedCount.textContent = count ? `${count} item${count === 1 ? '' : 's'} in Recycle Bin` : 'Recycle Bin is empty';
         const dedEmptyBtn = document.getElementById('dedicatedEmptyTrashBtn');
         if (dedEmptyBtn) dedEmptyBtn.style.display = count > 0 ? 'inline-flex' : 'none';
-
         return d;
-      } catch (e) {
-        return { count: 0, items: [] };
-      }
+      } catch (e) { return { count: 0, items: [] }; }
     }
+    function refreshTrashViews() { updateTrashBadge(); if (document.getElementById('content-trash')?.classList.contains('active')) loadDedicatedTrashList(); }
 
     async function trashFileItem(e, path) {
       if (e) e.stopPropagation();
@@ -2627,62 +2467,11 @@
           body: JSON.stringify({ path })
         });
         const d = await res.json();
-        if (d.ok) {
-          loadFiles();
-          updateTrashBadge();
-          if (document.getElementById('content-trash')?.classList.contains('active')) {
-            loadDedicatedTrashList();
-          }
-          if (document.getElementById('terminalTrashDrawer')?.style.display !== 'none') {
-            loadTerminalTrashDrawer();
-          }
-        } else {
-          alert('Error: ' + (d.detail || 'Could not move to trash'));
+        if (d.ok) { loadFiles(); refreshTrashViews(); notify('Moved to Recycle Bin'); } else {
+          notify('Error: ' + (d.detail || 'Could not move to trash'));
         }
       } catch (err) {
-        alert('Failed: ' + err.message);
-      }
-    }
-
-    let isTrashViewActive = false;
-    async function toggleTrashView() {
-      isTrashViewActive = !isTrashViewActive;
-      const normal = document.getElementById('normalFilesContainer');
-      const trash = document.getElementById('trashViewContainer');
-      if (normal) normal.style.display = isTrashViewActive ? 'none' : 'flex';
-      if (trash) trash.style.display = isTrashViewActive ? 'flex' : 'none';
-
-      if (isTrashViewActive) {
-        loadTrashList();
-      }
-    }
-
-    async function loadTrashList() {
-      const container = document.getElementById('trashListContainer');
-      if (!container) return;
-      container.innerHTML = '<div class="files-empty">Loading…</div>';
-      try {
-        const d = await updateTrashBadge();
-        if (!d.items || d.items.length === 0) {
-          container.innerHTML = '<div class="files-empty">Recycle Bin is empty.</div>';
-          return;
-        }
-
-        container.innerHTML = '';
-        d.items.forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'ft-row ft-trash-row';
-          row.innerHTML = `<span class="ft-ico">${item.is_dir ? FILE_ICONS.dir : extBadge(item.name)}</span>
-            <span class="ft-name" style="flex: 1; min-width: 0;"><span>${esc(item.name)}</span><span class="ft-sub">${esc(item.orig_path)}</span></span>
-            <span class="ft-date">${esc(item.trashed_at || '')}</span>
-            <div style="display: flex; gap: 6px; align-items: center;">
-              <button class="zo-pill" onclick="restoreTrashItem(${jsq(item.name)})">Restore</button>
-              <button class="zo-pill zo-danger" onclick="permanentlyDeleteTrashItem(${jsq(item.name)})" title="Permanently delete">Delete</button>
-            </div>`;
-          container.appendChild(row);
-        });
-      } catch (e) {
-        container.innerHTML = `<div class="files-empty" style="color: var(--accent-red);">Failed: ${esc(e.message)}</div>`;
+        notify('Failed: ' + err.message);
       }
     }
 
@@ -2690,13 +2479,9 @@
       if (!confirm('Permanently delete all items in Recycle Bin? This cannot be undone.')) return;
       try {
         const d = await fetchJson('/api/files/trash/empty', { method: 'POST' });
-        await updateTrashBadge();
-        if (isTrashViewActive) loadTrashList();
-        if (document.getElementById('content-trash')?.classList.contains('active')) loadDedicatedTrashList();
-        if (document.getElementById('terminalTrashDrawer')?.style.display !== 'none') loadTerminalTrashDrawer();
-        alert(`Recycle Bin emptied. Purged ${d.purged_count || 0} items.`);
+        refreshTrashViews(); notify(`Recycle Bin emptied: ${d.purged_count || 0} items removed`);
       } catch (e) {
-        alert('Failed: ' + e.message);
+        notify('Failed: ' + e.message);
       }
     }
 
@@ -2709,17 +2494,12 @@
         });
         const d = await res.json();
         if (d.ok) {
-          alert('Item restored to: ' + d.restored);
-          await updateTrashBadge();
-          if (isTrashViewActive) loadTrashList();
-          if (document.getElementById('content-trash')?.classList.contains('active')) loadDedicatedTrashList();
-          if (document.getElementById('terminalTrashDrawer')?.style.display !== 'none') loadTerminalTrashDrawer();
-          loadFiles();
+          notify('Restored to ' + d.restored); refreshTrashViews(); loadFiles();
         } else {
-          alert('Restore failed: ' + (d.detail || 'Unknown error'));
+          notify('Restore failed: ' + (d.detail || 'Unknown error'));
         }
       } catch (e) {
-        alert('Restore failed: ' + e.message);
+        notify('Restore failed: ' + e.message);
       }
     }
 
@@ -2733,15 +2513,12 @@
         });
         const d = await res.json();
         if (d.ok) {
-          await updateTrashBadge();
-          if (isTrashViewActive) loadTrashList();
-          if (document.getElementById('content-trash')?.classList.contains('active')) loadDedicatedTrashList();
-          if (document.getElementById('terminalTrashDrawer')?.style.display !== 'none') loadTerminalTrashDrawer();
+          refreshTrashViews();
         } else {
-          alert('Delete failed: ' + (d.detail || 'Unknown error'));
+          notify('Delete failed: ' + (d.detail || 'Unknown error'));
         }
       } catch (e) {
-        alert('Delete failed: ' + e.message);
+        notify('Delete failed: ' + e.message);
       }
     }
 
@@ -2808,62 +2585,6 @@
         (item.orig_path || '').toLowerCase().includes(q)
       );
       renderDedicatedTrashList(filtered);
-    }
-
-    // --- Terminal Quick View Drawer Logic ---
-    async function toggleTerminalTrashDrawer() {
-      const drawer = document.getElementById('terminalTrashDrawer');
-      const btn = document.getElementById('terminalToggleTrashDrawerBtn');
-      if (!drawer) return;
-      const isVisible = drawer.style.display !== 'none';
-      if (isVisible) {
-        drawer.style.display = 'none';
-        if (btn) btn.textContent = 'Quick View';
-      } else {
-        drawer.style.display = 'flex';
-        if (btn) btn.textContent = 'Close View';
-        loadTerminalTrashDrawer();
-      }
-      setTimeout(() => {
-        if (xtermFitAddon) {
-          xtermFitAddon.fit();
-          notifyTerminalResize();
-        }
-      }, 50);
-    }
-
-    async function loadTerminalTrashDrawer() {
-      const container = document.getElementById('terminalTrashDrawerList');
-      if (!container) return;
-      container.innerHTML = '<div class="files-empty" style="padding: 12px;">Loading…</div>';
-      try {
-        const d = await updateTrashBadge();
-        const items = d.items || [];
-        if (!items.length) {
-          container.innerHTML = '<div class="files-empty" style="padding: 12px;">Recycle Bin is empty.</div>';
-          return;
-        }
-        container.innerHTML = '';
-        items.slice(0, 30).forEach(item => {
-          const row = document.createElement('div');
-          row.className = 'ft-row ft-trash-row';
-          row.style.fontSize = '12px';
-          row.innerHTML = `
-            <span class="ft-ico">${item.is_dir ? FILE_ICONS.dir : extBadge(item.name)}</span>
-            <span class="ft-name" style="flex: 1; min-width: 0;">
-              <span style="font-weight: 500;">${esc(item.name)}</span>
-              <span class="ft-sub" title="${esc(item.orig_path)}">${esc(item.orig_path)}</span>
-            </span>
-            <span class="ft-date" style="font-size: 11px;">${esc(item.trashed_at || '')}</span>
-            <div style="display: flex; gap: 4px;">
-              <button class="zo-pill" style="height: 22px; padding: 0 8px; font-size: 11px;" onclick="restoreTrashItem(${jsq(item.name)})">Restore</button>
-              <button class="zo-pill zo-danger" style="height: 22px; padding: 0 8px; font-size: 11px;" onclick="permanentlyDeleteTrashItem(${jsq(item.name)})">Delete</button>
-            </div>`;
-          container.appendChild(row);
-        });
-      } catch (e) {
-        container.innerHTML = `<div class="files-empty" style="padding: 12px; color: var(--accent-red);">Failed: ${esc(e.message)}</div>`;
-      }
     }
 
     let currentDir = "";
@@ -2949,7 +2670,7 @@
     }
     async function toggleDir(item) {
       if (openDirs[item.path]) { delete openDirs[item.path]; renderTree(); return; }
-      try { openDirs[item.path] = await fetchDir(item.path); } catch (e) { alert('Could not open folder: ' + e.message); return; }
+      try { openDirs[item.path] = await fetchDir(item.path); } catch (e) { notify('Could not open folder: ' + e.message); return; }
       renderTree();
     }
     function toggleHiddenFiles() {
@@ -2961,7 +2682,7 @@
 
     const MEDIA_KINDS = { image: ['png','jpg','jpeg','gif','webp','svg','bmp','ico','avif'], video: ['mp4','webm','mov','m4v','ogv'], audio: ['mp3','wav','ogg','m4a','flac','aac','opus'], pdf: ['pdf'] };
     function mediaKind(path) { const ext = (path.split('.').pop() || '').toLowerCase(); return Object.keys(MEDIA_KINDS).find(k => MEDIA_KINDS[k].includes(ext)) || null; }
-    function rawUrl(path) { return '/api/file/raw?path=' + encodeURIComponent(path) + (SU_TOKEN ? '&token=' + encodeURIComponent(SU_TOKEN) : ''); }
+    function rawUrl(path) { return '/api/file/raw?path=' + encodeURIComponent(path); }
     async function openFileInEditor(filePath) {
       if (editorDirty && activeEditingPath && activeEditingPath !== filePath && !confirm('Discard unsaved changes?')) return;
       activeEditingPath = filePath; editorDirty = false;
@@ -3017,10 +2738,10 @@
           document.getElementById('fileEditorSizeDisplay').textContent = 'Saved ' + fmtTs(new Date().toISOString());
           loadFiles();
         } else {
-          alert('Save failed: ' + d.detail);
+          notify('Save failed: ' + d.detail);
         }
       } catch (err) {
-        alert('Save error: ' + err.message);
+        notify('Save error: ' + err.message);
       }
     }
 
@@ -3039,13 +2760,12 @@
 
     function filterFilesList(q) { filesQuery = (q || '').trim().toLowerCase(); renderTree(); }
     async function createNewFilePrompt(dir = currentDir) {
-      const name = prompt('New file name:'); if (!name) return;
+      const name = (await askName('New file name', '', 'Create') || '').trim(); if (!name || name.includes('/')) return;
       const r = await api('/api/file', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path: dir.replace(/\/$/, '') + '/' + name, content: '' }) });
-      if (r.ok) loadFiles(); else alert('Could not create file');
+      if (r.ok) loadFiles(); else notify('Could not create file');
     }
     async function createNewFolderPrompt(dir = currentDir) {
-      const name = prompt("Enter new folder name:");
-      if (!name) return;
+      const name = (await askName('New folder name', '', 'Create') || '').trim(); if (!name || name.includes('/')) return;
       try {
         const res = await api('/api/files/new', {
           method: 'POST',
@@ -3055,7 +2775,7 @@
         const d = await res.json();
         if (d.ok) loadFiles();
       } catch (e) {
-        alert("Failed to create folder: " + e.message);
+        notify("Failed to create folder: " + e.message);
       }
     }
 
@@ -3074,7 +2794,7 @@
       files.forEach(f => { fd.append('files', f.file, f.file.name); fd.append('paths', f.path || f.file.name); });
       filesStatus('Uploading ' + files.length + (files.length === 1 ? ' file…' : ' files…'));
       try { const d = await filesCall('/api/files/upload', fd); filesStatus('Uploaded ' + d.count + (d.count === 1 ? ' file' : ' files')); setTimeout(() => filesStatus(''), 2500); }
-      catch (e) { filesStatus(''); alert('Upload failed: ' + e.message); }
+      catch (e) { filesStatus(''); notify('Upload failed: ' + e.message); }
       loadFiles();
     }
     function uploadFromInput(input) { uploadFiles([...input.files].map(f => ({ file: f, path: f.webkitRelativePath || f.name })), FILES_ROOT); input.value = ''; }
@@ -3093,13 +2813,13 @@
     }
     async function moveItem(src, dest) {
       if (!src || !dest || src === dest || dest.startsWith(src + '/') || dest === src.split('/').slice(0, -1).join('/')) return;
-      try { await filesCall('/api/files/move', { src, dest }); } catch (e) { alert('Could not move: ' + e.message); }
+      try { await filesCall('/api/files/move', { src, dest }); } catch (e) { notify('Could not move: ' + e.message); }
       loadFiles();
     }
-    function moveFilePrompt(e, path) {
+    async function moveFilePrompt(e, path) {
       if (e) e.stopPropagation();
       const cur = relPath(path).split('/').slice(0, -1).join('/');
-      const to = prompt('Move “' + relPath(path) + '” to folder (workspace-relative; a new file name renames):', cur);
+      const to = await askName('Move “' + relPath(path) + '” to folder (workspace-relative; a new file name renames)', cur, 'Move');
       if (to === null) return;
       const clean = to.trim().replace(/^\/+|\/+$/g, '');
       moveItem(path, FILES_ROOT + (clean ? '/' + clean : ''));
@@ -3112,7 +2832,7 @@
     function openItem(item) { if (!item.is_dir) return openFileInEditor(item.path); return filesView === 'grid' ? openGridDir(item.path) : toggleDir(item); }
     async function openGridDir(path) {
       if (!path || path === FILES_ROOT) { gridDir = ''; renderTree(); return; }
-      try { gridItems = await fetchDir(path); } catch (e) { alert('Could not open folder: ' + e.message); return; }
+      try { gridItems = await fetchDir(path); } catch (e) { notify('Could not open folder: ' + e.message); return; }
       gridDir = path; renderTree();
     }
     function renderGrid(tree) {
@@ -3157,8 +2877,8 @@
         el.ondrop = (e) => { e.preventDefault(); e.stopPropagation(); el.classList.remove('drop-target'); dropInto(e, item.path); };
       }
     }
-    function renameFilePrompt(path) {
-      const name = path.split('/').pop(); const to = prompt('Rename “' + name + '” to:', name); if (to === null) return;
+    async function renameFilePrompt(path) {
+      const name = path.split('/').pop(); const to = await askName('Rename “' + name + '”', name, 'Rename'); if (to === null) return;
       const clean = to.trim(); if (!clean || clean === name || clean.includes('/')) return;
       moveItem(path, path.split('/').slice(0, -1).join('/') + '/' + clean);
     }
@@ -3215,7 +2935,7 @@
     }
 
     // ==========================================
-    // SU APP INTEGRATIONS ENGINE
+    // __AGENT_NAME__ APP INTEGRATIONS ENGINE
     // ==========================================
     let cachedIntegrations = [];
     let currentAppInDrawer = null;
@@ -3285,7 +3005,7 @@
       heading.textContent = q ? 'Results' : 'Featured';
       if (appsData.configured === false) {
         const hint = document.createElement('div'); hint.className = 'int-hint';
-        hint.innerHTML = 'Connect Gmail, Calendar, Notion and 1000+ apps: add the <b>PIPEDREAM_*</b> keys in <a onclick="openSettings(\'advanced\')">Settings › Advanced</a>.';
+        hint.innerHTML = 'Connect Gmail, Calendar, Notion and 1000+ apps: add the <b>PIPEDREAM_*</b> keys in <a onclick="openSettings(\'advanced\')">Settings › Keys</a>.';
         grid.appendChild(hint);
       }
       if (appsData.error) { const e = document.createElement('div'); e.className = 'int-hint'; e.textContent = 'App catalog unavailable: ' + appsData.error; grid.appendChild(e); }
@@ -3307,7 +3027,7 @@
         if (!r.ok || !d.url) throw new Error(d.detail || 'No connect URL returned');
         if (win) win.location = d.url; else window.open(d.url, '_blank');
         pollConnectedApps();
-      } catch (e) { if (win) win.close(); alert('Could not start connection: ' + e.message); }
+      } catch (e) { if (win) win.close(); notify('Could not start connection: ' + e.message); }
     }
     function pollConnectedApps() {
       clearInterval(appsPollTimer); let n = 0;
@@ -3368,7 +3088,7 @@
       document.querySelectorAll('#drawerAppInputs .drawer-cred').forEach(el => { if (el.value.trim()) creds[el.dataset.key] = el.value.trim(); });
 
       if (Object.keys(creds).length === 0) {
-        alert("Please provide credentials before saving.");
+        notify("Please provide credentials before saving.");
         return;
       }
 
@@ -3380,14 +3100,14 @@
         });
         const data = await res.json();
         if (data.ok) {
-          alert(`Successfully configured ${currentAppInDrawer.name}! Credentials saved to .env`);
+          notify(`Successfully configured ${currentAppInDrawer.name}! Credentials saved to .env`);
           closeIntegrationDrawer();
           loadIntegrations();
         } else {
-          alert('Error: ' + data.detail);
+          notify('Error: ' + data.detail);
         }
       } catch (e) {
-        alert('Network error: ' + e.message);
+        notify('Network error: ' + e.message);
       }
     }
 
@@ -3429,28 +3149,68 @@
     // ZO SETTINGS, SECRETS CRUD & THEMES ENGINE
     // ==========================================
 
-    function openSettings(subtab = 'ai') {
+    function openSettings(subtab = 'models') {
       openInTab('settings');
       switchSettingsSubTab(subtab);
     }
 
+    const SETTINGS_TAB_ALIAS = { profile: 'system', ai: 'models', channels: 'system', tools: 'keys', ux: 'system', advanced: 'keys' };  // older links still land somewhere sensible
     function switchSettingsSubTab(sub) {
-      const tabs = ['profile', 'ai', 'channels', 'tools', 'ux', 'advanced'];
+      sub = SETTINGS_TAB_ALIAS[sub] || sub;
+      const tabs = ['models', 'agent', 'keys', 'system'];
+      if (!tabs.includes(sub)) sub = 'models';
       tabs.forEach(t => {
         const btn = document.getElementById('snav-' + t);
         const pane = document.getElementById('spane-' + t);
         if (btn) { btn.classList.toggle('active', t === sub); if (t === sub) btn.scrollIntoView({ block: 'nearest', inline: 'nearest' }); }
         if (pane) pane.classList.toggle('active', t === sub);
       });
-
-      if (sub === 'advanced' || sub === 'profile' || sub === 'ai' || sub === 'tools') loadAdvSecrets();
-      if (sub === 'profile') checkSystemUpdates(false);
-      if (sub === 'ai') loadProviders();
-      if (sub === 'channels') loadChannels();
-      if (sub === 'ux') renderThemeList();
+      if (sub === 'models') { loadProviders(); loadSearchStatus(); }
+      if (sub === 'agent') { loadRules(); loadMemory(); }
+      if (sub === 'keys') loadAdvSecrets();
+      if (sub === 'system') { checkSystemUpdates(false); loadChannels(); renderAppearance(); }
+    }
+    async function loadSearchStatus() {
+      const st = document.getElementById('searchStatus'); if (!st) return;
+      try { const d = await fetchJson('/api/search'); st.textContent = d.provider === 'tinyfish' ? 'TinyFish key set: live results with dates' : 'No key: using the DuckDuckGo scraper'; const loc = document.getElementById('searchLocInput'); if (loc) loc.value = d.location || ''; }
+      catch (e) { st.textContent = 'Could not read search settings: ' + e.message; }
+    }
+    async function saveSearchKey() {
+      const inp = document.getElementById('searchKeyInput'); const v = inp.value.trim(); if (!v) return;
+      try { await fetchJson('/api/secrets', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'TINYFISH_API_KEY', value: v, project: 'tools' }) }); inp.value = ''; notify('Search key saved'); loadSearchStatus(); }
+      catch (e) { notify('Could not save the search key: ' + e.message, 'error'); }
+    }
+    async function saveSearchLocation(v) {
+      v = (v || '').trim().toUpperCase();
+      try {
+        if (v) await fetchJson('/api/secrets', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'SU_SEARCH_LOCATION', value: v, project: 'tools' }) });
+        else await fetchJson('/api/secrets/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: 'SU_SEARCH_LOCATION' }) });
+        notify(v ? 'Search results now favour ' + v : 'Search country cleared');
+      } catch (e) { notify('Could not save: ' + e.message, 'error'); }
+    }
+    async function loadRules() {
+      const rulesEl = document.getElementById('rulesText'), rulesBtn = document.getElementById('rulesSaveBtn');
+      if (!rulesEl || !rulesBtn) return;
+      rulesBtn.disabled = true;
+      try { rulesEl.value = (await fetchJson('/api/rules')).rules || ''; rulesBtn.disabled = false; }
+      catch (e) { rulesEl.value = ''; rulesEl.placeholder = 'Could not load rules: ' + e.message; }
+    }
+    async function loadMemory() {
+      const el = document.getElementById('memoryList'); if (!el) return;
+      try {
+        const facts = (await fetchJson('/api/memory')).facts || [];
+        el.innerHTML = facts.length ? '' : '<div class="pg-empty">Nothing remembered yet. Facts appear here after chats.</div>';
+        facts.forEach(f => {
+          const row = document.createElement('div'); row.className = 'zo-list-row';
+          row.innerHTML = `<span class="zo-list-label"><span>${esc(f.text)}</span><span class="zo-list-sub">${esc(fmtWhen(f.ts))}</span></span>`;
+          const b = document.createElement('button'); b.className = 'zo-pill zo-danger'; b.textContent = 'Forget'; b.setAttribute('aria-label', 'Forget: ' + f.text);
+          b.onclick = async () => { try { await fetchJson('/api/memory/' + encodeURIComponent(f.id), { method: 'DELETE' }); loadMemory(); } catch (e) { notify('Could not forget that: ' + e.message, 'error'); } };
+          row.appendChild(b); el.appendChild(row);
+        });
+      } catch (e) { el.innerHTML = `<div class="pg-empty" style="color: var(--accent-red);">Could not load memory: ${esc(e.message)}</div>`; }
     }
     const CHANNEL_DEFS = {
-      email: { name: 'Email', desc: 'SU reads a mailbox and replies to allowed senders.', keys: ['SU_MAIL_IMAP_HOST', 'SU_MAIL_IMAP_PORT', 'SU_MAIL_SMTP_HOST', 'SU_MAIL_SMTP_PORT', 'SU_MAIL_USER', 'SU_MAIL_PASS', 'SU_MAIL_ALLOWED_FROM'], optional: ['SU_MAIL_PASSPHRASE', 'SU_MAIL_MODEL'] },
+      email: { name: 'Email', desc: '__AGENT_NAME__ reads a mailbox and replies to allowed senders.', keys: ['SU_MAIL_IMAP_HOST', 'SU_MAIL_IMAP_PORT', 'SU_MAIL_SMTP_HOST', 'SU_MAIL_SMTP_PORT', 'SU_MAIL_USER', 'SU_MAIL_PASS', 'SU_MAIL_ALLOWED_FROM'], optional: ['SU_MAIL_PASSPHRASE', 'SU_MAIL_MODEL'] },
     };
     async function copyText(text, btn) { try { await navigator.clipboard.writeText(text); if (btn) { const t = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = t; }, 1500); } } catch (e) { prompt('Copy this:', text); } }
     function fmtWhen(iso) { if (!iso) return 'never'; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
@@ -3493,55 +3253,43 @@
       }
     }
 
-    // Secrets (Settings > Advanced). Values live in memory, never in DOM attributes.
-    const secretValues = new Map();
+    // Secrets (Settings > Keys). Values live in memory, never in DOM attributes.
+    // Values never arrive with the list; each is fetched on demand when the owner clicks Show or Edit.
+    async function secretValue(key) { try { return (await fetchJson('/api/secrets/' + encodeURIComponent(key) + '/reveal')).value || ''; } catch (e) { notify('Could not read ' + key + ': ' + e.message); return ''; } }
     const SECRET_ICONS = { copy: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>', check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>', eye: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>', pen: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>', trash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>' };
     let secretProjects = { projects: [], keys: {} };
-    const BUILTIN_GROUPS = { profile: 'Profile', ai: 'AI', tools: 'Tools' };  // shown in their own settings tabs, not under Advanced
+    const BUILTIN_GROUPS = { profile: { name: 'System', note: 'server, mail, Telegram and notification keys' }, ai: { name: 'AI providers', note: 'model API keys' }, tools: { name: 'Tools', note: 'search, Pipedream, browserless' } };
     const openGroups = new Set();  // collapsed by default; a group opens for the rest of the page's life
     function projectOptions(sel, current) {
-      const opts = [['', 'Other'], ...Object.entries(BUILTIN_GROUPS), ...secretProjects.projects.map(p => [p.id, p.name])];
+      const opts = [['', 'Other'], ...Object.entries(BUILTIN_GROUPS).map(([id, g]) => [id, g.name]), ...secretProjects.projects.map(p => [p.id, p.name])];
       sel.innerHTML = opts.map(([v, n]) => `<option value="${esc(v)}"${v === (current || '') ? ' selected' : ''}>${esc(n)}</option>`).join('');
     }
     async function loadAdvSecrets() {
-      const adv = document.getElementById('advSecretsList'), prof = document.getElementById('profSecretsList');
-      const builtinLists = { profile: prof, ai: document.getElementById('aiSecretsList'), tools: document.getElementById('toolsSecretsList') };
-      if (!adv && !prof) return;
+      const adv = document.getElementById('advSecretsList'); if (!adv) return;
       let secrets;
       try {
         const [r1, r2] = await Promise.all([api('/api/secrets'), api('/api/projects')]);
         if (!r1.ok) throw new Error('HTTP ' + r1.status);
         secrets = (await r1.json()).secrets || [];
         if (r2.ok) secretProjects = await r2.json();
-      } catch (err) {
-        (adv || prof).innerHTML = `<div class="pg-empty" style="color: var(--accent-red);">Could not load secrets: ${esc(err.message)}</div>`;
-        return;
-      }
-      secretValues.clear(); secrets.forEach(sec => secretValues.set(sec.key, sec.value));
+      } catch (err) { adv.innerHTML = `<div class="pg-empty" style="color: var(--accent-red);">Could not load keys: ${esc(err.message)}</div>`; return; }
       const sel = document.getElementById('advSecretProject'); if (sel) projectOptions(sel, sel.value);
-      Object.entries(builtinLists).forEach(([gid, box]) => {
-        if (!box) return;
-        const mine = secrets.filter(sec => sec.project === gid);
-        box.innerHTML = mine.length ? '' : '<div class="pg-empty">No keys here yet. Add one above, or move a key here with its project picker.</div>';
-        mine.forEach(sec => box.appendChild(secretRow(sec)));
-      });
-      if (adv) {
-        const rest = secrets.filter(sec => !BUILTIN_GROUPS[sec.project]);
-        adv.innerHTML = '';
-        if (!rest.length && !secretProjects.projects.length) { adv.innerHTML = '<div class="pg-empty">No project keys yet. Add one above.</div>'; return; }
-        const group = (title, note, list, pid) => {
-          const gid = pid || 'other', open = openGroups.has(gid);
-          const h = document.createElement('div'); h.className = 'secret-group-head' + (open ? ' open' : ''); h.setAttribute('role', 'button'); h.tabIndex = 0; h.setAttribute('aria-expanded', String(open));
-          h.innerHTML = `<span class="secret-group-chev" aria-hidden="true">›</span><b>${esc(title)}</b><span class="zo-list-sub">${esc(note || '')}</span><span>${list.length} key${list.length === 1 ? '' : 's'}</span>`;
-          const toggle = () => { if (openGroups.has(gid)) openGroups.delete(gid); else openGroups.add(gid); loadAdvSecrets(); };
-          h.onclick = toggle; h.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } };
-          if (pid) { const d = document.createElement('button'); d.className = 'zo-iconbtn zo-danger-hover'; d.innerHTML = SECRET_ICONS.trash; d.title = 'Delete project (keys move to Other)'; d.onclick = (e) => { e.stopPropagation(); deleteProject(pid, title); }; h.appendChild(d); }
-          adv.appendChild(h); if (open) list.forEach(sec => adv.appendChild(secretRow(sec)));
-        };
-        secretProjects.projects.forEach(p => group(p.name, p.note, rest.filter(sec => sec.project === p.id), p.id));
-        const other = rest.filter(sec => !sec.project || !secretProjects.projects.some(p => p.id === sec.project));
-        if (other.length) group('Other', 'not assigned to a project', other, null);
-      }
+      adv.innerHTML = '';
+      if (!secrets.length && !secretProjects.projects.length) { adv.innerHTML = '<div class="pg-empty">No keys yet. Add one above, or import a .env file.</div>'; return; }
+      const group = (title, note, list, gid, deletable) => {
+        if (!list.length && !deletable) return;
+        const open = openGroups.has(gid);
+        const h = document.createElement('div'); h.className = 'secret-group-head' + (open ? ' open' : ''); h.setAttribute('role', 'button'); h.tabIndex = 0; h.setAttribute('aria-expanded', String(open));
+        h.innerHTML = `<span class="secret-group-chev" aria-hidden="true">›</span><b>${esc(title)}</b><span class="zo-list-sub">${esc(note || '')}</span><span>${list.length} key${list.length === 1 ? '' : 's'}</span>`;
+        const toggle = () => { if (openGroups.has(gid)) openGroups.delete(gid); else openGroups.add(gid); loadAdvSecrets(); };
+        h.onclick = toggle; h.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); toggle(); } };
+        if (deletable) { const d = document.createElement('button'); d.className = 'zo-iconbtn zo-danger-hover'; d.innerHTML = SECRET_ICONS.trash; d.title = 'Delete project (keys move to Other)'; d.setAttribute('aria-label', 'Delete project ' + title); d.onclick = (e) => { e.stopPropagation(); deleteProject(gid, title); }; h.appendChild(d); }
+        adv.appendChild(h); if (open) list.forEach(sec => adv.appendChild(secretRow(sec)));
+      };
+      Object.entries(BUILTIN_GROUPS).forEach(([gid, g]) => group(g.name, g.note, secrets.filter(sec => sec.project === gid), gid, false));
+      secretProjects.projects.forEach(p => group(p.name, p.note, secrets.filter(sec => sec.project === p.id), p.id, true));
+      const other = secrets.filter(sec => !sec.project || (!BUILTIN_GROUPS[sec.project] && !secretProjects.projects.some(p => p.id === sec.project)));
+      if (other.length) group('Other', 'not assigned to a project', other, 'other', false);
     }
     function secretRow(sec) {
         const row = document.createElement('div'); row.className = 'secret-row-item';
@@ -3550,25 +3298,26 @@
         valBox.textContent = sec.masked;
         const mk = (svg, label, cls) => { const b = document.createElement('button'); b.className = 'zo-iconbtn' + (cls ? ' ' + cls : ''); b.innerHTML = svg; b.title = label; b.setAttribute('aria-label', label + ' ' + sec.key); return b; };
         const proj = document.createElement('select'); proj.className = 'secret-proj'; proj.title = 'Project'; proj.setAttribute('aria-label', 'Project for ' + sec.key); projectOptions(proj, sec.project);
-        proj.onchange = async () => { try { await fetchJson('/api/projects/assign', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: sec.key, project: proj.value || null }) }); loadAdvSecrets(); await loadProviders(); await loadMedia(); loadModels(); } catch (e) { alert('Could not move ' + sec.key + ': ' + e.message); } };
+        proj.onchange = async () => { try { await fetchJson('/api/projects/assign', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: sec.key, project: proj.value || null }) }); loadAdvSecrets(); await loadProviders(); await loadMedia(); loadModels(); } catch (e) { notify('Could not move ' + sec.key + ': ' + e.message); } };
         const view = mk(SECRET_ICONS.eye, 'Show'); view.setAttribute('aria-pressed', 'false');
         // Show reveals the value and turns the button into Copy; clicking the revealed value hides it again.
-        const setRevealed = (on) => {
-          valBox.textContent = on ? secretValues.get(sec.key) : sec.masked; valBox.classList.toggle('revealed', on);
+        const setRevealed = async (on) => {
+          valBox.textContent = on ? await secretValue(sec.key) : sec.masked; valBox.classList.toggle('revealed', on);
           valBox.title = on ? 'Click to hide' : ''; valBox.tabIndex = on ? 0 : -1; if (on) valBox.setAttribute('role', 'button'); else valBox.removeAttribute('role');
           view.setAttribute('aria-pressed', String(on)); view.classList.toggle('active', on);
           view.innerHTML = on ? SECRET_ICONS.copy : SECRET_ICONS.eye; view.title = on ? 'Copy' : 'Show'; view.setAttribute('aria-label', (on ? 'Copy' : 'Show') + ' ' + sec.key);
         };
         view.onclick = async () => {
           if (view.getAttribute('aria-pressed') !== 'true') return setRevealed(true);
-          try { await navigator.clipboard.writeText(secretValues.get(sec.key) || ''); view.innerHTML = SECRET_ICONS.check; view.title = 'Copied'; setTimeout(() => { if (view.getAttribute('aria-pressed') === 'true') { view.innerHTML = SECRET_ICONS.copy; view.title = 'Copy'; } }, 1500); }
-          catch (e) { prompt('Copy this:', secretValues.get(sec.key) || ''); }
+          try { await navigator.clipboard.writeText(await secretValue(sec.key)); view.innerHTML = SECRET_ICONS.check; view.title = 'Copied'; setTimeout(() => { if (view.getAttribute('aria-pressed') === 'true') { view.innerHTML = SECRET_ICONS.copy; view.title = 'Copy'; } }, 1500); }
+          catch (e) { prompt('Copy this:', valBox.textContent || ''); }
         };
         const hide = () => { if (valBox.classList.contains('revealed') && !valBox.querySelector('input')) setRevealed(false); };
         valBox.onclick = hide; valBox.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); hide(); } };
         const edit = mk(SECRET_ICONS.pen, 'Edit');
-        edit.onclick = () => {
-          valBox.innerHTML = ''; const input = document.createElement('input'); input.type = 'text'; input.className = 'secret-input-val'; input.style.width = '100%'; input.value = secretValues.get(sec.key) || ''; input.setAttribute('aria-label', 'New value for ' + sec.key); valBox.appendChild(input);
+        edit.onclick = async () => {
+          const current = await secretValue(sec.key);
+          valBox.innerHTML = ''; const input = document.createElement('input'); input.type = 'text'; input.className = 'secret-input-val'; input.style.width = '100%'; input.value = current; input.setAttribute('aria-label', 'New value for ' + sec.key); valBox.appendChild(input);
           actions.innerHTML = ''; const save = document.createElement('button'); save.className = 'zo-btn-primary'; save.textContent = 'Save'; const cancel = document.createElement('button'); cancel.className = 'zo-pill'; cancel.textContent = 'Cancel';
           save.onclick = () => saveSecretValue(sec.key, input.value.trim()); cancel.onclick = () => loadAdvSecrets();
           input.onkeydown = (e) => { if (e.key === 'Enter') save.click(); if (e.key === 'Escape') cancel.click(); };
@@ -3580,13 +3329,13 @@
     }
     async function addProject() {
       const name = document.getElementById('advProjName'), note = document.getElementById('advProjNote');
-      if (!name.value.trim()) return alert('Give the project a name');
+      if (!name.value.trim()) return notify('Give the project a name');
       try { await fetchJson('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: name.value.trim(), note: note.value.trim() }) }); name.value = ''; note.value = ''; loadAdvSecrets(); }
-      catch (e) { alert('Could not add project: ' + e.message); }
+      catch (e) { notify('Could not add project: ' + e.message); }
     }
     async function deleteProject(pid, name) {
       if (!confirm('Delete project "' + name + '"? Its keys stay in .env and move to Other.')) return;
-      try { await fetchJson('/api/projects/' + encodeURIComponent(pid), { method: 'DELETE' }); loadAdvSecrets(); } catch (e) { alert('Could not delete: ' + e.message); }
+      try { await fetchJson('/api/projects/' + encodeURIComponent(pid), { method: 'DELETE' }); loadAdvSecrets(); } catch (e) { notify('Could not delete: ' + e.message); }
     }
     async function saveSecretValue(key, value) {
       try {
@@ -3597,7 +3346,7 @@
         await loadProviders();
         await loadMedia();
         loadModels();
-      } catch (e) { alert('Could not save ' + key + ': ' + e.message); }
+      } catch (e) { notify('Could not save ' + key + ': ' + e.message); }
     }
     async function deleteSecretKey(key) {
       if (!confirm('Delete ' + key + ' from .env?')) return;
@@ -3609,7 +3358,7 @@
         await loadProviders();
         await loadMedia();
         loadModels();
-      } catch (e) { alert('Could not delete ' + key + ': ' + e.message); }
+      } catch (e) { notify('Could not delete ' + key + ': ' + e.message); }
     }
 
     function toggleImport() { const box = document.getElementById('secretImport'), btn = document.getElementById('importToggle'); box.hidden = !box.hidden; btn.setAttribute('aria-expanded', String(!box.hidden)); if (!box.hidden) document.getElementById('importText').focus(); }
@@ -3636,7 +3385,7 @@
     async function addSecretFrom(keyId, valId, project) {
       const kInput = document.getElementById(keyId), vInput = document.getElementById(valId);
       let k = kInput.value.trim(), v = vInput.value.trim();
-      if (!k) return alert('Please enter a KEY_NAME');
+      if (!k) return notify('Please enter a KEY_NAME');
       if (k.includes('=') && !v) { const parts = k.split('='); k = parts[0].trim(); v = parts.slice(1).join('=').trim().replace(/^["']|["']$/g, ''); }
       try {
         const d = await fetchJson('/api/secrets', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ key: k, value: v, project: project || '' }) });
@@ -3646,14 +3395,14 @@
         await loadProviders();
         await loadMedia();
         loadModels();
-      } catch (e) { alert('Failed to save: ' + e.message); }
+      } catch (e) { notify('Failed to save: ' + e.message); }
     }
 
     // Navigation Switcher
     function switchNav(name, e) {
       if (isNarrow() && !document.body.classList.contains('sb-collapsed')) { document.body.classList.add('sb-collapsed'); }
       if (name === 'home') { renderSidebarChatHistory(); showHomeView(); return; }
-      openInTab(name === 'space' ? 'terminal' : name, !!(e && (e.metaKey || e.ctrlKey)));
+      openInTab(name);
     }
 
     function activateTab(name) {
@@ -3662,9 +3411,9 @@
       if (content) content.classList.add('active');
 
       clearTimeout(appsSearchTimer); clearInterval(appsPollTimer); clearInterval(tasksPollTimer); clearInterval(taskLogTimer);
-      if (name === 'files') { if (isTrashViewActive) toggleTrashView(); loadFiles(); }
+      if (name === 'files') loadFiles();
       if (name === 'chats') { renderChatsView(); renderSidebarChatHistory(); }
-      if (name === 'terminal') { initTerminal(); updateTrashBadge(); }
+      if (name === 'terminal') initTerminal();
       if (name === 'trash') loadDedicatedTrashList();
       if (name === 'automations') loadAutomations();
       if (name === 'tasks') loadTasks(true);
@@ -3697,7 +3446,7 @@
       const running = tasksCache.filter(t => t.running).length, stopped = tasksCache.length - running;
       const items = tasksCache.filter(t => !q || (t.name || '').toLowerCase().includes(q) || (t.command || '').toLowerCase().includes(q));
       document.getElementById('taskRunningLabel').innerHTML = `Running <span>${running}</span>` + (stopped ? ` <span class="pg-count-dim">· ${stopped} stopped</span>` : '');
-      if (!items.length) { list.innerHTML = `<div class="pg-empty">${tasksCache.length ? 'No tasks match.' : 'No tasks yet. Click New, or ask SU in chat: “keep a scraper running that…”.'}</div>`; return; }
+      if (!items.length) { list.innerHTML = `<div class="pg-empty">${tasksCache.length ? 'No tasks match.' : 'No tasks yet. Click New, or ask __AGENT_NAME__ in chat: “keep a scraper running that…”.'}</div>`; return; }
       list.innerHTML = '';
       items.forEach(t => {
         const [cls, word] = taskState(t), wantsRun = t.desired === 'running';
@@ -3714,13 +3463,13 @@
     async function toggleTask(id, running, btn) {
       if (btn) btn.disabled = true;
       try { await fetchJson('/api/tasks/' + encodeURIComponent(id) + (running ? '/stop' : '/start'), { method: 'POST' }); }
-      catch (e) { alert('Could not ' + (running ? 'stop' : 'start') + ' task: ' + e.message); }
+      catch (e) { notify('Could not ' + (running ? 'stop' : 'start') + ' task: ' + e.message); }
       await loadTasks();
       if (currentTask && currentTask.id === id) refreshTask();
     }
     async function openTask(id) {
       clearInterval(taskLogTimer);
-      currentTask = id ? await fetchJson('/api/tasks/' + encodeURIComponent(id) + '?lines=200').catch(e => { alert('Could not open task: ' + e.message); return null; }) : { name: '', command: '', cwd: '' };
+      currentTask = id ? await fetchJson('/api/tasks/' + encodeURIComponent(id) + '?lines=200').catch(e => { notify('Could not open task: ' + e.message); return null; }) : { name: '', command: '', cwd: '' };
       if (!currentTask) return;
       document.getElementById('taskListView').style.display = 'none';
       document.getElementById('taskEditorView').style.display = 'flex';
@@ -3751,15 +3500,15 @@
       const body = { name: document.getElementById('taskName').value.trim(), command: document.getElementById('taskCommand').value.trim() };
       const cwd = document.getElementById('taskCwd').value.trim(); if (cwd) body.cwd = cwd;
       if (currentTask.id) body.id = currentTask.id;
-      if (!body.name || !body.command) { alert('Name and command are required.'); return; }
+      if (!body.name || !body.command) { notify('Name and command are required.'); return; }
       try {
         const t = await fetchJson('/api/tasks', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
         if (!currentTask.id) openTask(t.id); else { currentTask = Object.assign(currentTask, t); renderTaskDetail(false); }
-      } catch (e) { alert('Could not save task: ' + e.message); }
+      } catch (e) { notify('Could not save task: ' + e.message); }
     }
     async function deleteCurrentTask() {
       if (!currentTask.id || !confirm('Delete task “' + currentTask.name + '”? It will be stopped first.')) return;
-      try { await fetchJson('/api/tasks/' + encodeURIComponent(currentTask.id), { method: 'DELETE' }); closeTaskEditor(); } catch (e) { alert('Could not delete task: ' + e.message); }
+      try { await fetchJson('/api/tasks/' + encodeURIComponent(currentTask.id), { method: 'DELETE' }); closeTaskEditor(); } catch (e) { notify('Could not delete task: ' + e.message); }
     }
     function closeTaskEditor() { clearInterval(taskLogTimer); currentTask = null; document.getElementById('taskEditorView').style.display = 'none'; document.getElementById('taskListView').style.display = 'flex'; loadTasks(); }
 
@@ -3803,7 +3552,7 @@
       const items = pool.filter(a => !q || a.name.toLowerCase().includes(q) || (a.prompt||'').toLowerCase().includes(q));
       const paused = automationsCache.length - active.length;
       document.getElementById('autoActiveLabel').innerHTML = `Active <span>${active.length}</span>` + (paused ? ` <span class="pg-count-dim">· ${paused} paused${autoShowPaused ? '' : ' (hidden)'}</span>` : '');
-      if (!items.length) { list.innerHTML = `<div class="pg-empty">${automationsCache.length ? 'No automations match.' : 'No automations yet. Click New, or ask SU in chat: “every weekday at 9am, …”.'}</div>`; return; }
+      if (!items.length) { list.innerHTML = `<div class="pg-empty">${automationsCache.length ? 'No automations match.' : 'No automations yet. Click New, or ask __AGENT_NAME__ in chat: “every weekday at 9am, …”.'}</div>`; return; }
       list.innerHTML = '';
       items.forEach(a => {
         const row = document.createElement('div'); row.className = 'auto-row'; row.onclick = () => openAutomation(a.id); row.setAttribute('role', 'button'); row.tabIndex = 0;
@@ -3880,21 +3629,21 @@
       } catch (e) { document.getElementById('schedSummary').textContent = 'Could not parse: ' + e.message; }
     }
     document.getElementById('autoNotify').addEventListener('change', function () {
-      document.getElementById('notifyHint').textContent = this.value === 'none' ? 'No routine messages; SU emails you if the automation fails' : 'SU messages you only when it has something worth sharing; always emails on failure';
+      document.getElementById('notifyHint').textContent = this.value === 'none' ? 'No routine messages; __AGENT_NAME__ emails you if the automation fails' : '__AGENT_NAME__ messages you only when it has something worth sharing; always emails on failure';
     });
     async function saveCurrentAutomation(silent) {
       const body = { id: currentAuto.id || null, name: document.getElementById('autoName').value.trim() || 'New Automation', prompt: document.getElementById('autoPrompt').value,
         schedule: autoSchedule, notify: document.getElementById('autoNotify').value, model: document.getElementById('autoModel').value || null, enabled: currentAuto.enabled !== false };
-      if (!body.prompt.trim()) { alert('Write what SU should do on each run.'); return null; }
+      if (!body.prompt.trim()) { notify('Write what __AGENT_NAME__ should do on each run.'); return null; }
       const r = await api('/api/automations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
-      const j = await r.json(); if (!r.ok) { alert('Save failed: ' + (j.detail || r.status)); return null; }
+      const j = await r.json(); if (!r.ok) { notify('Save failed: ' + (j.detail || r.status)); return null; }
       currentAuto = { ...currentAuto, ...j };
       document.getElementById('autoPauseBtn').style.display = '';
       if (!silent) closeAutomationEditor();
       return j;
     }
     async function toggleAutomationEnabled() { currentAuto.enabled = !currentAuto.enabled; const j = await saveCurrentAutomation(true); if (j) document.getElementById('autoPauseBtn').textContent = j.enabled ? 'Pause' : 'Resume'; }
-    async function deleteCurrentAutomation() { if (!currentAuto.id) { closeAutomationEditor(); return; } if (!confirm('Delete this automation and its run history?')) return; try { await fetchJson('/api/automations/' + currentAuto.id, { method: 'DELETE' }); } catch (e) { alert('Could not delete automation: ' + e.message); return; } closeAutomationEditor(); }
+    async function deleteCurrentAutomation() { if (!currentAuto.id) { closeAutomationEditor(); return; } if (!confirm('Delete this automation and its run history?')) return; try { await fetchJson('/api/automations/' + currentAuto.id, { method: 'DELETE' }); } catch (e) { notify('Could not delete automation: ' + e.message); return; } closeAutomationEditor(); }
     async function testCurrentAutomation() {
       const j = await saveCurrentAutomation(true); if (!j) return;
       const panel = document.getElementById('autoRunPanel'); panel.style.display = 'block';
@@ -3940,7 +3689,7 @@
       const q = (document.getElementById('skillSearch').value || '').toLowerCase(); const el = document.getElementById('skillsList'); el.innerHTML = '';
       if (skillsTab === 'installed') {
         const items = skillsData.installed.filter(s => !q || s.name.includes(q) || s.description.toLowerCase().includes(q));
-        if (!items.length) { el.innerHTML = `<div class="pg-empty">${skillsData.installed.length ? 'No skills match.' : 'No skills installed. Browse the Catalog, or ask SU: “create a skill that …”.'}</div>`; return; }
+        if (!items.length) { el.innerHTML = `<div class="pg-empty">${skillsData.installed.length ? 'No skills match.' : 'No skills installed. Browse the Catalog, or ask __AGENT_NAME__: “create a skill that …”.'}</div>`; return; }
         items.forEach((s, i) => {
           const tags = `<span class="tag">${esc(s.metadata.author || location.hostname)}</span>${s.scripts.map(x => `<span class="tag">${esc(x)}</span>`).join('')}`;
           const menu = `<button class="zo-pill" onclick="openFileInEditor(${jsq(s.path)})">Open</button><button class="zo-iconbtn" title="Delete skill" aria-label="Delete skill" style="color: var(--accent-red);" onclick="deleteSkill(${jsq(s.dir)})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`;
@@ -3956,8 +3705,8 @@
         });
       }
     }
-    async function installSkill(slug, btn) { btn.textContent = 'Installing…'; btn.disabled = true; const r = await api('/api/skills/install', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug }) }); if (!r.ok) { alert('Install failed: ' + (await r.json()).detail); btn.textContent = 'Install'; btn.disabled = false; return; } loadSkills(); }
-    async function deleteSkill(dir) { if (!confirm('Delete skill ' + dir + '?')) return; try { await fetchJson('/api/skills/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: dir }) }); } catch (e) { alert('Could not delete skill: ' + e.message); } loadSkills(); }
+    async function installSkill(slug, btn) { btn.textContent = 'Installing…'; btn.disabled = true; const r = await api('/api/skills/install', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug }) }); if (!r.ok) { notify('Install failed: ' + (await r.json()).detail); btn.textContent = 'Install'; btn.disabled = false; return; } loadSkills(); }
+    async function deleteSkill(dir) { if (!confirm('Delete skill ' + dir + '?')) return; try { await fetchJson('/api/skills/delete', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ slug: dir }) }); } catch (e) { notify('Could not delete skill: ' + e.message); } loadSkills(); }
 
     // --- MCP SERVERS ---
     let mcpTransport = 'http';
@@ -3974,16 +3723,11 @@
         el.appendChild(row); });
     }
     async function reloadMcp(slug) { await api('/api/mcp/' + encodeURIComponent(slug) + '/reload', { method: 'POST' }); loadMcp(); }
-    async function removeMcp(slug, name) { if (!confirm('Remove ' + name + '?')) return; const r = await api('/api/mcp/' + encodeURIComponent(slug), { method: 'DELETE' }); if (!r.ok) alert('Could not remove server.'); loadMcp(); }
+    async function removeMcp(slug, name) { if (!confirm('Remove ' + name + '?')) return; const r = await api('/api/mcp/' + encodeURIComponent(slug), { method: 'DELETE' }); if (!r.ok) notify('Could not remove server.'); loadMcp(); }
     function prefillSecret(key) {
-      const curSub = document.querySelector('.settings-nav-item.active')?.id?.replace('snav-', '') || 'ai';
-      if (curSub === 'ai') {
-        const k = document.getElementById('aiSecretKey'), v = document.getElementById('aiSecretVal');
-        if (k && v) { k.value = key || ''; v.focus(); return; }
-      }
-      openSettings('advanced');
-      document.getElementById('advSecretKey').value = key || '';
-      document.getElementById('advSecretVal').focus();
+      openSettings('keys');
+      const k = document.getElementById('advSecretKey'), v = document.getElementById('advSecretVal');
+      if (k && v) { k.value = key || ''; v.focus(); }
     }
     async function toggleMcpTool(slug, tool) { const servers = (await (await api('/api/mcp')).json()).servers; const s = servers.find(x => x.slug === slug); if (!s) { loadMcp(); return; } const d = s.disabled_tools || []; const i = d.indexOf(tool); if (i >= 0) d.splice(i, 1); else d.push(tool); await api('/api/mcp/' + slug + '/update', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ disabled_tools: d }) }); loadMcp(); }
     function openMcpModal() { document.getElementById('mcpModal').classList.add('open'); document.getElementById('mcpModalMsg').textContent = ''; }
@@ -4084,7 +3828,7 @@
         await loadModels();
       } catch (e) {
         btn.classList.toggle('active', wasActive);
-        alert('Could not update filter: ' + e.message);
+        notify('Could not update filter: ' + e.message);
       }
     }
 async function deleteProvider(pid, name) {
@@ -4093,7 +3837,7 @@ async function deleteProvider(pid, name) {
         const r = await api('/api/providers/' + encodeURIComponent(pid), { method: 'DELETE' });
         if (!r.ok) throw new Error((await r.json()).detail || r.status);
       } catch (e) {
-        alert('Could not remove provider: ' + e.message);
+        notify('Could not remove provider: ' + e.message);
       }
       await loadProviders();
       await loadModels();
@@ -4107,9 +3851,9 @@ async function deleteProvider(pid, name) {
         const data = await r.json();
         if (!data.ok) throw new Error(data.error || 'Connection failed');
         const n = (data.models || []).length;
-        alert(`Success! Found ${n} model${n === 1 ? '' : 's'} from this provider.`);
+        notify(`Success! Found ${n} model${n === 1 ? '' : 's'} from this provider.`);
       } catch (e) {
-        alert('Failed to connect: ' + e.message);
+        notify('Failed to connect: ' + e.message);
       } finally {
         if (btn) { btn.disabled = false; btn.textContent = origText; }
         await loadProviders();
@@ -4126,7 +3870,7 @@ async function deleteProvider(pid, name) {
         });
         if (!r.ok) throw new Error((await r.json()).detail || r.status);
       } catch (e) {
-        alert('Could not set default model: ' + e.message);
+        notify('Could not set default model: ' + e.message);
       }
       await loadModels();
     }
@@ -4226,19 +3970,6 @@ async function deleteProvider(pid, name) {
       // Load media options (image / video models)
       await loadMedia();
 
-      // Load rules
-      const rulesEl = document.getElementById('rulesText');
-      const rulesBtn = document.getElementById('rulesSaveBtn');
-      if (rulesEl && rulesBtn) {
-        rulesBtn.disabled = true;
-        try {
-          rulesEl.value = (await fetchJson('/api/rules')).rules || '';
-          rulesBtn.disabled = false;
-        } catch (e) {
-          rulesEl.value = '';
-          rulesEl.placeholder = 'Could not load rules: ' + e.message;
-        }
-      }
     }
 
     async function setProviderEnabled(id, enabled, input) {
@@ -4251,35 +3982,16 @@ async function deleteProvider(pid, name) {
         });
         if (!r.ok) throw new Error((await r.json()).detail || r.status);
       } catch (e) {
-        alert('Could not update provider: ' + e.message);
+        notify('Could not update provider: ' + e.message);
       }
       await loadProviders();
       await loadModels();
     }
-    function renderThemeList() {
-      const list = document.getElementById('themeList'); if (!list) return;
-      const cur = document.documentElement.dataset.theme, mode = document.documentElement.dataset.mode;
+    function renderAppearance() {
+      const mode = document.documentElement.dataset.mode;
       ['light', 'dark', 'system'].forEach(m => { const b = document.getElementById('mode-' + m); if (b) { b.classList.toggle('active', m === mode); b.setAttribute('aria-pressed', String(m === mode)); } });
-      const sh = document.getElementById('themeShuffle'); if (sh) sh.checked = themePref.get('su_theme_shuffle', '1') === '1';
-      list.innerHTML = '';
-      ZO_THEME_ORDER.forEach(name => {
-        const t = ZO_THEMES[name][resolvedMode(mode)];
-        const row = document.createElement('button'); row.type = 'button'; row.className = 'zo-list-row theme-row' + (name === cur ? ' active' : ''); row.setAttribute('role', 'radio'); row.setAttribute('aria-checked', String(name === cur));
-        row.innerHTML = `<span class="theme-dot" style="background: linear-gradient(90deg, ${t[3]} 50%, ${t[7]} 50%);"></span><span class="theme-name">${esc(name)}</span>${name === cur ? '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="m5 12 5 5L20 7"/></svg>' : ''}`;
-        row.onclick = () => { themePref.set('su_theme_shuffle', '0'); applyTheme(name, mode); renderThemeList(); };
-        list.appendChild(row);
-      });
     }
-    function setMode(m) { applyTheme(document.documentElement.dataset.theme, m); renderThemeList(); }
-    function setThemeShuffle(on) { themePref.set('su_theme_shuffle', on ? '1' : '0'); renderThemeList(); renderHomeTheme(); }
-    // Home header chip: shows today's theme; one click keeps it (turns the shuffle off), a second click opens Settings › UX.
-    function renderHomeTheme() {
-      const el = document.getElementById('homeThemeName'); if (!el) return;
-      const kept = themePref.get('su_theme_shuffle', '1') !== '1';
-      el.textContent = document.documentElement.dataset.theme + (kept ? ' · kept' : '');
-      el.parentElement.title = kept ? 'Theme kept. Click to change it in Settings › UX' : 'A new theme on every load. Click to keep this one';
-    }
-    function keepTheme() { if (themePref.get('su_theme_shuffle', '1') === '1') { themePref.set('su_theme_shuffle', '0'); renderHomeTheme(); renderThemeList(); } else openSettings('ux'); }
+    function setMode(m) { applyTheme(m); renderAppearance(); }
     const _cvs = document.createElement('canvas'); _cvs.width = _cvs.height = 1; const _ctx = _cvs.getContext('2d', { willReadFrequently: true });
     function cssToHex(color) { _ctx.clearRect(0, 0, 1, 1); _ctx.fillStyle = color; _ctx.fillRect(0, 0, 1, 1); const [r, g, b] = _ctx.getImageData(0, 0, 1, 1).data; return '#' + [r, g, b].map(x => x.toString(16).padStart(2, '0')).join(''); }
     function termTheme() {
@@ -4287,8 +3999,7 @@ async function deleteProvider(pid, name) {
       const fg = v('--zo-fg'), border = v('--zo-border');
       return { background: v('--zo-bg'), foreground: fg, cursor: fg, selectionBackground: border + '80', black: v('--zo-sidebar'), red: '#ef4444', green: '#22c55e', yellow: '#eab308', blue: '#3b82f6', magenta: '#a855f7', cyan: '#06b6d4', white: '#f8fafc', brightBlack: v('--zo-fg-muted'), brightRed: '#f87171', brightGreen: '#4ade80', brightYellow: '#fde047', brightBlue: '#60a5fa', brightMagenta: '#c084fc', brightCyan: '#22d3ee', brightWhite: '#ffffff' };
     }
-    window.onThemeApplied = () => { if (xtermInstance) xtermInstance.options.theme = termTheme(); renderHomeTheme(); };
-    renderHomeTheme();
+    window.onThemeApplied = () => { if (xtermInstance) xtermInstance.options.theme = termTheme(); };
     async function loadMedia() {
       const sel = document.getElementById('mediaImageSelect');
       const inp = document.getElementById('mediaVideoInput');
@@ -4357,13 +4068,13 @@ async function deleteProvider(pid, name) {
     }
     async function saveMedia(body) {
       try { const r = await api('/api/media', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) }); if (!r.ok) throw new Error((await r.json()).detail || r.status); }
-      catch (e) { alert('Could not save: ' + e.message); }
+      catch (e) { notify('Could not save: ' + e.message); }
       loadMedia();
     }
     async function saveRules() {
       const btn = document.getElementById('rulesSaveBtn'); btn.disabled = true; btn.textContent = 'Saving…';
       try { await fetchJson('/api/rules', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ rules: document.getElementById('rulesText').value }) }); btn.textContent = 'Saved'; setTimeout(() => { btn.textContent = 'Save rules'; }, 1500); }
-      catch (e) { btn.textContent = 'Save rules'; alert('Could not save rules: ' + e.message); }
+      catch (e) { btn.textContent = 'Save rules'; notify('Could not save rules: ' + e.message); }
       finally { btn.disabled = false; }
     }
 
@@ -4374,13 +4085,38 @@ async function deleteProvider(pid, name) {
     
     let currentConversationId = null;
     let currentModel = store.get('su_model') || '';
-    let chatMode = '';  // Auto on every load; Chat and Build are chosen per session
-    function setChatMode(v) { chatMode = v; document.querySelectorAll('.mode-select').forEach(el => { if (el.value !== v) el.value = v; }); const ph = v === 'chat' ? 'Ask anything. I will look it up.' : v === 'build' ? 'Describe what to build.' : 'What should we do today?'; [chatInput, document.getElementById('homeComposerInput')].forEach(el => { if (el) el.placeholder = ph; }); }
-    setChatMode(chatMode);
+    // Chat answers with the web only; Build reads the request, plans multi-step work and runs it with full tools.
+    // The last choice is remembered for new chats; an existing chat reopens in the mode it was last used in.
+    let chatMode = store.get('su_mode_default') === 'build' ? 'build' : 'chat';
+    function setChatMode(v, remember = true) {
+      chatMode = v === 'build' ? 'build' : 'chat';
+      document.querySelectorAll('.mode-btn').forEach(b => b.setAttribute('aria-checked', String(b.dataset.mode === chatMode)));
+      const ph = chatMode === 'chat' ? 'Ask anything. I will look it up.' : 'Describe what to do. Multi-step work shows a plan first.';
+      [chatInput, document.getElementById('homeComposerInput')].forEach(el => { if (el) el.placeholder = ph; });
+      if (remember) store.set('su_mode_default', chatMode);
+    }
+    setChatMode(chatMode, false);
     let modelsCache = null;
     chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
     attachMentions(chatInput); attachMentions(document.getElementById('homeComposerInput'));
 
+    // ponytail: a plain toast. Text that reads like a failure is shown as an error; pass kind='error' to force it.
+    function notify(text, kind = 'info', ms = 4500) {
+      const box = document.getElementById('toasts'); if (!box) { window.alert(text); return; }
+      const err = kind === 'error' || /^(could not|couldn.t|failed|error|cannot|can.t|unable|wrong|invalid|no such|not found)/i.test(String(text));
+      const t = document.createElement('div'); t.className = 'toast' + (err ? ' error' : ''); t.setAttribute('role', err ? 'alert' : 'status'); t.textContent = String(text);
+      box.appendChild(t); setTimeout(() => t.remove(), err ? ms * 2 : ms);
+    }
+    // One native <dialog> for every "name this" question: focus, ESC and the backdrop are handled by the browser.
+    function askName(label, initial = '', ok = 'OK') {
+      return new Promise(resolve => {
+        const dlg = document.getElementById('nameDialog'), inp = document.getElementById('nameDialogInput');
+        if (!dlg || !dlg.showModal) { resolve(window.prompt(label, initial)); return; }
+        document.getElementById('nameDialogLabel').textContent = label; document.getElementById('nameDialogOk').textContent = ok; inp.value = initial;
+        dlg.onclose = () => { dlg.onclose = null; resolve(dlg.returnValue === 'ok' ? inp.value : null); };
+        dlg.showModal(); inp.focus(); const dot = initial.lastIndexOf('.'); inp.setSelectionRange(0, dot > 0 ? dot : initial.length);
+      });
+    }
     function esc(s) { return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])); }
     // --- @ references: type @ (or drag a chat, task or automation row) to put it in the message; the server inlines it for the model ---
     const pendingRefs = {};
@@ -4500,7 +4236,7 @@ async function deleteProvider(pid, name) {
       }
       
       if (!modelsCache || !modelsCache.models.length) { 
-        if (!allowDefault) sel.appendChild(new Option('No provider key · Settings › AI', '')); 
+        if (!allowDefault) sel.appendChild(new Option('No provider key · Settings › Models', '')); 
         return; 
       }
       if (filteredModels.length === 0) {
@@ -4521,7 +4257,7 @@ async function deleteProvider(pid, name) {
       if (value && [...sel.options].some(o => o.value === value)) sel.value = value; else if (!allowDefault) sel.value = modelsCache.default;
     }
     function newChat() { if (chatAbort) { chatAbort.abort(); chatAbort = null; setSending(false); } currentConversationId = null; msgsContainer.innerHTML = ''; document.getElementById('chatTitle').textContent = 'New Chat'; document.getElementById('chatTitleBtn').title = 'New chat'; welcome(); renderSidebarChatHistory(); chatInput.focus(); }
-    function welcome() { msgsContainer.innerHTML = ''; }
+    function welcome() { msgsContainer.innerHTML = '<div class="chat-welcome"><div class="cw-title">__AGENT_NAME__</div><div class="cw-line"><b>Chat</b> answers from the web. No access to this machine.</div><div class="cw-line"><b>Build</b> reads your request, shows a plan for multi-step work, then does it here.</div></div>'; }
     const TOOL_LABEL = { browser_open: 'Opened page', browser_read: 'Read page', browser_click: 'Clicked', browser_type: 'Typed', browser_press: 'Pressed key', browser_screenshot: 'Screenshot', generate_image: 'Generated image', generate_video: 'Generated video', Bash: 'Ran command', Read: 'Read file', Write: 'Wrote file', Edit: 'Edited file', Glob: 'Found files', Grep: 'Searched files', WebFetch: 'Read webpage', WebSearch: 'Searched web', Skill: 'Used skill', Task: 'Ran subagent', Agent: 'Ran subagent', TodoWrite: 'Updated plan', run_command: 'Ran command', read_file: 'Read file', write_file: 'Wrote file', list_dir: 'Listed folder', web_fetch: 'Read webpage', web_search: 'Searched web', send_email: 'Sent email', send_telegram: 'Sent Telegram', read_skill: 'Read skill', create_skill: 'Created skill', create_automation: 'Created automation', list_automations: 'Listed automations', update_automation: 'Updated automation', delete_automation: 'Deleted automation' };
     function toolLabel(name, args) {
       if (name === 'use_app' && args && args.app) { const app = (appsData.apps || []).find(a => a.slug === args.app); return 'Used ' + (app ? app.name : String(args.app).replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase())) + ' · ' + (args.tool || ''); }
@@ -4580,7 +4316,7 @@ async function deleteProvider(pid, name) {
     function addSpeak(shell) {
       if (!shell || shell.querySelector('.msg-speak')) return;
       const copy = document.createElement('button'); copy.className = 'msg-speak msg-copy'; copy.title = 'Copy answer'; copy.setAttribute('aria-label', 'Copy answer'); copy.innerHTML = COPY_ICON;
-      copy.onclick = async () => { try { await navigator.clipboard.writeText(answerText(shell)); copy.innerHTML = SECRET_ICONS.check; setTimeout(() => { copy.innerHTML = COPY_ICON; }, 1500); } catch (e) { alert('Could not copy'); } };
+      copy.onclick = async () => { try { await navigator.clipboard.writeText(answerText(shell)); copy.innerHTML = SECRET_ICONS.check; setTimeout(() => { copy.innerHTML = COPY_ICON; }, 1500); } catch (e) { notify('Could not copy'); } };
       metaRow(shell).appendChild(copy);
       const btn = document.createElement('button'); btn.className = 'msg-speak'; setSpeakIcon(btn, 'idle');
       btn.onclick = () => speakAnswer(shell, btn); metaRow(shell).appendChild(btn);
@@ -4600,7 +4336,7 @@ async function deleteProvider(pid, name) {
       stopSpeaking();
       const text = answerText(shell); if (!text) return;
       const synth = window.speechSynthesis;
-      if (!synth) { alert('Speech synthesis not supported in this browser.'); return; }
+      if (!synth) { notify('Speech synthesis not supported in this browser.'); return; }
 
       const gen = (btn._gen = (btn._gen || 0) + 1);
       try { synth.cancel(); } catch (e) {}
@@ -4684,6 +4420,16 @@ async function deleteProvider(pid, name) {
         if (!(paras.length && paras[paras.length - 1].dataset.raw === (ev.text || ''))) finalEl.innerHTML = formatMarkdown(ev.text || '');
         finishTrace(trace); stampTime(trace.parentElement, ev.ts); addSpeak(trace.parentElement); noteAnswerDone();
       }
+      else if (ev.type === 'plan') {
+        // Build understood the request and is waiting for Run. ev.pending=false renders an old plan that was not run.
+        const pending = ev.pending !== false;
+        const card = document.createElement('div'); card.className = 'plan-card' + (pending ? '' : ' done');
+        card.innerHTML = `<div class="plan-head"><strong>Plan</strong>${ev.model ? `<span>runs on <code>${esc(ev.model)}</code></span>` : ''}<span class="plan-state">${pending ? 'Waiting for you' : (ev.ran ? 'Ran' : 'Not run')}</span></div>`
+          + `<div class="plan-body">${formatMarkdown(ev.text || '')}</div>`
+          + `<div class="plan-actions"><button type="button" class="zo-btn-primary plan-run" onclick="runPlan(this)">Run</button><button type="button" class="zo-pill" onclick="chatInput.focus()">Change it</button><span class="plan-state">Nothing runs until you press Run. Typing a new message drops this plan.</span></div>`;
+        finalEl.innerHTML = ''; finalEl.appendChild(card);
+        finishTrace(trace); stampTime(trace.parentElement, ev.ts); noteAnswerDone();
+      }
       else if (ev.type === 'timing') { const t = trace.parentElement.querySelector('.trace-toggle'); if (t && ev.total_ms) { const sp = document.createElement('span'); sp.className = 'trace-time'; sp.textContent = (ev.total_ms / 1000).toFixed(1) + ' s'; t.after(sp); } }
       else if (ev.type === 'error') { finalEl.innerHTML = '<span style="color:#f87171;">' + esc(ev.text) + '</span>'; finishTrace(trace); stampTime(trace.parentElement, ev.ts); noteAnswerDone(); }
       trace.parentElement && (trace.parentElement.scrollTop = trace.parentElement.scrollHeight);
@@ -4721,7 +4467,7 @@ async function deleteProvider(pid, name) {
         await streamSSE('/api/conversations/' + id + '/stream?since=0', null, ev => {
           if (ev.type === 'end') { renderSidebarChatHistory(); refreshRuns(); return; }
           if (ev.type === 'start' && ev.input) { const fb = msgsContainer.querySelector('.msg-user[data-fallback]'); if (fb) { fb.textContent = ev.input; delete fb.dataset.fallback; } else if (!msgsContainer.querySelector('.msg-user')) addUserBubble(ev.input); }
-          if (ev.type === 'final' || ev.type === 'error') fin.innerHTML = '';
+          if (ev.type === 'final' || ev.type === 'error' || ev.type === 'plan') fin.innerHTML = '';
           renderEvent(ev, trace, fin);
         }, mine.signal);
         if (trace.parentElement && trace.parentElement.querySelector('.ai-status')) finishTrace(trace);
@@ -4736,7 +4482,7 @@ async function deleteProvider(pid, name) {
       document.querySelectorAll('.chat-history-item[data-id], .chats-row[data-id]').forEach(el => el.classList.toggle('running', ids.has(el.dataset.id)));
       const sig = [...ids].sort().join(','); if (sig !== refreshRuns.sig) { const first = refreshRuns.sig === undefined; refreshRuns.sig = sig; if (!first) renderSidebarChatHistory(); }
       const ind = document.getElementById('homeRuns');
-      if (ind) { const n = activeRuns.length; ind.hidden = !n; ind.textContent = 'SU is working on ' + n + (n === 1 ? ' task' : ' tasks'); }
+      if (ind) { const n = activeRuns.length; ind.hidden = !n; ind.textContent = '__AGENT_NAME__ is working on ' + n + (n === 1 ? ' task' : ' tasks'); }
       return ids;
     }
     runsTimer = setInterval(() => { if (!document.hidden) refreshRuns(); }, 5000);
@@ -4759,37 +4505,49 @@ async function deleteProvider(pid, name) {
     }
     setInterval(checkForUpdate, 90000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshRuns(); });
-    async function sendMessage() {
+    // A plan card waits for Run. Any other message in that chat drops the plan; the card then shows as superseded.
+    function supersedePlans(except) { msgsContainer.querySelectorAll('.plan-card:not(.done)').forEach(c => { if (c === except) return; c.classList.add('done'); const st = c.querySelector('.plan-state'); if (st) st.textContent = 'Not run'; }); }
+    async function runPlan(btn) {
+      const card = btn.closest('.plan-card'); if (!card || chatAbort) return;
+      card.classList.add('done'); const st = card.querySelector('.plan-state'); if (st) st.textContent = 'Running';
+      setChatMode('build', false);
+      await sendMessage({ approve: true, text: 'Run the plan.' });
+    }
+    async function sendMessage(opts = {}) {
       if (chatAbort) return;
-      const text = chatInput.value.trim(); if (!text) return;
+      const text = (opts.text || chatInput.value).trim(); if (!text) return;
       chatInput.value = ''; chatAbort = new AbortController(); const mine = chatAbort;
       setSending(true);
       if (!currentConversationId && msgsContainer.querySelector('.msg-user') == null) msgsContainer.innerHTML = '';
+      if (!opts.approve) supersedePlans();
       addUserBubble(text); const w = addAiShell(); const trace = w.querySelector('.trace'); const fin = w.querySelector('.msg-ai-body'); renderEvent({ type: 'status', text: 'Thinking…' }, trace, fin);
       msgsContainer.scrollTop = msgsContainer.scrollHeight;
       try {
         const refs = refsIn(text); refs.forEach(r => delete pendingRefs[r.name]);
-        await streamSSE('/zo/ask', { input: text, model_name: currentModel || null, conversation_id: currentConversationId, stream: true, mode: chatMode || null, refs: refs.length ? refs : null }, ev => {
+        await streamSSE('/zo/ask', { input: text, model_name: currentModel || null, conversation_id: currentConversationId, stream: true, mode: chatMode, approve: !!opts.approve, refs: refs.length ? refs : null }, ev => {
           if (ev.type === 'start') { currentConversationId = ev.conversation_id; renderSidebarChatHistory(); refreshRuns(); }
-          if (ev.type === 'final' || ev.type === 'error') fin.innerHTML = '';
+          if (ev.type === 'final' || ev.type === 'error' || ev.type === 'plan') fin.innerHTML = '';
           if (ev.type === 'end') { renderSidebarChatHistory(); refreshRuns(); return; }
           renderEvent(ev, trace, fin);
         }, mine.signal);
-        if (!fin.textContent.trim() && !trace.children.length && !w.querySelector('.msg-ai-body:not(:empty)')) renderEvent({ type: 'error', text: 'The reply ended without an answer. Check the model in Settings › AI and try again.' }, trace, fin);
+        if (!fin.textContent.trim() && !trace.children.length && !w.querySelector('.msg-ai-body:not(:empty)')) renderEvent({ type: 'error', text: 'The reply ended without an answer. Check the model in Settings › Models and try again.' }, trace, fin);
         else if (trace.parentElement.querySelector('.ai-status')) finishTrace(trace);
       } catch (err) { clearTimeout(fin._deltaTimer); fin._deltaTimer = null; if (err.name !== 'AbortError') renderEvent({ type: 'error', text: 'Error: ' + err.message }, trace, fin); }
       finally { if (chatAbort === mine) { chatAbort = null; setSending(false); } msgsContainer.scrollTop = msgsContainer.scrollHeight; }
     }
     async function openConversation(id) {
       if (chatAbort) { chatAbort.abort(); chatAbort = null; setSending(false); }
-      let c; try { c = await fetchJson('/api/conversations/' + id); } catch (e) { alert('Could not open chat: ' + e.message); return; }
+      let c; try { c = await fetchJson('/api/conversations/' + id); } catch (e) { notify('Could not open chat: ' + e.message); return; }
       currentConversationId = id; showWorkspaceView(); if (isNarrow()) toggleChatPanel(false); msgsContainer.innerHTML = '';
       document.getElementById('chatTitle').textContent = c.title || 'Chat'; document.getElementById('chatTitleBtn').title = c.title || 'Chat';
+      if (c.mode === 'chat' || c.mode === 'build') setChatMode(c.mode, false);
       let w = null;
+      const lastPlan = [...c.messages].reverse().find(m => m.role === 'assistant' && m.plan);
       c.messages.forEach((m, i) => {
         if (m.role === 'user') { addUserBubble(m.content); w = null; }
         else if (m.role === 'assistant') { if (!w) w = addAiShell(); const trace = w.querySelector('.trace'); const fin = w.querySelector('.msg-ai-body');
           (m.tool_calls || []).forEach(tc => { let args = {}; try { args = JSON.parse(tc.function.arguments); } catch (e) {} renderEvent({ type: 'tool_call', name: tc.function.name, args }, trace, fin); });
+          if (m.plan) { const pending = !!c.pending_build && m === lastPlan; const ran = !pending && c.messages[i + 1] && c.messages[i + 1].role === 'user' && c.messages[i + 1].content === 'Run the plan.'; renderEvent({ type: 'plan', text: m.content, model: pending ? (c.pending_build.model || c.model) : c.model, pending, ran, ts: m.ts }, trace, fin); return; }
           if (m.content) {
             // Earlier paragraphs in the same turn (plan/understanding) render as text; the last one is the report.
             let last = true; for (let j = i + 1; j < c.messages.length && c.messages[j].role !== 'user'; j++) if (c.messages[j].role === 'assistant' && c.messages[j].content) { last = false; break; }
@@ -5022,6 +4780,15 @@ async function deleteProvider(pid, name) {
   </script>
 
 
+  <div id="toasts" class="toasts" aria-live="polite"></div>
+  <dialog id="nameDialog" class="name-dialog" aria-labelledby="nameDialogLabel">
+    <form method="dialog" onsubmit="event.preventDefault(); this.closest('dialog').close('ok');">
+      <label id="nameDialogLabel" for="nameDialogInput">Name</label>
+      <input id="nameDialogInput" class="zo-input" autocomplete="off" spellcheck="false">
+      <div class="name-dialog-actions"><button type="button" class="zo-pill" onclick="this.closest('dialog').close('')">Cancel</button><button type="submit" class="zo-btn-primary" id="nameDialogOk">OK</button></div>
+    </form>
+  </dialog>
+
   <!-- MCP MODAL -->
   <div class="modal-bg" id="mcpModal" role="dialog" aria-modal="true" aria-label="Add custom MCP server" onclick="if(event.target===this)closeMcpModal()">
     <div class="modal-card">
@@ -5032,7 +4799,7 @@ async function deleteProvider(pid, name) {
       <label>Transport</label>
       <div style="display: flex; gap: 6px;"><button type="button" class="daychip on" id="mcpTrHttp" aria-pressed="true" onclick="setMcpTransport('http')">Streamable HTTP</button><button type="button" class="daychip" id="mcpTrSse" aria-pressed="false" onclick="setMcpTransport('sse')">SSE</button></div>
       <label for="mcpToken">Bearer token (optional)</label><input type="password" id="mcpToken" placeholder="Token" autocomplete="off">
-      <div style="font-size: 11.5px; color: var(--text-muted);">SU sends this value in the Authorization header.</div>
+      <div style="font-size: 11.5px; color: var(--text-muted);">__AGENT_NAME__ sends this value in the Authorization header.</div>
       <div id="mcpModalMsg" style="font-size: 12px; color: #f87171;"></div>
       <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
         <button class="btn-sm" onclick="closeMcpModal()">Cancel</button>
