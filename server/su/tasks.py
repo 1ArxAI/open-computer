@@ -27,6 +27,7 @@ import yaml
 from openai import AsyncOpenAI
 
 from .config import HOME, TASK_DIR, WORKSPACE, _read, _write, env, log, now_iso
+from .services import normalise, service_env, service_url
 
 # tasks (24/7 background processes) ------------------------------------------
 # A task is a shell command the gateway keeps running: started/stopped from the UI or by the agent, logs to a file,
@@ -89,7 +90,7 @@ def task_activity(tid: str) -> Dict:
 
 
 def _task_view(t: Dict) -> Dict:
-    return {**t, "running": task_alive(t), **task_activity(t["id"])}
+    return {**t, "running": task_alive(t), "url": service_url(t), **task_activity(t["id"])}
 
 
 def list_tasks() -> List[Dict]:
@@ -109,7 +110,8 @@ def save_task(t: Dict) -> Dict:
     t.setdefault("restarts", 0)
     t.setdefault("created", now_iso())
     t["cwd"] = t.get("cwd") or str(WORKSPACE)
-    t.pop("running", None)
+    normalise(t)
+    t.pop("running", None); t.pop("url", None)
     _write(TASK_DIR / f"{t['id']}.json", t)
     return _task_view(t)
 
@@ -132,7 +134,7 @@ def start_task(tid: str) -> Dict:
     t["desired"] = "running"
     if not t["running"]:
         nonce = uuid.uuid4().hex[:8]
-        argv, penv = ["bash", "-c", t["command"]], {**_proc_env(), "SU_TASK_ID": tid, "SU_TASK_RUN": nonce}
+        argv, penv = ["bash", "-c", t["command"]], {**_proc_env(), **service_env(t), "SU_TASK_ID": tid, "SU_TASK_RUN": nonce}
         if _systemd_user_ok():  # own transient scope: outside the gateway's cgroup, so it survives gateway restarts
             penv["XDG_RUNTIME_DIR"] = f"/run/user/{os.getuid()}"
             argv = ["systemd-run", "--user", "--scope", "--quiet", "--collect", "--unit", f"su-task-{tid}-{nonce}"] + argv

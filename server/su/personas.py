@@ -1,42 +1,14 @@
-"""Saved agents (personas) and tool scopes."""
-import asyncio
-import hashlib
-import json
-import logging
-import os
+"""Saved agents (personas): name, instructions, default model, tool scopes."""
 import re
-import shutil
-import signal
-import smtplib
-import subprocess
-import tarfile
-import time
 import uuid
-import io
-from datetime import datetime, timedelta
-from email.mime.text import MIMEText
-import email.utils
-from pathlib import Path
-from typing import Any, Callable, Dict, List, Optional, Tuple, Union
-from urllib.parse import urlparse, urljoin
-from zoneinfo import ZoneInfo
-import ipaddress
-import socket
-import httpx
-import yaml
-from openai import AsyncOpenAI
+from typing import Dict, List, Optional
 
 from .config import DATA, _read, _write, now_iso
-
-# agents (Zo personas): name + instructions + default model + tool scope ----------
+from .scopes import PRESETS, filter_tools
 
 AGENTS_DIR = DATA / "agents"
 AGENTS_DIR.mkdir(parents=True, exist_ok=True)
-SCOPES = {"all": None,
-          "workspace": {"run_command", "send_email", "send_telegram", "create_task", "control_task"},  # files, web, apps; no shell, no comms
-          "read": {"run_command", "write_file", "send_email", "send_telegram", "create_skill", "create_automation", "update_automation", "delete_automation", "create_agent", "create_task", "control_task"},
-          "chat": "*"}  # chat = no tools at all
-CC_SCOPE_DISALLOW = {"workspace": ["Bash"], "read": ["Bash", "Write", "Edit", "NotebookEdit"], "chat": ["*"]}
+SCOPES = PRESETS  # preset names, kept for older callers
 
 
 def list_agents() -> List[Dict]:
@@ -57,7 +29,11 @@ def get_agent(aid: Optional[str]) -> Optional[Dict]:
 def save_agent(a: Dict) -> Dict:
     a.setdefault("id", "ag_" + uuid.uuid4().hex[:8])
     a["handle"] = re.sub(r"[^a-z0-9]+", "-", (a.get("handle") or a.get("name", "agent")).lower()).strip("-")
-    a.setdefault("scope", "all")
+    scopes = a.get("scopes")
+    if isinstance(scopes, str):
+        scopes = [s.strip() for s in scopes.split(",") if s.strip()]
+    a["scopes"] = scopes if scopes is not None else [a.get("scope") or "all"]
+    a["scope"] = a.get("scope") or (a["scopes"][0] if len(a["scopes"]) == 1 and a["scopes"][0] in PRESETS else "custom")
     a.setdefault("model", None)
     a.setdefault("created", now_iso())
     _write(AGENTS_DIR / f"{a['id']}.json", a)
@@ -72,21 +48,15 @@ def delete_agent(aid: str) -> bool:
     return False
 
 
-def scope_filter(tools: List[Dict], scope: str) -> List[Dict]:
-    block = SCOPES.get(scope or "all")
-    if block is None:
-        return tools
-    if block == "*":
-        return []
-    out = []
-    for t in tools:
-        n = t["function"]["name"]
-        if n in block:
-            continue
-        if scope == "read" and (n.startswith("app__") or n.startswith("mcp__")) and not any(k in n for k in ("get", "list", "find", "search", "read", "retrieve")):
-            continue
-        out.append(t)
-    return out
+def persona_scopes(a: Optional[Dict]):
+    """The scope list a persona runs with; None (every tool) when there is no persona."""
+    if not a:
+        return None
+    return a.get("scopes") or a.get("scope") or "all"
+
+
+def scope_filter(tools: List[Dict], scopes) -> List[Dict]:
+    return filter_tools(tools, scopes)
 
 
 def agent_system_extra(a: Optional[Dict]) -> str:

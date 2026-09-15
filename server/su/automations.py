@@ -27,6 +27,7 @@ import yaml
 from openai import AsyncOpenAI
 
 from . import providers as _providers
+from . import rrule
 from .config import AUTO_DIR, RUNS_DIR, TZ, _read, _write, now_iso
 from .providers import SEED_MODELS, _gemini_native_ok, cc_available, chat_providers, default_model, gemini_simple, split_model
 from .runtime_claude import cc_quick
@@ -49,8 +50,10 @@ def save_automation(a: Dict) -> Dict:
     a.setdefault("enabled", True)
     a.setdefault("notify", "none")
     a.setdefault("created", now_iso())
-    a["schedule_text"] = describe_schedule(a.get("schedule") or {})
-    a["next_run"] = next_run(a["schedule"], datetime.now(TZ)).isoformat(timespec="minutes") if a["enabled"] and a.get("schedule") else None
+    a["schedule"] = normalise_schedule(a.get("schedule"))
+    a["schedule_text"] = describe_schedule(a["schedule"])
+    nxt = next_run(a["schedule"], datetime.now(TZ)) if a["enabled"] and a.get("schedule") else None
+    a["next_run"] = nxt.isoformat(timespec="minutes") if nxt else None
     _write(AUTO_DIR / f"{a['id']}.json", a)
     return a
 
@@ -76,8 +79,20 @@ def list_runs(aid: str, limit: int = 30) -> List[Dict]:
 # {"type":"interval","minutes":480} | {"type":"times","times":["08:00"],"days":[0..6]} | {"type":"once","at":"2026-09-08T09:00"}
 
 
+def normalise_schedule(s) -> Dict:
+    """Accept an RRULE string or the JSON forms; validate RRULEs so a bad one is refused at save time."""
+    if isinstance(s, str):
+        s = {"type": "rrule", "rrule": s.strip()}
+    if isinstance(s, dict) and s.get("type") == "rrule":
+        rrule.parse(s.get("rrule", ""))  # raises ValueError
+        s["rrule"] = s["rrule"].strip().upper().removeprefix("RRULE:")
+    return s or {}
+
+
 def next_run(s: Dict, after: datetime) -> Optional[datetime]:
     t = s.get("type")
+    if t == "rrule":
+        return rrule.next_after(s.get("rrule", ""), after)
     if t == "interval":
         mins = max(5, int(s.get("minutes", 60)))
         anchor = s.get("anchor")
@@ -125,6 +140,8 @@ DAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
 
 def describe_schedule(s: Dict) -> str:
     t = s.get("type")
+    if t == "rrule":
+        return rrule.describe(s.get("rrule", ""))
     if t == "interval":
         m = int(s.get("minutes", 60))
         if m % 1440 == 0:

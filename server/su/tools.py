@@ -37,18 +37,27 @@ from .security import is_safe_file_path
 from .skills import create_skill, read_skill
 from .tasks import _proc_env, delete_task, get_task, list_tasks, save_task, start_task, stop_task, task_logs
 from .web import _web_fetch, _web_search, send_email, send_telegram
+from . import files, media_tools, research, rules, tool_docs
+
+EXTRA = (files, research, rules, media_tools, tool_docs)  # each exposes TOOLS and async handle(name, args)
 
 BUILTIN_TOOLS = [
     _tool("run_command", "Run a bash command on this box. Returns output. 120s timeout.",
           {"command": {"type": "string"}, "cwd": {"type": "string", "description": "Working directory, default workspace"}}, ["command"]),
-    _tool("read_file", "Read a text file.", {"path": {"type": "string"}}),
+    _tool("read_file", "Read a text file, or a page range of a PDF. Large files: pass a line range.",
+          {"path": {"type": "string"}, "start_line": {"type": "integer"}, "end_line": {"type": "integer"}, "pdf_start_page": {"type": "integer"}, "pdf_end_page": {"type": "integer"}}, ["path"]),
     _tool("write_file", "Write a text file (creates parent folders).", {"path": {"type": "string"}, "content": {"type": "string"}}),
-    _tool("list_dir", "List a directory.", {"path": {"type": "string"}}),
-    _tool("edit_file", "Replace an exact text span in a file (old must occur exactly once). Use for small precise edits instead of rewriting whole files.",
-          {"path": {"type": "string"}, "old": {"type": "string"}, "new": {"type": "string"}}),
-    _tool("grep", "Search file contents recursively (regex). Returns file:line:text, max 200 lines.", {"pattern": {"type": "string"}, "path": {"type": "string", "description": "Folder to search, default workspace"}}, ["pattern"]),
+    _tool("list_dir", "List a directory.", {"path": {"type": "string"}, "ignore": {"type": "array", "items": {"type": "string"}, "description": "Names to skip"}}, ["path"]),
+    _tool("edit_file", "Edit a text file with a list of exact operations, applied in order, all or nothing. Call tool_docs('edit_file') first.",
+          {"path": {"type": "string"},
+           "operations": {"type": "array", "items": {"type": "object", "properties": {"op": {"type": "string", "enum": ["replace_block", "insert_after", "insert_before", "delete_block", "append_line"]},
+                                                                                       "block": {"type": "string", "description": "Exact existing text (must occur once)"}, "text": {"type": "string"}}, "required": ["op"]}},
+           "old": {"type": "string", "description": "Shorthand: one exact span to replace"}, "new": {"type": "string"}}, ["path"]),
+    _tool("grep", "Search file contents recursively (regex). Returns file:line:text, max 200 lines.",
+          {"pattern": {"type": "string"}, "path": {"type": "string", "description": "Folder to search, default workspace"}, "include": {"type": "string", "description": "Glob of files to search, e.g. *.py"},
+           "exclude": {"type": "string", "description": "Glob of files to skip"}, "case_sensitive": {"type": "boolean", "description": "default true"}}, ["pattern"]),
     _tool("glob", "Find files by glob pattern, e.g. Projects/**/*.json", {"pattern": {"type": "string"}}),
-    _tool("web_fetch", "Fetch a URL and return readable text (HTML stripped).", {"url": {"type": "string"}}),
+    _tool("web_fetch", "Read a URL as text. For pages that need JavaScript use view_webpage.", {"url": {"type": "string"}}),
     _tool("web_search", "Search the web. Returns titles, URLs, snippets, dates. For news or current events set topic=news and time_range=day or week.",
           {"query": {"type": "string"}, "time_range": {"type": "string", "enum": ["anytime", "day", "week", "month", "year"], "description": "Recency window, default anytime"},
            "topic": {"type": "string", "enum": ["general", "news"], "description": "Search index, default general"}}, ["query"]),
@@ -65,29 +74,34 @@ BUILTIN_TOOLS = [
     _tool("create_skill", "Create or overwrite a skill folder Skills/<name>/SKILL.md (+ optional scripts).",
           {"name": {"type": "string"}, "description": {"type": "string"}, "body": {"type": "string", "description": "Markdown instructions"},
            "scripts": {"type": "object", "description": "filename -> file content", "additionalProperties": {"type": "string"}}}, ["name", "description", "body"]),
-    _tool("create_automation", "Create a scheduled automation. schedule is JSON: {type:interval,minutes} | {type:times,times:['08:00'],days:[0-6 Mon=0]} | {type:monthly,day:1-28,time:'09:00'} | {type:once,at:'YYYY-MM-DDTHH:MM'}",
+    _tool("create_automation", "Create a scheduled automation. Give rrule (RFC 5545, e.g. FREQ=DAILY;BYHOUR=9;BYMINUTE=0, COUNT=1 for one-off) or the JSON schedule. Call tool_docs('create_automation') first.",
           {"name": {"type": "string"}, "prompt": {"type": "string", "description": "Full instructions the agent follows on each run"},
-           "schedule": {"type": "object"}, "notify": {"type": "string", "enum": ["none", "email", "telegram"]},
+           "rrule": {"type": "string", "description": "RRULE without DTSTART or TZID; hours are local time"},
+           "schedule": {"type": "object", "description": "Alternative JSON: {type:interval,minutes} | {type:times,times:['08:00'],days:[0-6]} | {type:monthly,day,time} | {type:once,at}"},
+           "notify": {"type": "string", "enum": ["none", "email"], "description": "email = routine results by email when there is something to report; failures are always emailed"},
            "model": {"type": "string", "description": "provider:model, optional"},
-           "agent": {"type": "string", "description": "id or handle of a saved agent to run as, optional"}}, ["name", "prompt", "schedule"]),
+           "agent": {"type": "string", "description": "id or handle of a saved agent to run as, optional"}}, ["name", "prompt"]),
     _tool("list_automations", "List automations with schedule and status.", {}),
     _tool("list_agents", "List saved agents (personas) that chats and automations can run as.", {}),
     _tool("create_agent", "Create or update a reusable agent (persona): identity + instructions, optional default model, tool scope.",
           {"name": {"type": "string"}, "prompt": {"type": "string", "description": "Who the agent is and how it must work"},
            "model": {"type": "string", "description": "provider:model, optional"},
-           "scope": {"type": "string", "enum": ["all", "workspace", "read", "chat"], "description": "all=every tool; workspace=no shell/comms; read=read-only; chat=no tools"}}, ["name", "prompt"]),
+           "scopes": {"type": "array", "items": {"type": "string"}, "description": "Permission keys (files:read, files:write, shell, web, comms, media, automations, tasks, agents, rules, secrets, apps, mcp) or a preset: all, workspace, read_only, chat. Call tool_docs('create_agent') for details."}}, ["name", "prompt"]),
     _tool("update_automation", "Update fields of an automation by id.",
           {"id": {"type": "string"}, "fields": {"type": "object", "description": "Any of name,prompt,schedule,notify,model,enabled"}}),
     _tool("delete_automation", "Delete an automation by id.", {"id": {"type": "string"}}),
     _tool("create_task", "Register a 24/7 background task: a shell command the gateway keeps running (scrapers, watchers, pollers). Restarted automatically if it exits. Stdout/stderr go to its log. Put the script in Projects/<name>/ first.",
           {"name": {"type": "string"}, "command": {"type": "string", "description": "Shell command, e.g. python3 Projects/scraper/run.py"},
            "cwd": {"type": "string", "description": "Working directory, default workspace"},
+           "mode": {"type": "string", "enum": ["process", "http", "tcp"], "description": "process (default): no endpoint. http: a web service, gets PORT, reachable at a URL. tcp: a raw port."},
+           "port": {"type": "integer", "description": "Local port for http or tcp"}, "env": {"type": "object", "additionalProperties": {"type": "string"}, "description": "Extra environment variables"},
+           "public": {"type": "boolean", "description": "http only: use the owner's SU_SERVICE_URL_PATTERN for a public URL"},
            "start": {"type": "boolean", "description": "Start now (default true)"}}, ["name", "command"]),
     _tool("project_keys", "List the secret KEY_NAMES of one project or group (profile, ai, tools, or a project id from the prompt). Values are never returned.", {"project": {"type": "string"}}),
     _tool("list_tasks", "List 24/7 background tasks with running state, pid, restarts, last exit.", {}),
     _tool("control_task", "Start, stop or delete a background task by id.", {"id": {"type": "string"}, "action": {"type": "string", "enum": ["start", "stop", "delete"]}}),
     _tool("task_logs", "Last lines of a background task's log.", {"id": {"type": "string"}, "lines": {"type": "integer", "description": "default 100"}}, ["id"]),
-]
+] + [t for m in EXTRA for t in m.TOOLS]
 
 
 async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
@@ -104,14 +118,6 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
                 return "Timed out after 120s"
             text = out.decode("utf-8", "replace")
             return (text[-20000:] if text else "") + f"\n[exit {proc.returncode}]"
-        if name == "read_file":
-            safe, err, p = is_safe_file_path(args["path"], allow_write=False)
-            if not safe:
-                return f"<security_error>Blocked read_file: {err}</security_error>"
-            if not p.exists() or p.is_dir():
-                return f"File not found: {args['path']}"
-            content = p.read_text(encoding="utf-8", errors="replace")[:60000]
-            return f'<untrusted_file_content path="{p.name}">\n{content}\n</untrusted_file_content>'
         if name == "write_file":
             safe, err, p = is_safe_file_path(args["path"], allow_write=True)
             if not safe:
@@ -119,38 +125,6 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
             p.parent.mkdir(parents=True, exist_ok=True)
             p.write_text(args["content"], encoding="utf-8")
             return f"Wrote {len(args['content'])} chars to {p}"
-        if name == "list_dir":
-            raw = args.get("path") or WORKSPACE
-            safe, err, p = is_safe_file_path(raw, allow_write=False)
-            if not safe:
-                return f"<security_error>Blocked list_dir: {err}</security_error>"
-            if not p.exists() or not p.is_dir():
-                return f"Directory not found: {raw}"
-            return "\n".join(f"{'d' if x.is_dir() else 'f'} {x.name}" for x in sorted(p.iterdir()))[:20000]
-        if name == "edit_file":
-            safe, err, p = is_safe_file_path(args["path"], allow_write=True)
-            if not safe:
-                return f"<security_error>Blocked edit_file: {err}</security_error>"
-            if not p.exists() or p.is_dir():
-                return f"File not found: {args['path']}"
-            text = p.read_text(encoding="utf-8")
-            n = text.count(args["old"])
-            if n != 1:
-                return f"Edit refused: `old` occurs {n} times (must be exactly once)."
-            p.write_text(text.replace(args["old"], args["new"], 1), encoding="utf-8")
-            return f"Edited {p}"
-        if name == "grep":
-            raw = args.get("path") or WORKSPACE
-            safe, err, root = is_safe_file_path(raw, allow_write=False)
-            if not safe:
-                return f"<security_error>Blocked grep: {err}</security_error>"
-            proc = await asyncio.create_subprocess_exec("grep", "-rnIE", "--exclude-dir=.git", "--exclude-dir=node_modules", "--exclude-dir=.ssh", "--exclude=.env*",
-                                                        "--", args["pattern"], str(root), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
-            out, _ = await asyncio.wait_for(proc.communicate(), timeout=60)
-            return "\n".join(out.decode("utf-8", "replace").splitlines()[:200]) or "No matches."
-        if name == "glob":
-            hits = sorted(str(p.relative_to(WORKSPACE)) for p in WORKSPACE.glob(args["pattern"]) if p.is_file())[:300]
-            return "\n".join(hits) or "No files."
         if name == "web_fetch":
             return await _web_fetch(args["url"])
         if name == "web_search":
@@ -168,8 +142,14 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
         if name == "create_skill":
             return "Created skill at " + create_skill(args["name"], args["description"], args["body"], args.get("scripts"))
         if name == "create_automation":
-            a = save_automation({"name": args["name"], "prompt": args["prompt"], "schedule": args["schedule"],
-                                 "notify": args.get("notify", "none"), "model": args.get("model") or None, "agent": args.get("agent") or None})
+            sched = args.get("rrule") or args.get("schedule")
+            if not sched:
+                return "Give rrule (e.g. FREQ=DAILY;BYHOUR=9;BYMINUTE=0) or a schedule object."
+            try:
+                a = save_automation({"name": args["name"], "prompt": args["prompt"], "schedule": sched,
+                                     "notify": "email" if args.get("notify") == "email" else "none", "model": args.get("model") or None, "agent": args.get("agent") or None})
+            except ValueError as e:
+                return f"Schedule refused: {e}"
             return json.dumps({"id": a["id"], "schedule_text": a["schedule_text"], "next_run": a["next_run"]})
         if name == "list_automations":
             return json.dumps([{k: a.get(k) for k in ("id", "name", "schedule_text", "notify", "enabled", "next_run", "last_status")} for a in list_automations()], indent=1)
@@ -184,15 +164,19 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
             return json.dumps([{k: a.get(k) for k in ("id", "name", "handle", "scope", "model")} for a in list_agents()], indent=1) or "[]"
         if name == "create_agent":
             existing = get_agent(args["name"])
-            a = save_agent({**(existing or {}), "name": args["name"], "prompt": args["prompt"], "model": args.get("model") or (existing or {}).get("model"), "scope": args.get("scope") or (existing or {}).get("scope", "all")})
-            return json.dumps({"id": a["id"], "handle": a["handle"], "scope": a["scope"]})
+            a = save_agent({**(existing or {}), "name": args["name"], "prompt": args["prompt"], "model": args.get("model") or (existing or {}).get("model"),
+                            "scopes": args.get("scopes") or args.get("scope") or (existing or {}).get("scopes") or "all"})
+            return json.dumps({"id": a["id"], "handle": a["handle"], "scopes": a["scopes"]})
         if name == "delete_automation":
             return "Deleted" if delete_automation(args["id"]) else "Not found"
         if name == "create_task":
-            t = save_task({"name": args["name"], "command": args["command"], "cwd": args.get("cwd") or None})
+            t = save_task({"name": args["name"], "command": args["command"], "cwd": args.get("cwd") or None, "mode": args.get("mode") or "process",
+                           "port": args.get("port"), "env": args.get("env") or {}, "public": bool(args.get("public"))})
+            if t["mode"] != "process" and not t.get("port"):
+                return "http and tcp services need a port."
             if args.get("start", True):
                 t = start_task(t["id"])
-            return json.dumps({"id": t["id"], "running": t["running"], "pid": t.get("pid")})
+            return json.dumps({"id": t["id"], "running": t["running"], "pid": t.get("pid"), "mode": t["mode"], "url": t.get("url")})
         if name == "project_keys":
             pid = (args.get("project") or "").strip().lower()
             keys = secrets_by_group().get(pid) or []
@@ -224,6 +208,10 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
             return "\n".join(f"- {t['name']}: {t['description'][:140]}\n  params: {json.dumps((t.get('schema') or {}).get('properties', {}))[:600]}" for t in tools) or "No tools."
         if name == "use_app":
             return await pd_call(await pd_resolve_slug(args["app"]), args["tool"], args.get("args") or {})
+        for m in EXTRA:
+            out = await m.handle(name, args)
+            if out is not None:
+                return out
         if name.startswith("app__"):
             _, slug, tool = name.split("__", 2)
             return await pd_call(slug, tool, args)
@@ -239,18 +227,19 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
 
 # ---------------------------------------------------------------- prompt tiers: core tools always, the rest loaded on demand with more_tools
 
-CORE_TOOLS = ["run_command", "read_file", "write_file", "edit_file", "list_dir", "grep", "glob", "web_fetch", "web_search", "read_skill", "project_keys"]
+CORE_TOOLS = ["run_command", "read_file", "write_file", "edit_file", "copy_file", "list_dir", "grep", "glob", "web_fetch", "web_search", "web_research", "view_webpage", "read_skill", "project_keys", "tool_docs"]
 TOOL_GROUPS = {
     "apps": ["search_app_catalog", "connect_app", "list_app_tools", "use_app"],
-    "media": ["generate_image", "generate_video"],
+    "media": ["generate_image", "edit_image", "generate_video", "generate_speech", "transcribe", "generate_diagram"],
     "automations": ["create_automation", "list_automations", "update_automation", "delete_automation"],
     "tasks": ["create_task", "list_tasks", "control_task", "task_logs"],
     "agents": ["list_agents", "create_agent"],
     "skills": ["create_skill"],
     "comms": ["send_email", "send_telegram"],
+    "rules": ["create_rule", "list_rules", "edit_rule", "delete_rule"],
 }
-GROUP_HELP = {"apps": "connected apps (Gmail, GitHub...) via Pipedream", "media": "generate images and videos", "automations": "scheduled automations",
-              "tasks": "24/7 background tasks", "agents": "saved personas", "skills": "create a skill", "comms": "email, Telegram"}
+GROUP_HELP = {"apps": "connected apps (Gmail, GitHub...) via Pipedream", "media": "images, image edits, video, speech, transcription, diagrams", "automations": "scheduled automations",
+              "tasks": "24/7 background tasks", "agents": "saved personas", "skills": "create a skill", "comms": "email, Telegram", "rules": "the owner's standing rules"}
 _GROUP_OF = {n: g for g, ns in TOOL_GROUPS.items() for n in ns}
 
 
@@ -286,7 +275,8 @@ def tools_for_tier(all_tools: List[Dict], tier: str):
 
 SU_MCP_TOOLS = ["generate_image", "generate_video", "send_email", "send_telegram", "web_search", "web_fetch", "list_app_tools", "use_app",
                 "create_automation", "list_automations", "update_automation", "delete_automation", "create_skill",
-                "create_task", "list_tasks", "control_task", "task_logs",
+                "create_task", "list_tasks", "control_task", "task_logs", "copy_file", "web_research", "view_webpage", "tool_docs",
+                "edit_image", "generate_speech", "transcribe", "generate_diagram", "create_rule", "list_rules", "edit_rule", "delete_rule",
                 "list_agents", "create_agent", "search_app_catalog", "connect_app", "project_keys"]
 
 

@@ -27,6 +27,7 @@ import yaml
 from openai import AsyncOpenAI
 
 from .config import AGENT_NAME, RULES_FILE, TZ, WORKSPACE, env
+from .rules import rules_text
 from .digest import digest_text
 from .media import media_models
 from .memory import memory_text
@@ -42,7 +43,7 @@ def system_prompt(extra: str = "", tier: str = "build", projects: Optional[List[
     skills = list_skills()
     skills_txt = "\n".join(f"- {s['name']}: {s['description']}" for s in skills) or "(none installed)"
     secrets = secrets_block(projects)
-    rules = RULES_FILE.read_text(encoding="utf-8") if RULES_FILE.exists() else ""
+    rules = ((RULES_FILE.read_text(encoding="utf-8") if RULES_FILE.exists() else "").rstrip() + "\n" + rules_text()).strip()
     manual = (WORKSPACE / "SU.md").read_text(encoding="utf-8") if (WORKSPACE / "SU.md").exists() else ""
     ags = list_agents()
     agents_line = ("Saved agents (personas) usable via the 'agent' field of automations: " + ", ".join(f"{a['name']} ({a['handle']})" for a in ags) + "\n") if ags else ""

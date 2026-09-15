@@ -240,6 +240,8 @@ _cors_origins = [o.strip() for o in agent.env().get("SU_CORS_ORIGINS", _DEFAULT_
 if "*" in _cors_origins:  # credentialed requests must never be wildcard-open
     print("SU_CORS_ORIGINS: '*' is not allowed with cookies; ignoring it. List exact origins instead.")
     _cors_origins = [o for o in _cors_origins if o != "*"]
+app.include_router(agent.services.router)  # private reverse proxy for http services: /api/svc/<label>/
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=_cors_origins,
@@ -837,7 +839,7 @@ class AutomationBody(BaseModel):
     id: Optional[str] = None
     name: str
     prompt: str
-    schedule: Dict[str, Any]
+    schedule: Any  # JSON schedule object, or an RRULE string
     notify: str = "none"
     model: Optional[str] = None
     agent: Optional[str] = None
@@ -857,7 +859,10 @@ async def upsert_automation(body: AutomationBody):
     else:
         data.pop("id")
         a = data
-    return agent.save_automation(a)
+    try:
+        return agent.save_automation(a)
+    except ValueError as e:
+        raise HTTPException(400, str(e))
 
 @app.get("/api/automations/{aid}")
 async def get_automation(aid: str):
@@ -896,6 +901,10 @@ class TaskBody(BaseModel):
     name: str
     command: str
     cwd: Optional[str] = None
+    mode: str = "process"  # process | http | tcp
+    port: Optional[int] = None
+    env: Dict[str, str] = {}
+    public: bool = False
 
 @app.get("/api/tasks")
 async def get_tasks():
@@ -906,17 +915,21 @@ async def get_tasks():
 async def upsert_task(body: TaskBody):
     t = agent.get_task(body.id) if body.id else None
     data = body.model_dump()
+    if data["mode"] != "process" and not data.get("port"):
+        raise HTTPException(400, "http and tcp services need a port")
+    fields = {k: data[k] for k in ("name", "command", "mode", "port", "env", "public")}
+    fields["cwd"] = data["cwd"] or (t or {}).get("cwd")
     if t:
-        if t["running"] and (t["command"] != data["command"] or (data["cwd"] or t["cwd"]) != t["cwd"]):
+        changed = any(t.get(k) != v for k, v in fields.items() if k != "name")
+        if t["running"] and changed:
             await agent.stop_task(t["id"])
             t = agent.get_task(t["id"])
-            t.update(name=data["name"], command=data["command"], cwd=data["cwd"])
+            t.update(fields)
             agent.save_task(t)
             return agent.start_task(t["id"])
-        t.update(name=data["name"], command=data["command"], cwd=data["cwd"] or t["cwd"])
+        t.update(fields)
     else:
-        data.pop("id")
-        t = data
+        t = fields
     return agent.save_task(t)
 
 @app.get("/api/tasks/{tid}")
@@ -970,7 +983,7 @@ class AgentBody(BaseModel):
 
 @app.get("/api/agents")
 async def get_agents():
-    return {"agents": agent.list_agents(), "scopes": list(agent.SCOPES)}
+    return {"agents": agent.list_agents(), **agent.scopes.describe()}
 
 @app.get("/personas/available")
 async def personas_available():
@@ -1404,6 +1417,22 @@ async def get_rules():
 @app.post("/api/rules")
 async def set_rules(body: Dict[str, str]):
     agent.RULES_FILE.write_text(body.get("rules", ""), encoding="utf-8")
+    return {"ok": True}
+
+@app.get("/api/rules/items")
+async def rule_items():
+    return {"rules": agent.list_rules()}
+
+@app.post("/api/rules/items")
+async def add_rule_item(body: Dict[str, str]):
+    if not (body.get("instruction") or "").strip():
+        raise HTTPException(400, "instruction is required")
+    return agent.create_rule(body["instruction"], body.get("condition", ""))
+
+@app.delete("/api/rules/items/{rid}")
+async def delete_rule_item(rid: str):
+    if not agent.delete_rule(rid):
+        raise HTTPException(404, "No such rule")
     return {"ok": True}
 
 # ==================== APP INTEGRATIONS & CONNECTIVITY ====================

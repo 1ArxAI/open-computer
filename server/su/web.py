@@ -44,6 +44,9 @@ async def _web_fetch(url: str) -> str:
     if not safe:
         return f"<security_error>Blocked URL '{url}': {err}</security_error>"
     e = env()
+    got = await tinyfish_fetch([url])  # free readable-text endpoint when a TinyFish key is set; direct fetch otherwise
+    if got.get(url):
+        return f"<untrusted_web_content url=\"{url}\">\n{got[url][:40000]}\n</untrusted_web_content>"
     curr_url = url
     text = ""
     ctype = ""
@@ -78,6 +81,27 @@ async def _web_fetch(url: str) -> str:
 def _tinyfish_key() -> str:
     e = env()
     return e.get("TINYFISH_API_KEY", "")
+
+
+async def tinyfish_fetch(urls: List[str]) -> Dict[str, str]:
+    """TinyFish Fetch (free endpoint): readable markdown for up to 10 URLs. {} when no key or on any error."""
+    key = _tinyfish_key()
+    if not key or not urls:
+        return {}
+    try:
+        async with httpx.AsyncClient(timeout=60) as c:
+            r = await c.post("https://api.fetch.tinyfish.ai", json={"urls": urls[:10], "format": "markdown"}, headers={"X-API-Key": key})
+        r.raise_for_status()
+        out = {}
+        for item in r.json().get("results") or []:
+            if item.get("text"):
+                out[item.get("url") or item.get("final_url")] = item["text"]
+                if item.get("final_url"):
+                    out.setdefault(item["final_url"], item["text"])
+        return out
+    except Exception as ex:
+        log.warning("tinyfish fetch failed: %s", ex)
+        return {}
 
 
 _RECENCY_MINUTES = {"day": 1440, "week": 10080, "month": 43200, "year": 525600}

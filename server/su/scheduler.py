@@ -27,6 +27,7 @@ import yaml
 from openai import AsyncOpenAI
 
 from . import channels as _channels
+from . import rrule
 from .automations import get_automation, list_automations, save_automation
 from .channels import email_channel_tick
 from .config import HOME, RUNS_DIR, TZ, _write, env, now_iso
@@ -66,7 +67,7 @@ async def run_automation(a: Dict, trigger: str = "schedule", on_event=None, conv
     fresh["last_run"], fresh["last_status"] = rec["finished"], rec["status"]
     if trigger == "schedule":
         s = fresh.get("schedule") or {}
-        if s.get("type") == "once":
+        if s.get("type") == "once" or (s.get("type") == "rrule" and rrule.is_once(s.get("rrule", ""))):
             fresh["enabled"] = False
     save_automation(fresh)
     return rec

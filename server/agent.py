@@ -6,7 +6,7 @@ from su.providers import CAP_LETTER, CC_MODELS, CLAUDE_BIN, GEMINI_BIN, GEMINI_C
 from su.conversations import history_transcript, list_conversations, load_conversation, model_history, new_conversation, save_conversation
 from su.automations import DAYS, _ampm, delete_automation, describe_schedule, get_automation, list_automations, list_runs, next_run, parse_schedule_nl, save_automation
 from su.tasks import TASK_LOG_MAX, _ERR_RE, _TASK_PROCS, _TS_PREFIX, _pid_alive, _proc_env, _systemd_user_ok, _task_log, _task_view, delete_task, get_task, list_tasks, save_task, start_task, stop_task, task_activity, task_alive, task_logs, tasks_tick
-from su.personas import AGENTS_DIR, CC_SCOPE_DISALLOW, SCOPES, agent_system_extra, delete_agent, get_agent, list_agents, save_agent, scope_filter
+from su.personas import AGENTS_DIR, SCOPES, agent_system_extra, delete_agent, get_agent, list_agents, save_agent, scope_filter
 from su.skills import _catalog_cache, _frontmatter, _skills_cache, create_skill, install_skill, list_skills, read_skill, skills_catalog
 from su.mcp import _root_error, list_mcp, mcp_call, mcp_reload, mcp_session, mcp_tool_specs, save_mcp
 from su.pipedream import PD_API, PD_FEATURED, PD_FILE, PD_MCP, PD_USER, _app_tools, _pd_accounts_cache, _pd_app, _pd_cache, _pd_slugs_cache, _pd_store, _pd_token, pd_accounts, pd_app_tools, pd_apps, pd_call, pd_config, pd_connect_link, pd_connected_slugs, pd_delete_account, pd_headers, pd_resolve_slug, pd_token, pd_tool_specs
@@ -25,3 +25,7 @@ from su.runtime_gemini_native import _gemini_stream, run_gemini_native
 from su.loop import _Fn, _Msg, _Resp, _TC, _stream_completion, refs_context, run_agent, types_SimpleNamespace
 from su.channels import CHANNELS_FILE, _chan_save, _chan_state, _mail_fetch_unseen, _mail_text, channel_run_hook, channels_status, email_channel_tick, mail_allowed, mail_clean_body, telegram_channel_loop, telegram_config
 from su.scheduler import _running_lock, automation_default_model, run_automation, scheduler_loop, tunnel_url_tick
+from su import audio, diagram, files, media_tools, research, rrule, rules, scopes, services, tool_docs
+from su.rules import create_rule, delete_rule, edit_rule, list_rules, rules_text
+from su.automations import normalise_schedule
+from su.personas import persona_scopes

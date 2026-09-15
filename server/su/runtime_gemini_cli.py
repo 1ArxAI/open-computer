@@ -31,6 +31,7 @@ from .config import HOME, SKILLS_DIR, WORKSPACE, _write, env, now_iso
 from .conversations import history_transcript, save_conversation
 from .prompt import system_prompt
 from .providers import gemini_cli_logged_in
+from .scopes import expand
 from .runtime_claude import cc_mcp_config
 
 async def _gemini_write_settings():
@@ -68,7 +69,7 @@ async def run_gemini_cli(conv: Dict, user_input: str, model: str, on_event=None,
             "create_automation, list_automations, update_automation, delete_automation, create_skill, search_app_catalog, connect_app, list_app_tools. "
             "Use generate_image / generate_video for any image or video request instead of scripting media.\n")
     prompt = system_prompt(note + extra_system) + (f"\n\n---\nEarlier in this conversation:\n{earlier}" if earlier else "") + "\n\n---\nOwner request:\n" + user_input
-    cmd = [_providers.GEMINI_BIN, "-p", prompt, "-o", "stream-json", "-m", model, "--skip-trust", "--approval-mode", "plan" if scope in ("read", "chat") else "yolo"]
+    cmd = [_providers.GEMINI_BIN, "-p", prompt, "-o", "stream-json", "-m", model, "--skip-trust", "--approval-mode", "yolo" if "shell" in expand(scope) else "plan"]
     e = {**os.environ, **{k: v for k, v in env().items() if k.isupper()}, "HOME": str(HOME.parent), "TERM": "dumb",
          "PATH": str(Path.home() / ".local/bin") + ":" + os.environ.get("PATH", ""), "GEMINI_CLI_TRUST_WORKSPACE": "true"}
     if gemini_cli_logged_in() and env().get("SU_GEMINI_CLI_AUTH", "apikey") == "google":

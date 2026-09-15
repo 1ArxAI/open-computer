@@ -309,16 +309,19 @@ Args:
     description: Optional short human-readable label for the command (shown in the UI). Does not affect execution.
 ```
 
-## Where Open Computer differs today
+## Where Open Computer stands (15 September 2026)
 
-- **Schedules**: Zo takes an RFC 5545 RRULE (`FREQ=DAILY;BYHOUR=9;BYMINUTE=0`, `COUNT=1` for one-offs). Open Computer takes `{type: interval|times|monthly|once}` JSON.
-- **Delivery channels**: Zo offers email, SMS, Telegram, Slack, Discord per automation and always emails on failure. Open Computer offers email and Telegram.
-- **Services**: Zo services have modes `http`, `tcp`, `process`, a public or private URL, and `env_vars`. Open Computer tasks are process-only with no URL.
-- **Personas**: Zo has resource:action scopes with presets and a per-channel active persona. Open Computer has four coarse scopes.
-- **Rules**: Zo stores rules as objects with an optional condition. Open Computer has one `RULES.md`.
-- **Web**: Zo has time_range, topic and domain filters on search, a deeper `web_research`, a browser (`open/view/use_webpage`), and X, image and maps search. Open Computer has `web_search(query)` and `web_fetch(url)`.
-- **Files**: Zo reads by line range and PDF pages, edits with an operation list, has `copy_file`, and grep with include/exclude patterns. Open Computer reads whole files, edits one exact span, has no copy.
-- **Media**: Zo has `edit_image`, `generate_speech`, transcription and D2 diagrams. Open Computer has image and video generation only.
-- **Tool docs**: Zo keeps tool descriptions short and serves detailed guidance on demand through `tool_docs(tool_name)`. Open Computer loads whole tool groups through `more_tools(group)`.
-- **Models**: Zo reports `context_window` per model. Open Computer guesses the context budget (`SU_CONTEXT_BUDGET`).
-- **Hosted sites** (`zo.space` routes, publish_site): not in Open Computer.
+Cloned from Zo:
+- **Schedules**: RFC 5545 RRULE (`FREQ=DAILY;BYHOUR=9;BYMINUTE=0`, `COUNT=1` for one-offs) alongside the JSON forms. Delivery is email only, by design.
+- **Services**: tasks have modes `process`, `http` (gets `PORT`, private URL at `/api/svc/<label>/`, public via `SU_SERVICE_URL_PATTERN`) and `tcp`, with env vars.
+- **Web**: `web_search` with `time_range` and `topic`, `web_research` (search then read the top pages), `view_webpage` (browserless text + screenshot), `web_fetch` through TinyFish Fetch when a key is set. Only TinyFish's free Search and Fetch endpoints are used.
+- **Files**: `read_file` by line range and PDF pages, `edit_file` with an operation list applied all-or-nothing, `copy_file`, `list_dir` ignore list, `grep` include/exclude/case filters.
+- **Personas and rules**: `resource:action` scopes with presets (all, workspace, read_only, chat); rules as objects with a condition, editable by the agent and in Settings › Agent.
+- **Tool docs**: `tool_docs(tool_name)` serves detailed guidance on demand.
+- **Media**: `edit_image`, `generate_speech`, `transcribe` (audio and video), `generate_diagram` (D2). Speech and transcription run on any OpenAI-compatible provider via `SU_SPEECH_MODEL` and `SU_TRANSCRIBE_MODEL`.
+
+Not cloned:
+- X, image and maps search, and the in-page browser agent (`use_webpage`): they need paid providers or a browser agent.
+- SMS, Slack and Discord delivery: email only.
+- Hosted sites (`zo.space` routes, `publish_site`).
+- Per-model `context_window` from providers; the loop still uses `SU_CONTEXT_BUDGET`.

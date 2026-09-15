@@ -30,7 +30,7 @@ from . import providers as _providers
 from .config import DATA, HOME, SKILLS_DIR, WORKSPACE, _write, env, now_iso
 from .conversations import history_transcript, save_conversation
 from .mcp import list_mcp
-from .personas import CC_SCOPE_DISALLOW
+from .scopes import claude_disallow
 from .pipedream import PD_MCP, pd_config, pd_connected_slugs, pd_headers
 from .prompt import system_prompt
 
@@ -93,10 +93,11 @@ async def run_claude_code(conv: Dict, user_input: str, model: str, on_event=None
            "--mcp-config", str(mcp_path), "--strict-mcp-config"]
     if conv.get("cc_session"):
         cmd += ["--resume", conv["cc_session"]]
-    if scope == "chat" or tier == "chat":  # chat tier: no built-in tools (shell, files); the su MCP web tools stay
+    disallow = claude_disallow(scope)
+    if tier == "chat" or disallow == ["*"]:  # chat tier: no built-in tools (shell, files); the su MCP web tools stay
         cmd += ["--tools", ""]
-    elif CC_SCOPE_DISALLOW.get(scope):
-        cmd += ["--disallowedTools", ",".join(CC_SCOPE_DISALLOW[scope])]
+    elif disallow:
+        cmd += ["--disallowedTools", ",".join(disallow)]
     e = {**os.environ, **{k: v for k, v in env().items() if k.isupper()}, "HOME": str(HOME.parent), "TERM": "dumb",
          "PATH": str(Path.home() / ".local/bin") + ":" + os.environ.get("PATH", "")}
     proc = await asyncio.create_subprocess_exec(*cmd, cwd=str(WORKSPACE), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, env=e)

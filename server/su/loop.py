@@ -31,7 +31,7 @@ from .automations import list_automations
 from .config import MAX_STEPS, WORKSPACE, env, now_iso
 from .conversations import history_transcript, load_conversation, model_history, save_conversation
 from .mcp import list_mcp, mcp_tool_specs
-from .personas import agent_system_extra, get_agent, scope_filter
+from .personas import agent_system_extra, get_agent, persona_scopes, scope_filter
 from .pipedream import _app_tools, pd_config, pd_connected_slugs, pd_tool_specs
 from .planner import _end_with_plan_or_final, ensure_digest, fold_history, plan_turn
 from .prompt import system_prompt
@@ -199,14 +199,14 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
                 await emit({"type": "text", "text": pt["announce"]})
                 conv["messages"] += [{"role": "user", "content": user_input}, {"role": "assistant", "content": pt["announce"]}]; save_conversation(conv)
                 conv["_user_appended"] = True
-        return await run_claude_code(conv, user_input, model.split(":", 1)[1], on_event, extra_system, scope=(persona or {}).get("scope", "all"), tier=tier, projects=projects)
+        return await run_claude_code(conv, user_input, model.split(":", 1)[1], on_event, extra_system, scope=persona_scopes(persona), tier=tier, projects=projects)
     if model.startswith("gemini-cli:"):
         if not gemini_cli_available():
             msg = "Gemini CLI is not available (needs GEMINI_API_KEY, or it is switched offline in Settings > Models)."
             await emit({"type": "error", "text": msg})
             conv["messages"] += [{"role": "user", "content": user_input}, {"role": "assistant", "content": msg}]; save_conversation(conv)
             return msg
-        return await run_gemini_cli(conv, user_input, model.split(":", 1)[1], on_event, extra_system, scope=(persona or {}).get("scope", "all"))
+        return await run_gemini_cli(conv, user_input, model.split(":", 1)[1], on_event, extra_system, scope=persona_scopes(persona))
     tier, announce, preload, projects = "build", None, [], None
     if plan_first and env().get("SU_PLAN_FIRST", "1") != "0":
         await ensure_digest()
@@ -236,7 +236,7 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
             connected_apps = await pd_connected_slugs()
         except Exception as e:
             await emit({"type": "text", "text": f"(Pipedream apps unavailable: {e})"})
-    tools = scope_filter(tools, (persona or {}).get("scope", "all"))
+    tools = scope_filter(tools, persona_scopes(persona))
     tools, lazy_groups = tools_for_tier(tools, tier)
     for g in preload:  # groups the planner named are loaded up front; the rest stay behind more_tools
         tools += lazy_groups.pop(g, [])
