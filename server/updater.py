@@ -194,7 +194,7 @@ async def check_for_updates(force: bool = False) -> Dict[str, Any]:
 async def _schedule_restart():
     """Wait briefly for HTTP response to be flushed, then restart service."""
     await asyncio.sleep(1.5)
-    for svc in ("zo-gateway", "su", "open-computer"):
+    for svc in dict.fromkeys((os.environ.get("SU_SERVICE_NAME", "").strip() or "su", "su")):
         try:
             proc = await asyncio.create_subprocess_exec(
                 "sudo", "-n", "systemctl", "restart", svc,

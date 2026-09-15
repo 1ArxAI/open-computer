@@ -42,7 +42,6 @@ RUNS_DIR = DATA / "runs"
 MCP_FILE = DATA / "mcp.json"
 PROVIDERS_FILE = DATA / "providers.json"
 RULES_FILE = WORKSPACE / "RULES.md"
-TZ = ZoneInfo(os.environ.get("SU_TZ", "Europe/London"))
 MAX_STEPS = 40
 SKILLS_MANIFEST = "https://raw.githubusercontent.com/zocomputer/skills/main/manifest.json"
 
@@ -93,12 +92,7 @@ PROVIDERS = {
     "local": {"base_url": "http://127.0.0.1:11434/v1", "key": "LOCAL_LLM_URL", "label": "Local (OpenAI-compatible)", "local": True},
 }
 
-PRIMARY_PROVIDERS = {
-    "openrouter", "openai", "google", "anthropic", "groq", "deepseek", "mistral", "together", "xai", "nvidia", "omni", "local"
-}
-
 KEY_ALIASES = {
-    "OMNI_ROUTER_KEY": ["OMNI_KEY", "OMNI_API_KEY"],
     "XAI_API_KEY": ["GROK_API_KEY", "X_AI_API_KEY"],
     "ANTHROPIC_API_KEY": ["CLAUDE_API_KEY"],
     "GEMINI_API_KEY": ["GOOGLE_API_KEY", "PALM_API_KEY"],
@@ -180,6 +174,10 @@ def env() -> Dict[str, str]:
     return e
 
 
+TZ = ZoneInfo(env().get("SU_TZ") or "UTC")
+AGENT_NAME = env().get("SU_AGENT_NAME") or "SU"  # what the assistant calls itself in prompts and the UI
+
+
 def env_file_keys() -> List[str]:
     """Key names in .env. (systemd loads .env into os.environ, so "not in os.environ" is no way to tell secrets from system vars.)"""
     p = HOME / ".env"
@@ -201,7 +199,6 @@ def get_custom_providers() -> List[Dict[str, Any]]:
             ("groq", "Groq", "https://api.groq.com/openai/v1", "GROQ_API_KEY"),
             ("google", "Gemini", "https://generativelanguage.googleapis.com/v1beta/openai/", "GEMINI_API_KEY"),
             ("anthropic", "Anthropic", "https://api.anthropic.com/v1", "ANTHROPIC_API_KEY"),
-            ("omni", "Omni Router", "https://ai.rajoka.com/v1", "OMNI_ROUTER_KEY"),
             ("local", "Local Ollama", "http://127.0.0.1:11434/v1", "LOCAL_LLM_URL"),
         ]
         for pid, name, url, key_var in templates:
@@ -609,48 +606,6 @@ async def _local_models(base_url: str) -> Dict[str, List[str]]:
                 pass
             out[m["id"]] = ["text"] + (["image"] if mods.get("vision") else []) + (["audio"] if mods.get("audio") else [])
     return out
-
-
-_EFFORT_TIER = re.compile(r"-(low|medium|high|xhigh|max|ultra)$")
-
-
-def _omni_floor(models, kind: str = "chat") -> List[str]:
-    best: Dict[str, str] = {}
-    for m in models:
-        d = m.model_dump() if hasattr(m, "model_dump") else (m if isinstance(m, dict) else {})
-        mid = getattr(m, "id", None) or d.get("id") or str(m)
-        if kind == "image":
-            ok = d.get("type") == "image" or "image" in mid.lower()
-        else:
-            ok = d.get("type") not in ("image", "video") and "text" in (d.get("output_modalities") or ["text"])
-        if not ok:
-            continue
-        root = d.get("root") or mid
-        if _EFFORT_TIER.search(root):
-            continue
-        if root not in best or len(mid) < len(best[root]):
-            best[root] = mid
-    
-    seen: Dict[str, int] = {}
-    out: List[str] = []
-    # If there are >100 models, let's just return all of them since the user wants them!
-    # But wait, to avoid overwhelming the UI, we could return up to 200, or just all of them.
-    # The UI handles 1100 models just fine (it's just a dropdown).
-    for i in best.values():
-        v = i.split("/", 1)[0] if "/" in i else ""
-        # Allow up to 10 per vendor to show a wide variety, or just don't limit it if we don't want to.
-        if seen.get(v, 0) < 15:
-            seen[v] = seen.get(v, 0) + 1
-            out.append(i)
-    return out
-
-_omni_images: List[str] = []  # image ids from the last omni /models fetch
-
-
-async def omni_image_models() -> List[str]:
-    if not _omni_images and ("omni" in chat_providers() or any(p.get("id") == "omni" for p in get_custom_providers())):
-        await available_models()
-    return list(_omni_images)
 
 
 async def available_models() -> List[Dict[str, Any]]:
@@ -1660,7 +1615,7 @@ async def pd_connect_link(app: str) -> str:
     h = await pd_headers()
     async with httpx.AsyncClient(timeout=30) as c:
         r = await c.post(f"{PD_API}/connect/{cfg['project_id']}/tokens", headers=h,
-                         json={"external_user_id": PD_USER, "allowed_origins": [o for o in (env().get("SU_PUBLIC_URL", "").rstrip("/"), "http://localhost:8000") if o]})
+                         json={"external_user_id": PD_USER, "allowed_origins": [o for o in (env().get("SU_PUBLIC_URL", "").rstrip("/"), f"http://localhost:{env().get('SU_PORT') or 8000}") if o]})
     r.raise_for_status()
     url = r.json()["connect_link_url"] + "&app=" + app
     # Apps without a shared Pipedream OAuth client (X/Twitter) need your own client: PIPEDREAM_OAUTH_APP_IDS="twitter:oa_xxx,slack_v2:oa_yyy"
@@ -1734,12 +1689,10 @@ def _app_tools():
 
 # ---------------------------------------------------------------- media generation (Zo's Image / Video model rows)
 
-IMAGE_MODEL_DEFAULT = "openrouter:google/gemini-2.5-flash-image"
-
-
 def media_models() -> Dict[str, Optional[str]]:
     e = env()
-    return {"image": e.get("SU_IMAGE_MODEL") or IMAGE_MODEL_DEFAULT, "video": e.get("SU_VIDEO_MODEL") or None}
+    image = e.get("SU_IMAGE_MODEL") or next(iter(available_image_models()), None)  # first model a configured provider offers
+    return {"image": image, "video": e.get("SU_VIDEO_MODEL") or None}
 
 
 def _media_out_path(path: Optional[str], ext: str) -> Path:
@@ -1752,7 +1705,6 @@ def _media_out_path(path: Optional[str], ext: str) -> Path:
     return out
 
 
-GEMINI_IMAGE_MODELS = ["gemini-2.5-flash-image", "gemini-3.1-flash-image", "gemini-3.1-flash-lite-image", "gemini-3-pro-image"]
 
 
 async def _gemini_image(model: str, prompt: str, path: Optional[str], reference: Optional[str]) -> str:
@@ -1807,10 +1759,6 @@ PROVIDER_IMAGE_MODELS = {
 
 def available_image_models() -> List[str]:
     options = []
-    for m in _omni_images:
-        entry = f"omni:{m}"
-        if entry not in options:
-            options.append(entry)
     e = env()
     custom = get_custom_providers()
 
@@ -2196,27 +2144,6 @@ def _ws_path(path: str) -> Path:
     return p if p.is_absolute() else WORKSPACE / p
 
 
-async def _run(cmd: List[str], stdin: Optional[bytes] = None, timeout: int = 600) -> str:
-    proc = await asyncio.create_subprocess_exec(*cmd, stdin=asyncio.subprocess.PIPE if stdin is not None else asyncio.subprocess.DEVNULL,
-                                                stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, env=_proc_env())
-    try:
-        out, err = await asyncio.wait_for(proc.communicate(stdin), timeout=timeout)
-    except asyncio.TimeoutError:
-        proc.kill()
-        raise RuntimeError(f"timed out after {timeout}s")
-    if proc.returncode != 0:
-        raise RuntimeError((err or out).decode("utf-8", "replace")[-600:])
-    return out.decode("utf-8", "replace")
-
-
-# ---------------------------------------------------------------- audio (whisper.cpp + Kokoro) in /opt/su-audio, run locally as the SU user
-
-AUDIO_DIR = Path(os.environ.get("SU_AUDIO_DIR", "/opt/su-audio"))
-
-
-
-
-
 # ---------------------------------------------------------------- tools
 
 
@@ -2246,11 +2173,6 @@ BUILTIN_TOOLS = [
     _tool("generate_video", "Generate a short video clip with the configured video model and save it as a file. Use this whenever the owner asks for a video; do not assemble videos with ffmpeg unless they explicitly ask for that.",
           {"prompt": {"type": "string"}, "path": {"type": "string", "description": "Optional output path (.mp4)"},
            "image": {"type": "string", "description": "Optional starting image path"}, "seconds": {"type": "integer", "description": "Clip length, default 5"}}, ["prompt"]),
-    _tool("transcribe", "Speech to text (Whisper large-v3-turbo, 99 languages including Urdu). Returns the transcript. Audio path is inside the workspace; any format ffmpeg reads.",
-          {"path": {"type": "string"}, "language": {"type": "string", "description": "ISO code like en, ur, hi, ar; default auto"}}, ["path"]),
-    _tool("speak", "Text to speech (Kokoro) saved as a wav file in the workspace.",
-          {"text": {"type": "string"}, "out_path": {"type": "string", "description": "Workspace path ending in .wav, e.g. Projects/x/summary.wav"},
-           "voice": {"type": "string", "description": "Kokoro voice, default af_heart (bf_emma for British, hf_alpha for Hindi)"}, "lang": {"type": "string", "description": "default a"}}, ["text", "out_path"]),
     _tool("read_skill", "Read the full SKILL.md and file list of an installed skill. Call before using a skill.", {"name": {"type": "string"}}),
     _tool("create_skill", "Create or overwrite a skill folder Skills/<name>/SKILL.md (+ optional scripts).",
           {"name": {"type": "string"}, "description": {"type": "string"}, "body": {"type": "string", "description": "Markdown instructions"},
@@ -2420,7 +2342,7 @@ async def _web_fetch(url: str) -> str:
 
 def _tinyfish_key() -> str:
     e = env()
-    return next((e[k] for k in ("TINYFISH_API_KEY", "TINYFISH_API_KEY_1", "TINYFISH_API_KEY_2", "TINYFISH_API_KEY_3", "TINYFISH_API_KEY_4") if e.get(k)), "")
+    return e.get("TINYFISH_API_KEY", "")
 
 
 async def _web_search(query: str) -> str:
@@ -2428,7 +2350,8 @@ async def _web_search(query: str) -> str:
     if key:  # TinyFish Search: ranked results with dates, free tier. Falls back to DuckDuckGo below on any error.
         try:
             async with httpx.AsyncClient(timeout=30) as c:
-                r = await c.get("https://api.search.tinyfish.ai", params={"query": query, "location": "GB"}, headers={"X-API-Key": key})
+                params = {"query": query, **({"location": env()["SU_SEARCH_LOCATION"]} if env().get("SU_SEARCH_LOCATION") else {})}
+                r = await c.get("https://api.search.tinyfish.ai", params=params, headers={"X-API-Key": key})
             r.raise_for_status()
             res = r.json().get("results") or []
             if res:
@@ -2488,7 +2411,7 @@ def send_email(subject: str, body: str, to: Optional[str] = None) -> str:
     to = target_to
     if e.get("RESEND_API_KEY"):
         r = httpx.post("https://api.resend.com/emails", headers={"Authorization": f"Bearer {e['RESEND_API_KEY']}"},
-                       json={"from": e.get("EMAIL_FROM", "SU Computer <onboarding@resend.dev>"), "to": [to], "subject": subject, "text": body}, timeout=30)
+                       json={"from": e.get("EMAIL_FROM", f"{AGENT_NAME} <onboarding@resend.dev>"), "to": [to], "subject": subject, "text": body}, timeout=30)
         return f"Resend {r.status_code}: {r.text[:200]}"
     if not e.get("SMTP_HOST") and mail_config():
         cfg = mail_config()
@@ -2590,10 +2513,6 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
             return await generate_image(args["prompt"], args.get("path"), args.get("reference"))
         if name == "generate_video":
             return await generate_video(args["prompt"], args.get("path"), args.get("image"), int(args.get("seconds") or 5))
-        if name == "transcribe":
-            return await audio_transcribe(args["path"], args.get("language") or "auto", args.get("engine") or "whisper")
-        if name == "speak":
-            return await audio_speak(args["text"], args["out_path"], args.get("voice") or "af_heart", args.get("lang") or "a")
         if name == "read_skill":
             return read_skill(args["name"])
         if name == "create_skill":
@@ -2688,15 +2607,14 @@ CORE_TOOLS = ["run_command", "read_file", "write_file", "edit_file", "list_dir",
 TOOL_GROUPS = {
     "apps": ["search_app_catalog", "connect_app", "list_app_tools", "use_app"],
     "media": ["generate_image", "generate_video"],
-    "audio": ["transcribe", "speak"],
     "automations": ["create_automation", "list_automations", "update_automation", "delete_automation"],
     "tasks": ["create_task", "list_tasks", "control_task", "task_logs"],
     "agents": ["list_agents", "create_agent"],
     "skills": ["create_skill"],
-    "comms": ["send_email", "send_telegram", "call_owner"],
+    "comms": ["send_email", "send_telegram"],
 }
-GROUP_HELP = {"apps": "connected apps (Gmail, GitHub...) via Pipedream", "media": "generate images and videos", "audio": "transcribe audio files, text to speech", "automations": "scheduled automations",
-              "tasks": "24/7 background tasks", "agents": "saved personas", "skills": "create a skill", "comms": "email, Telegram, phone call to the owner"}
+GROUP_HELP = {"apps": "connected apps (Gmail, GitHub...) via Pipedream", "media": "generate images and videos", "automations": "scheduled automations",
+              "tasks": "24/7 background tasks", "agents": "saved personas", "skills": "create a skill", "comms": "email, Telegram"}
 _GROUP_OF = {n: g for g, ns in TOOL_GROUPS.items() for n in ns}
 
 
@@ -2817,10 +2735,8 @@ SYSTEM_PROFILE_KEYS = {
     "CLOUDFLARE_TUNNEL_TOKEN", "TUNNEL_TOKEN", "CF_TUNNEL_TOKEN", "CLOUDFLARE_TOKEN",
     "NOTIFY_EMAIL", "RESEND_API_KEY", "SMTP_HOST", "SMTP_PORT", "SMTP_USER",
     "SMTP_PASS", "EMAIL_FROM", "SU_MAIL_SEND_TO", "TELEGRAM_BOT_TOKEN",
-    "TELEGRAM_CHAT_ID", "VPS_IP", "VPS_USER", "VPS_PASSWORD", "VPS_SSH_KEY",
-    "VPS_HOST", "VPS_PORT", "OPENCOMPUTER_USER", "OPENCOMPUTER_PASSWORD",
-    "OPENCOMPUTER_PASS", "HOST", "PORT", "DOMAIN", "TUNNEL_NAME",
-    "SU_FETCH_ALLOWED_HOSTS"
+    "TELEGRAM_CHAT_ID", "HOST", "PORT", "SU_FETCH_ALLOWED_HOSTS", "SU_AGENT_NAME", "SU_SERVICE_NAME", "SU_TUNNEL_CONTAINER",
+    "SU_SEARCH_LOCATION", "SU_CONTEXT_BUDGET", "SU_QUICK_MODEL", "SU_BUILD_MODEL", "SU_AUTOMATION_MODEL"
 }
 
 
@@ -2963,12 +2879,12 @@ def system_prompt(extra: str = "", tier: str = "build", projects: Optional[List[
     ags = list_agents()
     agents_line = ("Saved agents (personas) usable via the 'agent' field of automations: " + ", ".join(f"{a['name']} ({a['handle']})" for a in ags) + "\n") if ags else ""
     _FIXED = _fixed_instructions()
-    head = ("You are SU, a self-hosted AI agent running on the owner's Linux server with full shell and file access.\n"
+    head = (f"You are {AGENT_NAME}, a self-hosted AI agent running on the owner's Linux server with full shell and file access.\n"
             f"Workspace: {WORKSPACE} (Projects/ for work, Skills/ for skills).\n")
     date = f"\nToday: {datetime.now(TZ).strftime('%A %d %B %Y')} {TZ.key}. For the exact time run `date`."  # date only, and last: a minute-level time here broke prompt caching
     mem = memory_text(); date = date + ("\n\n" + mem if mem else "")  # memory after the date: it changes between chats, the rest of the prefix stays cached
     if tier == "chat":  # chat: no machine, no secrets, no manual. Just the owner's assistant with live web access.
-        return ("You are SU, the owner's assistant. You have two tools: web_search (live web results with dates) and web_fetch (read a page). "
+        return (f"You are {AGENT_NAME}, the owner's assistant. You have two tools: web_search (live web results with dates) and web_fetch (read a page). "
                 "Use them whenever the answer depends on anything current, factual, priced, scheduled or checkable, then answer from what you found "
                 "and give the source URL on its own line. Answer from knowledge only for timeless or personal questions. "
                 "Never name the search provider or the tools: to the owner it is simply you looking it up. "
@@ -2993,7 +2909,7 @@ def system_prompt(extra: str = "", tier: str = "build", projects: Optional[List[
 
 STYLE = ("Reply style: lead with the outcome or the answer. Give specific facts, numbers, names and paths in plain English, "
          "the way an expert talks to a friend. No paragraphs, no filler, no restating the request, no explaining unless asked. "
-         "Bullets for parallel items, one line each. SU records durable facts from every chat by itself: never create memory or notes files for that.")
+         f"Bullets for parallel items, one line each. {AGENT_NAME} records durable facts from every chat by itself: never create memory or notes files for that.")
 
 
 def _fixed_instructions() -> str:
@@ -3059,8 +2975,8 @@ async def _veo_video(model: str, prompt: str, path: Optional[str], image: Option
 
 SU_MCP_TOOLS = ["generate_image", "generate_video", "send_email", "send_telegram", "web_search", "web_fetch", "list_app_tools", "use_app",
                 "create_automation", "list_automations", "update_automation", "delete_automation", "create_skill",
-                "create_task", "list_tasks", "control_task", "task_logs", "transcribe", "speak",
-                "list_agents", "create_agent", "search_app_catalog", "connect_app", "list_app_tools", "project_keys"]
+                "create_task", "list_tasks", "control_task", "task_logs",
+                "list_agents", "create_agent", "search_app_catalog", "connect_app", "project_keys"]
 
 
 def su_mcp_tool_list() -> List[Dict]:
@@ -3155,7 +3071,7 @@ async def cc_mcp_config() -> Dict:
     """Same MCP servers and Pipedream apps the API runtime sees, as a Claude Code --mcp-config document."""
     servers: Dict[str, Any] = {}
     tok = env().get("SU_TOKEN", "")
-    servers["su"] = {"type": "http", "url": "http://127.0.0.1:8000/mcp", "headers": ({"Authorization": f"Bearer {tok}"} if tok else {})}
+    servers["su"] = {"type": "http", "url": f"http://127.0.0.1:{env().get('SU_PORT') or 8000}/mcp", "headers": ({"Authorization": f"Bearer {tok}"} if tok else {})}
     for srv in list_mcp():
         if not srv.get("enabled", True):
             continue
@@ -3441,13 +3357,13 @@ def build_model_for(model: str) -> str:
     return b
 
 
-PLANNER = """You are SU's first-responder. The owner just sent a message. Decide and answer in one shot. You have NO tools: write plain text only, never tool calls or XML.
+PLANNER = f"""You are {AGENT_NAME}'s first-responder. The owner just sent a message. Decide and answer in one shot. You have NO tools: write plain text only, never tool calls or XML.
 Output format: first line exactly `MODE: direct`, `MODE: do` or `MODE: build`, then a blank line, then the text.
 - `direct`: a question, greeting or small request answerable from what you know and the conversation (no tools needed). Text = the complete short answer. Use the memory facts when they answer it.
 - `do`: a small task on the machine (commands, files, a lookup, a status check). Text = empty. On the first line add the tool groups the worker needs, for example `MODE: do TOOLS: tasks`.
-- For `do` and `build`, also add the secret groups the worker will need, by id from the facts, for example `MODE: do TOOLS: tasks PROJECTS: pi, emailer` (ids: profile, ai, tools, or a project id). Omit PROJECTS when no keys are needed. Groups: apps (connected apps such as Gmail, GitHub), media (make images or videos), audio (transcribe recordings, text to speech), automations (scheduled automations), tasks (24/7 background tasks), agents (saved personas), skills (create a skill), comms (email, Telegram, call the owner). Shell, files and web need no group.
+- For `do` and `build`, also add the secret groups the worker will need, by id from the facts, for example `MODE: do TOOLS: tasks PROJECTS: pi, emailer` (ids: profile, ai, tools, or a project id). Omit PROJECTS when no keys are needed. Groups: apps (connected apps such as Gmail, GitHub), media (make images or videos), automations (scheduled automations), tasks (24/7 background tasks), agents (saved personas), skills (create a skill), comms (email, Telegram). Shell, files and web need no group.
 - `build`: multi-step work (create, schedule, set up, connect, send to people, write code or documents). Text = the owner's first reply: what you understood (one sentence); what you will do (steps, schedule, tools, apps, files); what you already have (name the secrets, connected apps, skills from the facts); what is missing (exact KEY_NAMEs or apps) or "Missing: nothing". Under 120 words. End with "Starting now." unless something missing makes it impossible, then end with what the owner must provide.
-Never claim to have done anything yet. British English, no dash characters. """ + STYLE
+Never claim to have done anything yet. """ + STYLE
 
 
 def quick_facts() -> str:
@@ -3905,7 +3821,7 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
     final = ""
     is_local = bool((PROVIDERS.get(provider) or {}).get("local") or "local" in provider.lower() or "127.0.0.1" in provider.lower())
     prov_label = (PROVIDERS.get(provider) or {}).get("label") or next((x["name"] for x in get_custom_providers() if x["id"] == provider), provider.capitalize())
-    budget = int(0.75 * (32768 if is_local else 120000))  # ponytail: fixed context sizes; read them from the server if a model differs
+    budget = int(0.75 * int(env().get("SU_CONTEXT_BUDGET") or (32768 if is_local else 120000)))  # ponytail: SU_CONTEXT_BUDGET overrides the guess; providers do not report it
     for step in range(MAX_STEPS):
         est = (len(system_text) + len(json.dumps(tools)) + sum(len(json.dumps(x)) for x in messages[1:])) // 4
         if est > budget:
@@ -3989,7 +3905,6 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
 
 
 
-# ---------------------------------------------------------------- call the owner back through the ElevenLabs agent (SIP trunk outbound)
 
 
 
@@ -4251,12 +4166,13 @@ async def run_automation(a: Dict, trigger: str = "schedule", on_event=None, conv
 async def tunnel_url_tick():
     """Quick tunnels get a new trycloudflare.com URL on every restart; keep SU_PUBLIC_URL in step with it."""
     e = env()
-    if e.get("CLOUDFLARE_TUNNEL_TOKEN") or e.get("SU_PUBLIC_HOST"):
+    container = e.get("SU_TUNNEL_CONTAINER", "").strip()
+    if not container or e.get("CLOUDFLARE_TUNNEL_TOKEN") or e.get("SU_PUBLIC_HOST"):
         return
-    proc = await asyncio.create_subprocess_shell("docker logs zo_tunnel 2>&1 | grep -oE 'https://[a-z0-9-]+\\.trycloudflare\\.com' | tail -1",
-                                                 stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.DEVNULL)
+    proc = await asyncio.create_subprocess_exec("docker", "logs", container, stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.STDOUT)
     out, _ = await asyncio.wait_for(proc.communicate(), timeout=20)
-    url = out.decode().strip()
+    found = re.findall(r"https://[a-z0-9-]+\.trycloudflare\.com", out.decode("utf-8", "replace"))
+    url = found[-1] if found else ""
     if url and url != e.get("SU_PUBLIC_URL"):
         p = HOME / ".env"
         lines = [l for l in p.read_text(encoding="utf-8").splitlines() if not l.startswith("SU_PUBLIC_URL=")]

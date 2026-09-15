@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-  <title>SU Computer</title>
+  <title>Open Computer</title>
   <meta name="su-build" content="dev">
   <script>
     // Zo themes: [background, foreground, card, primary, primary-fg, muted, muted-fg, accent, border, input, sidebar, sidebar-accent, destructive]
@@ -1488,7 +1488,7 @@
   <!-- 1. LEFT SIDEBAR -->
   <aside id="sidebar">
     <div class="sb-top">
-      <span class="sb-brand" aria-label="SU"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">SU</text></svg><span class="home-hw" id="homeHw"></span></span>
+      <span class="sb-brand" aria-label="__AGENT_NAME__"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">__AGENT_NAME__</text></svg><span class="home-hw" id="homeHw"></span></span>
       <button class="sb-iconbtn" title="Collapse sidebar" aria-label="Collapse sidebar" onclick="toggleSidebar(true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M9 3v18"></path><path d="m16 15-3-3 3-3"></path></svg></button>
     </div>
     <nav class="nav-list">
@@ -1524,7 +1524,7 @@
 
   <!-- DEDICATED FULL-SCREEN HOME VIEW (MATCHING ZO COMPUTER) -->
   <div id="home-view" style="display: flex;">
-    <div class="topbar"><button class="tb-btn" onclick="newTab()" title="New tab" aria-label="New tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><span class="home-hw" id="homeStats" aria-live="off"></span><button class="home-theme" id="homeTheme" onclick="keepTheme()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.1-.7-.4-1-.2-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5-4.5-9-10-9z"/></svg><span id="homeThemeName"></span></button><span class="tb-links" style="margin-left:auto"><a class="tb-btn tb-link" href="https://supabase.rajoka.com" target="_blank" rel="noopener">Supabase</a></span></div>
+    <div class="topbar"><button class="tb-btn" onclick="newTab()" title="New tab" aria-label="New tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button><span class="home-hw" id="homeStats" aria-live="off"></span><button class="home-theme" id="homeTheme" onclick="keepTheme()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r="1"/><circle cx="17.5" cy="10.5" r="1"/><circle cx="8.5" cy="7.5" r="1"/><circle cx="6.5" cy="12.5" r="1"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.9 0 1.5-.7 1.5-1.5 0-.4-.1-.7-.4-1-.2-.3-.4-.6-.4-1 0-.8.7-1.5 1.5-1.5H16c3.3 0 6-2.7 6-6 0-5-4.5-9-10-9z"/></svg><span id="homeThemeName"></span></button></div>
     <div class="zo-card">
       <div class="lock-banner" id="lockBanner" style="display:none">This gateway is open on the LAN with no token. Add <b>SU_TOKEN</b> in <a onclick="openSettings('advanced')">Settings › Advanced</a> and restart to lock it.</div>
       <button class="home-runs" id="homeRuns" hidden onclick="openChatsView()"></button>
@@ -1533,9 +1533,9 @@
           <textarea id="homeComposerInput" class="home-composer-input" placeholder="What should we do today?" rows="3" onkeydown="handleHomeComposerKey(event)" oninput="document.getElementById('homeSendBtn').classList.toggle('ready', !!this.value.trim())"></textarea>
           <div class="home-composer-bottom">
             <div class="home-composer-controls">
-              <span class="zo-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">SU</text></svg></span>
+              <span class="zo-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">__AGENT_NAME__</text></svg></span>
             <label class="zo-pill" title="Model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><select id="homeModelSelect" onchange="setModel(this.value)" aria-label="Model" title="Letters: T text · I image · V video · A audio · F file"><option value="">Loading models…</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
-              <label class="zo-pill" title="Mode"><select class="mode-select" onchange="setChatMode(this.value)" aria-label="How SU handles this message" title="Auto: SU decides · Chat: answer with web lookups, no tools · Build: straight to the build model"><option value="">Auto</option><option value="chat">Chat</option><option value="build">Build</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+              <label class="zo-pill" title="Mode"><select class="mode-select" onchange="setChatMode(this.value)" aria-label="How __AGENT_NAME__ handles this message" title="Auto: __AGENT_NAME__ decides · Chat: answer with web lookups, no tools · Build: straight to the build model"><option value="">Auto</option><option value="chat">Chat</option><option value="build">Build</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
             </div>
             <button class="zo-send" id="homeSendBtn" onclick="sendPromptFromHome()">Send</button>
           </div>
@@ -1550,7 +1550,6 @@
       <div class="tabstrip" id="tabStrip" role="tablist" aria-label="Open tabs"></div>
       <button class="tb-btn" onclick="newTab()" title="New tab" aria-label="New tab"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="18" height="18" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg></button>
       <div style="margin-left: auto; display: flex; align-items: center; gap: 4px;">
-        <span class="tb-links"><a class="tb-btn tb-link" href="https://supabase.rajoka.com" target="_blank" rel="noopener">Supabase</a></span>
         <button class="tb-btn tb-chat-toggle" id="btnOpenChatPanel" onclick="toggleChatPanel(false)" title="Open chat (Ctrl+\\)" aria-label="Open chat" style="display: none;"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/><path d="m8 9 3 3-3 3"/></svg></button>
       </div>
     </div>
@@ -1626,7 +1625,7 @@
     <section class="tab-content" id="content-automations" style="padding: 0; flex-direction: column; overflow: hidden;">
       <div id="autoListView" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
         <div class="pg-head">
-          <span class="pg-sub">Trigger SU on a schedule or set reminders</span>
+          <span class="pg-sub">Trigger __AGENT_NAME__ on a schedule or set reminders</span>
           <button class="zo-btn-primary" onclick="openAutomation(null)"><svg viewBox="0 0 24 24" fill="none" width="18" height="18" aria-hidden="true"><path d="M12.001 5.00003V19.002" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19.002 12.002L4.99998 12.002" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><span>New</span></button>
         </div>
         <div class="pg-search">
@@ -1670,9 +1669,9 @@
               <select id="autoNotify" aria-label="Notify" style="padding: 5px 8px;">
                 <option value="none">None</option><option value="email">Email</option>
               </select>
-              <span id="notifyHint">No routine messages; SU emails you if the automation fails</span>
+              <span id="notifyHint">No routine messages; __AGENT_NAME__ emails you if the automation fails</span>
             </div>
-            <textarea id="autoPrompt" aria-label="Automation prompt" placeholder="What should SU do on each run?"></textarea>
+            <textarea id="autoPrompt" aria-label="Automation prompt" placeholder="What should __AGENT_NAME__ do on each run?"></textarea>
             <div class="sched-detail">
               <span>Model</span>
               <select id="autoModel" aria-label="Model" style="padding: 5px 8px; max-width: 360px;"><option value="">Default</option></select>
@@ -1696,7 +1695,7 @@
     <section class="tab-content" id="content-tasks" style="padding: 0; flex-direction: column; overflow: hidden;">
       <div id="taskListView" style="display: flex; flex-direction: column; height: 100%; overflow: hidden;">
         <div class="pg-head">
-          <span class="pg-sub">Processes SU keeps running: scrapers, watchers, bots</span>
+          <span class="pg-sub">Processes __AGENT_NAME__ keeps running: scrapers, watchers, bots</span>
           <button class="zo-btn-primary" onclick="openTask(null)"><svg viewBox="0 0 24 24" fill="none" width="18" height="18" aria-hidden="true"><path d="M12.001 5.00003V19.002" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19.002 12.002L4.99998 12.002" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><span>New</span></button>
         </div>
         <div class="pg-search">
@@ -1795,7 +1794,7 @@
           <button class="active" id="skTabInstalled" onclick="switchSkillsTab('installed')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M12 3v12"/><path d="m7 10 5 5 5-5"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/></svg><span>Installed</span></button>
           <button id="skTabCatalog" onclick="switchSkillsTab('catalog')"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M2.00127 8.5L1.99911 13.997C1.99782 17.2979 1.99717 18.9484 3.02235 19.974C4.04754 20.9996 5.69801 20.9996 8.99895 20.9997L15 20.9998C18.2994 20.9999 19.949 21 20.9741 19.9751C21.9992 18.9502 21.9996 17.3005 22.0002 14.0012L22.0013 8.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M8.49857 6.5C8.49857 5.09554 8.49857 4.39331 8.83563 3.88886C8.98154 3.67048 9.16904 3.48298 9.38743 3.33706C9.89187 3 10.5941 3 11.9986 3C13.403 3 14.1053 3 14.6097 3.33706C14.8281 3.48298 15.0156 3.67048 15.1615 3.88886C15.4986 4.39331 15.4986 5.09554 15.4986 6.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19.998 6.50016L3.99885 6.5C2.8944 6.50007 1.99876 7.39568 1.99866 8.50013C1.99876 10.7091 3.79005 12.5004 5.99901 12.5006H17.9978C20.2068 12.5005 21.998 10.7093 21.9981 8.5003C21.998 7.39582 21.1024 6.50023 19.998 6.50016Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M9.99857 12.5V13.5C9.99857 13.965 9.99857 14.1975 10.0497 14.3882C10.1884 14.9059 10.5927 15.3102 11.1103 15.4489C11.3011 15.5 11.5336 15.5 11.9986 15.5C12.4636 15.5 12.696 15.5 12.8868 15.4489C13.4044 15.3102 13.8088 14.9059 13.9475 14.3882C13.9986 14.1975 13.9986 13.965 13.9986 13.5V12.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><span>Catalog</span></button>
         </div>
-        <span class="pg-sub" style="font-size: 13px;">Skills help SU do more complex tasks for you.</span>
+        <span class="pg-sub" style="font-size: 13px;">Skills help __AGENT_NAME__ do more complex tasks for you.</span>
       </div>
       <div class="pg-search" style="padding-left: 12px; padding-right: 12px;"><label class="zo-search" style="border-radius: 10px;"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M17 17L21 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><input type="search" id="skillSearch" placeholder="Search..." oninput="renderSkills()" aria-label="Search skills"></label></div>
       <div style="overflow-y: auto; flex: 1; min-height: 0; padding: 0 12px 20px;" id="skillsList"></div>
@@ -1804,10 +1803,10 @@
     <section class="tab-content" id="content-integrations">
       <div class="integrations-view">
         <div class="int-quick">
-          <button class="int-quick-item" onclick="openSettings('channels')"><span class="int-quick-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 16 0z"/></svg></span><span>Reach SU by email or phone</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
+          <button class="int-quick-item" onclick="openSettings('channels')"><span class="int-quick-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 16 0z"/></svg></span><span>Reach __AGENT_NAME__ by email or phone</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
           <button class="int-quick-item" onclick="switchNav('files')"><span class="int-quick-ico"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M8 7H16.75C18.8567 7 19.91 7 20.6667 7.50559C20.9943 7.72447 21.2755 8.00572 21.4944 8.33329C22 9.08996 22 10.1433 22 12.25C22 15.7612 22 17.5167 21.1573 18.7779C20.7926 19.3238 20.3238 19.7926 19.7779 20.1573C18.5167 21 16.7612 21 13.25 21H12C7.28595 21 4.92893 21 3.46447 19.5355C2 18.0711 2 15.714 2 11V7.94427C2 6.1278 2 5.21956 2.38032 4.53806C2.65142 4.05227 3.05227 3.65142 3.53806 3.38032C4.21956 3 5.1278 3 6.94427 3C8.10802 3 8.6899 3 9.19926 3.19101C10.3622 3.62712 10.8418 4.68358 11.3666 5.73313L12 7" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path></svg></span><span>Browse and edit files in My Files</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
         </div>
-        <div class="int-notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><div><strong>Don't see an integration?</strong> Ask SU to help you integrate any service. Add your API key in <a onclick="openSettings('advanced')">Settings &gt; Advanced</a>. You can also add a custom MCP server below.</div></div>
+        <div class="int-notice"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M9.5 9.5a2.5 2.5 0 1 1 3.5 2.3c-.7.4-1 .9-1 1.7"/><path d="M12 17h.01"/></svg><div><strong>Don't see an integration?</strong> Ask __AGENT_NAME__ to help you integrate any service. Add your API key in <a onclick="openSettings('advanced')">Settings &gt; Advanced</a>. You can also add a custom MCP server below.</div></div>
         <div class="int-grid" id="integrationsConnected"></div>
         <div id="mcpList" class="int-grid"></div>
         <div class="int-search-row">
@@ -1911,7 +1910,7 @@
 
         <div class="settings-subtab-pane" id="spane-channels">
           <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M21 12a8 8 0 0 1-8 8H5l-2 2V12a8 8 0 0 1 16 0z"/></svg><span>Channels</span></div>
-          <div class="settings-section-subtitle">Inbound channels: email SU or call it while you are away. Automations with Notify use email.</div>
+          <div class="settings-section-subtitle">Inbound channels: email __AGENT_NAME__ or call it while you are away. Automations with Notify use email.</div>
           <div id="channelsList" class="chan-list"><div class="pg-empty">Loading…</div></div>
         </div>
 
@@ -1930,7 +1929,7 @@
 
         <div class="settings-subtab-pane" id="spane-tools">
           <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg><span>Tools</span></div>
-          <div class="settings-section-subtitle">What SU can operate on this box.</div>
+          <div class="settings-section-subtitle">What __AGENT_NAME__ can operate on this box.</div>
           <div class="zo-list">
             <button class="zo-list-row zo-list-link" onclick="switchNav('integrations')"><span class="int-quick-ico"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M9.14339 10.691L9.35031 10.4841C11.329 8.50532 14.5372 8.50532 16.5159 10.4841C18.4947 12.4628 18.4947 15.671 16.5159 17.6497L13.6497 20.5159C11.671 22.4947 8.46279 22.4947 6.48405 20.5159C4.50532 18.5372 4.50532 15.329 6.48405 13.3503L6.9484 12.886" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path><path d="M17.0516 11.114L17.5159 10.6497C19.4947 8.67095 19.4947 5.46279 17.5159 3.48405C15.5372 1.50532 12.329 1.50532 10.3503 3.48405L7.48405 6.35031C5.50532 8.32904 5.50532 11.5372 7.48405 13.5159C9.46279 15.4947 12.671 15.4947 14.6497 13.5159L14.8566 13.309" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path></svg></span><span class="zo-list-label"><span>Integrations &amp; MCP servers</span><span class="zo-list-sub">API keys and remote MCP tools</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
             <button class="zo-list-row zo-list-link" onclick="switchNav('files')"><span class="int-quick-ico"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M8 7H16.75C18.8567 7 19.91 7 20.6667 7.50559C20.9943 7.72447 21.2755 8.00572 21.4944 8.33329C22 9.08996 22 10.1433 22 12.25C22 15.7612 22 17.5167 21.1573 18.7779C20.7926 19.3238 20.3238 19.7926 19.7779 20.1573C18.5167 21 16.7612 21 13.25 21H12C7.28595 21 4.92893 21 3.46447 19.5355C2 18.0711 2 15.714 2 11V7.94427C2 6.1278 2 5.21956 2.38032 4.53806C2.65142 4.05227 3.05227 3.65142 3.53806 3.38032C4.21956 3 5.1278 3 6.94427 3C8.10802 3 8.6899 3 9.19926 3.19101C10.3622 3.62712 10.8418 4.68358 11.3666 5.73313L12 7" stroke="currentColor" stroke-linecap="round" stroke-width="1.5"></path></svg></span><span class="zo-list-label"><span>Workspace files</span><span class="zo-list-sub" id="toolsWorkspacePath">Workspace folder</span></span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="m9 6 6 6-6 6"/></svg></button>
@@ -1949,7 +1948,7 @@
         <!-- 5. ADVANCED SUBTAB: FULL SECRETS CRUD (.ENV) -->
         <div class="settings-subtab-pane" id="spane-profile">
           <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Profile</span></div>
-          <div class="settings-section-subtitle">SU's own identity and system keys: its email and password, your phone, mail servers, model and app keys. Project keys live under Advanced.</div>
+          <div class="settings-section-subtitle">__AGENT_NAME__'s own identity and system keys: its email and password, your phone, mail servers, model and app keys. Project keys live under Advanced.</div>
 
           <!-- SYSTEM & UPDATES CARD -->
           <div class="system-update-card" id="systemUpdateCard">
@@ -1995,7 +1994,7 @@
         <div class="settings-subtab-pane" id="spane-advanced">
           <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M2 18v3h3l9.5-9.5a4.5 4.5 0 1 0-3-3z"/><circle cx="16.5" cy="7.5" r="1"/></svg><span>Secrets</span></div>
           <div class="settings-section-subtitle secret-sub-row">
-            <span>Project keys, grouped so you can say "use the PI keys" in chat. SU sees the names, never the values. Keys not in any project sit under Other.</span>
+            <span>Project keys, grouped so you can say "use the Stripe keys" in chat. __AGENT_NAME__ sees the names, never the values. Keys not in any project sit under Other.</span>
             <button class="zo-btn-primary" onclick="toggleImport()" aria-expanded="false" id="importToggle">Import .env</button>
           </div>
           <div class="secret-add-bar">
@@ -2047,7 +2046,7 @@
         <div class="composer-controls">
           <div class="selector-group">
             <label class="zo-pill" title="Model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><select id="modelSelect" onchange="setModel(this.value)" title="Letters: T text · I image · V video · A audio · F file"><option value="">Loading models...</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
-            <label class="zo-pill" title="Mode"><select class="mode-select" onchange="setChatMode(this.value)" aria-label="How SU handles this message" title="Auto: SU decides · Chat: answer with web lookups, no tools · Build: straight to the build model"><option value="">Auto</option><option value="chat">Chat</option><option value="build">Build</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+            <label class="zo-pill" title="Mode"><select class="mode-select" onchange="setChatMode(this.value)" aria-label="How __AGENT_NAME__ handles this message" title="Auto: __AGENT_NAME__ decides · Chat: answer with web lookups, no tools · Build: straight to the build model"><option value="">Auto</option><option value="chat">Chat</option><option value="build">Build</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
           </div>
           <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
         </div>
@@ -3215,7 +3214,7 @@
     }
 
     // ==========================================
-    // SU APP INTEGRATIONS ENGINE
+    // __AGENT_NAME__ APP INTEGRATIONS ENGINE
     // ==========================================
     let cachedIntegrations = [];
     let currentAppInDrawer = null;
@@ -3450,7 +3449,7 @@
       if (sub === 'ux') renderThemeList();
     }
     const CHANNEL_DEFS = {
-      email: { name: 'Email', desc: 'SU reads a mailbox and replies to allowed senders.', keys: ['SU_MAIL_IMAP_HOST', 'SU_MAIL_IMAP_PORT', 'SU_MAIL_SMTP_HOST', 'SU_MAIL_SMTP_PORT', 'SU_MAIL_USER', 'SU_MAIL_PASS', 'SU_MAIL_ALLOWED_FROM'], optional: ['SU_MAIL_PASSPHRASE', 'SU_MAIL_MODEL'] },
+      email: { name: 'Email', desc: '__AGENT_NAME__ reads a mailbox and replies to allowed senders.', keys: ['SU_MAIL_IMAP_HOST', 'SU_MAIL_IMAP_PORT', 'SU_MAIL_SMTP_HOST', 'SU_MAIL_SMTP_PORT', 'SU_MAIL_USER', 'SU_MAIL_PASS', 'SU_MAIL_ALLOWED_FROM'], optional: ['SU_MAIL_PASSPHRASE', 'SU_MAIL_MODEL'] },
     };
     async function copyText(text, btn) { try { await navigator.clipboard.writeText(text); if (btn) { const t = btn.textContent; btn.textContent = 'Copied'; setTimeout(() => { btn.textContent = t; }, 1500); } } catch (e) { prompt('Copy this:', text); } }
     function fmtWhen(iso) { if (!iso) return 'never'; const d = new Date(iso); return isNaN(d) ? iso : d.toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
@@ -3698,7 +3697,7 @@
       const running = tasksCache.filter(t => t.running).length, stopped = tasksCache.length - running;
       const items = tasksCache.filter(t => !q || (t.name || '').toLowerCase().includes(q) || (t.command || '').toLowerCase().includes(q));
       document.getElementById('taskRunningLabel').innerHTML = `Running <span>${running}</span>` + (stopped ? ` <span class="pg-count-dim">· ${stopped} stopped</span>` : '');
-      if (!items.length) { list.innerHTML = `<div class="pg-empty">${tasksCache.length ? 'No tasks match.' : 'No tasks yet. Click New, or ask SU in chat: “keep a scraper running that…”.'}</div>`; return; }
+      if (!items.length) { list.innerHTML = `<div class="pg-empty">${tasksCache.length ? 'No tasks match.' : 'No tasks yet. Click New, or ask __AGENT_NAME__ in chat: “keep a scraper running that…”.'}</div>`; return; }
       list.innerHTML = '';
       items.forEach(t => {
         const [cls, word] = taskState(t), wantsRun = t.desired === 'running';
@@ -3804,7 +3803,7 @@
       const items = pool.filter(a => !q || a.name.toLowerCase().includes(q) || (a.prompt||'').toLowerCase().includes(q));
       const paused = automationsCache.length - active.length;
       document.getElementById('autoActiveLabel').innerHTML = `Active <span>${active.length}</span>` + (paused ? ` <span class="pg-count-dim">· ${paused} paused${autoShowPaused ? '' : ' (hidden)'}</span>` : '');
-      if (!items.length) { list.innerHTML = `<div class="pg-empty">${automationsCache.length ? 'No automations match.' : 'No automations yet. Click New, or ask SU in chat: “every weekday at 9am, …”.'}</div>`; return; }
+      if (!items.length) { list.innerHTML = `<div class="pg-empty">${automationsCache.length ? 'No automations match.' : 'No automations yet. Click New, or ask __AGENT_NAME__ in chat: “every weekday at 9am, …”.'}</div>`; return; }
       list.innerHTML = '';
       items.forEach(a => {
         const row = document.createElement('div'); row.className = 'auto-row'; row.onclick = () => openAutomation(a.id); row.setAttribute('role', 'button'); row.tabIndex = 0;
@@ -3881,12 +3880,12 @@
       } catch (e) { document.getElementById('schedSummary').textContent = 'Could not parse: ' + e.message; }
     }
     document.getElementById('autoNotify').addEventListener('change', function () {
-      document.getElementById('notifyHint').textContent = this.value === 'none' ? 'No routine messages; SU emails you if the automation fails' : 'SU messages you only when it has something worth sharing; always emails on failure';
+      document.getElementById('notifyHint').textContent = this.value === 'none' ? 'No routine messages; __AGENT_NAME__ emails you if the automation fails' : '__AGENT_NAME__ messages you only when it has something worth sharing; always emails on failure';
     });
     async function saveCurrentAutomation(silent) {
       const body = { id: currentAuto.id || null, name: document.getElementById('autoName').value.trim() || 'New Automation', prompt: document.getElementById('autoPrompt').value,
         schedule: autoSchedule, notify: document.getElementById('autoNotify').value, model: document.getElementById('autoModel').value || null, enabled: currentAuto.enabled !== false };
-      if (!body.prompt.trim()) { alert('Write what SU should do on each run.'); return null; }
+      if (!body.prompt.trim()) { alert('Write what __AGENT_NAME__ should do on each run.'); return null; }
       const r = await api('/api/automations', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) });
       const j = await r.json(); if (!r.ok) { alert('Save failed: ' + (j.detail || r.status)); return null; }
       currentAuto = { ...currentAuto, ...j };
@@ -3941,7 +3940,7 @@
       const q = (document.getElementById('skillSearch').value || '').toLowerCase(); const el = document.getElementById('skillsList'); el.innerHTML = '';
       if (skillsTab === 'installed') {
         const items = skillsData.installed.filter(s => !q || s.name.includes(q) || s.description.toLowerCase().includes(q));
-        if (!items.length) { el.innerHTML = `<div class="pg-empty">${skillsData.installed.length ? 'No skills match.' : 'No skills installed. Browse the Catalog, or ask SU: “create a skill that …”.'}</div>`; return; }
+        if (!items.length) { el.innerHTML = `<div class="pg-empty">${skillsData.installed.length ? 'No skills match.' : 'No skills installed. Browse the Catalog, or ask __AGENT_NAME__: “create a skill that …”.'}</div>`; return; }
         items.forEach((s, i) => {
           const tags = `<span class="tag">${esc(s.metadata.author || location.hostname)}</span>${s.scripts.map(x => `<span class="tag">${esc(x)}</span>`).join('')}`;
           const menu = `<button class="zo-pill" onclick="openFileInEditor(${jsq(s.path)})">Open</button><button class="zo-iconbtn" title="Delete skill" aria-label="Delete skill" style="color: var(--accent-red);" onclick="deleteSkill(${jsq(s.dir)})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`;
@@ -4737,7 +4736,7 @@ async function deleteProvider(pid, name) {
       document.querySelectorAll('.chat-history-item[data-id], .chats-row[data-id]').forEach(el => el.classList.toggle('running', ids.has(el.dataset.id)));
       const sig = [...ids].sort().join(','); if (sig !== refreshRuns.sig) { const first = refreshRuns.sig === undefined; refreshRuns.sig = sig; if (!first) renderSidebarChatHistory(); }
       const ind = document.getElementById('homeRuns');
-      if (ind) { const n = activeRuns.length; ind.hidden = !n; ind.textContent = 'SU is working on ' + n + (n === 1 ? ' task' : ' tasks'); }
+      if (ind) { const n = activeRuns.length; ind.hidden = !n; ind.textContent = '__AGENT_NAME__ is working on ' + n + (n === 1 ? ' task' : ' tasks'); }
       return ids;
     }
     runsTimer = setInterval(() => { if (!document.hidden) refreshRuns(); }, 5000);
@@ -5033,7 +5032,7 @@ async function deleteProvider(pid, name) {
       <label>Transport</label>
       <div style="display: flex; gap: 6px;"><button type="button" class="daychip on" id="mcpTrHttp" aria-pressed="true" onclick="setMcpTransport('http')">Streamable HTTP</button><button type="button" class="daychip" id="mcpTrSse" aria-pressed="false" onclick="setMcpTransport('sse')">SSE</button></div>
       <label for="mcpToken">Bearer token (optional)</label><input type="password" id="mcpToken" placeholder="Token" autocomplete="off">
-      <div style="font-size: 11.5px; color: var(--text-muted);">SU sends this value in the Authorization header.</div>
+      <div style="font-size: 11.5px; color: var(--text-muted);">__AGENT_NAME__ sends this value in the Authorization header.</div>
       <div id="mcpModalMsg" style="font-size: 12px; color: #f87171;"></div>
       <div style="display: flex; justify-content: flex-end; gap: 8px; margin-top: 6px;">
         <button class="btn-sm" onclick="closeMcpModal()">Cancel</button>

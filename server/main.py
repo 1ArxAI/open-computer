@@ -8,7 +8,6 @@ import struct
 import asyncio
 from fastapi import WebSocket, WebSocketDisconnect
 import os
-import sys
 import uuid
 import json
 import time
@@ -17,9 +16,9 @@ import shutil
 import getpass
 from pathlib import Path
 from typing import Optional, Dict, Any, List
-from fastapi import FastAPI, File, Form, Header, HTTPException, Request, Query, UploadFile
+from fastapi import FastAPI, File, Form, HTTPException, Request, Query, UploadFile
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, FileResponse, RedirectResponse, Response, PlainTextResponse
+from fastapi.responses import HTMLResponse, JSONResponse, StreamingResponse, FileResponse, RedirectResponse, PlainTextResponse
 from urllib.parse import urlparse
 import hmac, hashlib, base64, secrets as _secrets
 try:
@@ -34,7 +33,7 @@ import updater
 from pydantic import BaseModel
 import httpx
 
-app = FastAPI(title="SU Computer Gateway & Dashboard", version="3.0.0")
+app = FastAPI(title="Open Computer", version="3.0.0")
 SU_TOKEN = agent.env().get("SU_TOKEN", "").strip()
 _DEFAULT_ORIGINS = ",".join(o for o in ("http://localhost:8000", "http://127.0.0.1:8000", agent.env().get("SU_PUBLIC_URL", "").rstrip("/")) if o)
 LOGIN_USER = agent.env().get("SU_LOGIN_USER", getpass.getuser())  # the Linux user the gateway runs as
@@ -100,13 +99,13 @@ def is_authed(request: Request) -> bool:
     return bool(verify_session(request.cookies.get("su_session")))
 
 
-LOGIN_HTML = """<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Sign in · SU Computer</title>
+LOGIN_HTML = """<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Sign in · Open Computer</title>
 <style>body{margin:0;min-height:100vh;display:flex;align-items:center;justify-content:center;background:#0f1013;color:#e5e7eb;font:14px system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 form{width:320px;background:#17181c;border:1px solid #26272b;border-radius:12px;padding:24px;display:flex;flex-direction:column;gap:10px}
 h1{font-size:16px;margin:0 0 6px}label{font-size:12px;color:#9ca3af}input{background:#0f1013;border:1px solid #26272b;color:#fff;border-radius:8px;padding:10px 12px;font-size:14px}
 input:focus{outline:2px solid #2563eb;border-color:#2563eb}button{margin-top:6px;background:#2563eb;color:#fff;border:0;border-radius:8px;padding:10px;font-weight:600;font-size:14px;cursor:pointer}
 button:disabled{opacity:.6}.err{color:#f87171;font-size:12px;min-height:16px;line-height:1.4}</style></head><body>
-<form id=f><h1>SU Computer</h1><label>Username</label><input name=username placeholder="Username" autocomplete=username autofocus required><label>Password</label><input name=password type=password placeholder="Password" autocomplete=current-password required>
+<form id=f><h1>Open Computer</h1><label>Username</label><input name=username placeholder="Username" autocomplete=username autofocus required><label>Password</label><input name=password type=password placeholder="Password" autocomplete=current-password required>
 <div class=err id=err></div><button id=b>Sign in</button></form>
 <script>const f=document.getElementById('f'),e=document.getElementById('err'),b=document.getElementById('b');
 const params=new URLSearchParams(location.search);
@@ -259,7 +258,6 @@ TRASH_INFO_DIR.mkdir(parents=True, exist_ok=True)
 ENV_PATH = agent.HOME / ".env"
 TEMPLATES_DIR = Path(__file__).resolve().parent / "templates"
 TEMPLATES_DIR.mkdir(parents=True, exist_ok=True)
-SETTINGS_FILE = Path(__file__).resolve().parent / "settings.json"
 
 def get_env_vars() -> Dict[str, str]:
     env = dict(os.environ)
@@ -1162,8 +1160,18 @@ def _system_stats_sync():
     disk_out = subprocess.run("df -h / | awk 'NR==2{print $3 \" / \" $2 \" (\" $5 \")\"}'", shell=True, capture_output=True, text=True).stdout.strip()
     uptime_out = subprocess.run("uptime -p", shell=True, capture_output=True, text=True).stdout.strip()
     mi = {}
-    for line in open("/proc/meminfo"):
-        k, v = line.split(":", 1); mi[k] = int(v.split()[0])
+    try:
+        for line in open("/proc/meminfo"):
+            k, v = line.split(":", 1); mi[k] = int(v.split()[0])
+    except OSError:
+        pass
+    os_name = "Linux"
+    try:
+        for line in open("/etc/os-release"):
+            if line.startswith("PRETTY_NAME="):
+                os_name = line.split("=", 1)[1].strip().strip('"')
+    except OSError:
+        pass
     du = shutil.disk_usage("/")
     cores = os.cpu_count() or 1
 
@@ -1180,14 +1188,14 @@ def _system_stats_sync():
                 })
 
     return {
-        "os": "Ubuntu",
+        "os": os_name,
         "cores": os.cpu_count(),
         "memory": free_out,
         "disk": disk_out,
         "uptime": uptime_out,
         "cpu_pct": round(os.getloadavg()[0] / cores * 100),  # 1-min load as share of all threads
-        "mem_used_gb": round((mi["MemTotal"] - mi["MemAvailable"]) / 1048576, 1),
-        "mem_total_gb": round(mi["MemTotal"] / 1048576),
+        "mem_used_gb": round((mi.get("MemTotal", 0) - mi.get("MemAvailable", 0)) / 1048576, 1),
+        "mem_total_gb": round(mi.get("MemTotal", 0) / 1048576),
         "disk_used_gb": round(du.used / 1e9),
         "disk_total_gb": round(du.total / 1e9),
         "containers": containers
@@ -1781,8 +1789,8 @@ async def su_mcp_delete():
 async def serve_dashboard():
     index_file = TEMPLATES_DIR / "index.html"
     if index_file.exists():
-        return HTMLResponse(content=index_file.read_text(encoding="utf-8"))
-    return HTMLResponse("<html><body><h1>SU Computer Dashboard initializing...</h1></body></html>")
+        return HTMLResponse(content=index_file.read_text(encoding="utf-8").replace("__AGENT_NAME__", agent.AGENT_NAME))
+    return HTMLResponse("<html><body><h1>Open Computer is starting...</h1></body></html>")
 
 
 # ==================== NATIVE LINUX PTY WEBSOCKET ====================
