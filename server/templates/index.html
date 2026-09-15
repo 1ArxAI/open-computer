@@ -39,18 +39,6 @@
     ::-webkit-scrollbar-track {
       background: transparent;
     }
-    ::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.14);
-      border-radius: 6px;
-      border: 2px solid transparent;
-      background-clip: padding-box;
-      transition: background-color 0.2s ease;
-    }
-    ::-webkit-scrollbar-thumb:hover {
-      background: rgba(255, 255, 255, 0.3);
-      border: 2px solid transparent;
-      background-clip: padding-box;
-    }
     ::-webkit-scrollbar-corner {
       background: transparent;
     }
@@ -193,22 +181,8 @@
       object-fit: contain;
     }
 
-    .app-status-badge.connected {
-      color: #34d399;
-      background: rgba(16, 185, 129, 0.12);
-      border: 1px solid rgba(16, 185, 129, 0.25);
-    }
 
-    .btn-app-config.connected {
-      background: #23252c;
-      color: #d1d5db;
-      border: 1px solid var(--border);
-    }
 
-    .btn-app-config.connected:hover {
-      background: #2e303a;
-      color: var(--zo-primary-fg);
-    }
 
     /* Connection Modal Drawer */
     .app-drawer-overlay {
@@ -329,11 +303,6 @@
       font-weight: 600;
     }
 
-    .settings-billing-btn.active {
-      background: #1d4ed8;
-      color: var(--zo-primary-fg);
-      border-color: var(--zo-primary);
-    }
 
     .settings-subtab-pane {
       display: none;
@@ -499,28 +468,11 @@
     }
 
     :root {
-      --bg-main: var(--zo-bg);
-      --bg-sidebar: var(--zo-sidebar);
-      --bg-pane: var(--zo-bg);
-      --bg-card: var(--zo-card);
-      --bg-card-hover: var(--zo-accent);
-      --bg-input: var(--zo-muted);
-      --border: var(--border);
-      --border-light: rgba(255, 255, 255, 0.07);
-      --border-focus: var(--zo-primary);
-      --text-main: var(--zo-fg);
-      --text-muted: var(--zo-fg-muted);
-      --accent-blue: var(--zo-primary);
-      --accent-blue-hover: var(--accent-blue-hover);
       --accent-green: #10b981;
       --accent-yellow: #f59e0b;
       --accent-purple: #8b5cf6;
       --accent-red: #ef4444;
-      --radius-sm: 6px;
-      --radius-md: 10px;
-      --radius-lg: 14px;
       --radius-pill: 9999px;
-      --font: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Inter, Helvetica, Arial, sans-serif;
       --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
     }
 
@@ -611,12 +563,6 @@
     }
     .tab-content.active { display: flex; }
 
-    .auto-toggle-btn.active {
-      background: var(--bg-card);
-      color: var(--text-main);
-      border-color: var(--accent-blue);
-      font-weight: 600;
-    }
 
     .btn-sm {
       background: var(--bg-card);
@@ -731,17 +677,6 @@
       align-items: center;
       gap: 8px;
     }
-    .dropdown-select {
-      background: var(--zo-bg);
-      color: var(--text-muted);
-      border: 1px solid var(--border);
-      border-radius: var(--radius-sm);
-      font-size: 11.5px;
-      padding: 4px 8px;
-      outline: none;
-      cursor: pointer;
-    }
-    .dropdown-select:hover { color: var(--zo-primary-fg); border-color: var(--border-focus); }
     .send-btn {
       background: var(--accent-blue);
       color: var(--zo-primary-fg);
@@ -759,9 +694,7 @@
     .send-btn:hover { background: var(--accent-blue-hover); }
     .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-    .modal-overlay.active { display: flex; }
 
-    .modal-nav-item.active { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); font-weight: 600; }
 
     /* v3: agent trace, automations, skills, mcp */
     .trace { display: flex; flex-direction: column; gap: 3px; margin: 4px 0 8px; }
@@ -894,7 +827,6 @@
     .tb-btn { height: 32px; min-width: 32px; padding: 0 7px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; border-radius: 7.5px; border: 1px solid transparent; background: transparent; color: color-mix(in oklab, var(--zo-fg) 72%, transparent); cursor: pointer; font-size: 14px; }
     .tb-btn:hover { background: var(--hover); color: var(--zo-fg); }
     .tb-btn svg { width: 18px; height: 18px; flex: none; }
-    .tb-link { text-decoration: none; font-size: 13px; }
     #chatTitleBtn { min-width: 0; flex: 1 1 auto; max-width: calc(100% - 44px); justify-content: flex-start; }
     #chatTitle { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
     .tb-chat-toggle { background: var(--zo-primary); color: var(--zo-primary-fg); }
@@ -968,7 +900,6 @@
     .chat-textarea::placeholder { color: var(--zo-fg-muted); }
     .composer-controls { border-top: none; padding: 0 8px 8px; }
     .selector-group { gap: 4px; }
-    .dropdown-select { height: 32px; max-width: 220px; padding: 0 28px 0 10px; font-size: 13px; color: var(--zo-fg); background: color-mix(in oklab, var(--zo-bg) 50%, transparent) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23a3a3a3' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'><path d='m6 9 6 6 6-6'/></svg>") no-repeat right 8px center / 14px; border: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); border-radius: 10px; appearance: none; -webkit-appearance: none; text-overflow: ellipsis; }
     .send-btn { height: 32px; padding: 0 12px; border-radius: 10px; background: var(--zo-accent); color: var(--zo-fg-muted); font-size: 13px; font-weight: 400; }
     .send-btn.ready, .send-btn:not(:disabled):hover { background: var(--zo-primary); color: var(--zo-primary-fg); }
     .mention-pop { position: fixed; z-index: 60; min-width: 240px; max-width: 360px; max-height: 260px; overflow: auto; padding: 4px; border-radius: 10px; background: var(--zo-bg); border: 1px solid color-mix(in oklab, var(--zo-border) 40%, transparent); box-shadow: 0 8px 24px rgba(0,0,0,.25); transform: translateY(-100%); }
@@ -1011,7 +942,6 @@
     .zo-iconbtn:hover { background: var(--hover); color: var(--zo-fg); }
     .zo-send { height: 32px; padding: 0 12px; border-radius: 10px; border: 1px solid transparent; background: var(--zo-accent); color: var(--zo-fg-muted); font-size: 13px; cursor: pointer; }
     .zo-send.ready { background: var(--zo-primary); color: var(--zo-primary-fg); }
-    #homeChipList { display: contents; }
     /* page chrome shared by list tabs */
     .pg-head { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 12px 8px 16px; flex: none; }
     .pg-sub { font-size: 14px; color: var(--zo-fg-muted); }
@@ -1120,9 +1050,6 @@
     .zo-list { display: flex; flex-direction: column; border: 1px solid var(--border); border-radius: 10px; background: color-mix(in oklab, var(--zo-muted) 40%, transparent); overflow: hidden; }
     .zo-list-row { display: flex; align-items: center; gap: 12px; min-height: 53px; padding: 10px 12px; border-bottom: 1px solid var(--border); font-size: 14px; color: var(--zo-fg); background: transparent; border-left: none; border-right: none; border-top: none; text-align: left; width: 100%; }
     .zo-list-row:last-child { border-bottom: none; }
-    .zo-list-link { cursor: pointer; }
-    .zo-list-link:hover { background: var(--hover); }
-    .zo-list-link > svg { color: var(--zo-fg-muted); }
     .zo-list-label { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 1px; }
     .zo-list-sub { font-size: 12px; color: var(--zo-fg-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .zo-status-ok { font-size: 13px; color: var(--accent-green); padding: 0 10px; }
@@ -1171,7 +1098,6 @@
     .secret-row-item:last-child { border-bottom: none; }
     .secret-row-item:hover { background: var(--hover); }
 
-    @media (max-width: 900px) { }
     .auto-editor textarea#autoPrompt { font-size: 18px; line-height: 1.625; padding: 16px; min-height: 260px; background: var(--zo-muted); border: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); border-radius: 15px; box-shadow: inset 0 1px 0 rgba(255,255,255,.12); color: var(--zo-fg); }
     .auto-editor textarea#autoPrompt::placeholder { color: var(--zo-fg-muted); }
     .daychip { padding: 3px 8px; font-size: 12px; }
@@ -1226,7 +1152,6 @@
     .zo-iconbtn.zo-primary { background: var(--zo-primary); color: var(--zo-primary-fg); }
     .zo-iconbtn.zo-primary:hover { background: var(--accent-blue-hover); color: var(--zo-primary-fg); }
     .zo-iconbtn.active { color: var(--zo-primary); background: var(--zo-accent); }
-    .files-badge { position: absolute; top: 2px; right: 2px; min-width: 14px; height: 14px; padding: 0 3px; border-radius: 7px; background: var(--zo-primary); color: var(--zo-primary-fg); font-size: 9px; line-height: 14px; text-align: center; }
     .zo-iconbtn { position: relative; }
     .sk-actions { gap: 4px; }
     .int-disconnect { opacity: 0; }
@@ -1276,7 +1201,6 @@
     .file-viewer-name { font-size: 14px; color: var(--zo-fg-muted); }
     #fileOpenRaw { text-decoration: none; }
     .zo-pill.zo-danger { color: var(--accent-red); }
-    #trashListContainer { padding: 8px 12px; overflow-y: auto; }
     .ft-trash-row { height: auto; padding: 6px 8px; }
     .ft-trash-row .ft-name { display: flex; flex-direction: column; line-height: 18px; }
     .ft-sub { font-size: 12px; color: var(--zo-fg-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
@@ -1371,8 +1295,6 @@
     .chan-facts { display: grid; grid-template-columns: max-content 1fr; gap: 4px 12px; margin: 0; font-size: 13px; }
     .chan-facts dt { color: var(--zo-fg-muted); } .chan-facts dd { margin: 0; color: var(--zo-fg); overflow-wrap: anywhere; }
     .chan-keys { display: flex; flex-wrap: wrap; gap: 4px; }
-    .chan-webhook { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 13px; }
-    .chan-webhook code { font-family: var(--font-mono); font-size: 12px; padding: 4px 8px; border-radius: 7.5px; background: var(--zo-bg); border: 1px solid var(--border); overflow-wrap: anywhere; }
     .chan-key { cursor: pointer; font-family: var(--font-mono); border: 1px dashed var(--zo-border); background: transparent; }
     .chan-key.set { border-style: solid; color: var(--zo-fg); }
     .chan-key.opt { opacity: .7; }
@@ -1383,15 +1305,14 @@
     .mode-row button { height: 32px; min-width: 40px; padding: 0 10px; }
     /* accessibility */
     :focus-visible { outline: 2px solid var(--zo-primary); outline-offset: 0; }
-    .nav-item:focus-visible, .zo-iconbtn:focus-visible, .zo-pill:focus-visible, .tb-btn:focus-visible, .popular-card:focus-visible, .zo-send:focus-visible, .send-btn:focus-visible, .zo-btn-primary:focus-visible, .daychip:focus-visible, .preset-row button:focus-visible { outline: 2px solid var(--zo-primary); outline-offset: -1px; }
+    .nav-item:focus-visible, .zo-iconbtn:focus-visible, .zo-pill:focus-visible, .tb-btn:focus-visible, .zo-send:focus-visible, .send-btn:focus-visible, .zo-btn-primary:focus-visible, .daychip:focus-visible, .preset-row button:focus-visible { outline: 2px solid var(--zo-primary); outline-offset: -1px; }
     /* text fields: show focus on the field border, not a ring that overlaps neighbours */
     input:focus-visible, textarea:focus-visible, select:focus-visible { outline: none; border-color: var(--zo-primary); }
     .home-composer-input:focus, .chat-textarea:focus, .home-composer-input:focus-visible, .chat-textarea:focus-visible { outline: none; border-color: transparent; box-shadow: none; }
     .home-composer-card:focus-within, #chat-card .composer-card:focus-within { border-color: var(--zo-input); box-shadow: inset 0 1px 0 rgba(255,255,255,.12), 0 0 0 1px var(--zo-input); }
     .zo-pill:focus-within, .zo-search:focus-within, .sb-search-box:focus-within { border-color: var(--zo-primary); }
-    .zo-pill select:focus-visible, .zo-search input:focus-visible, .sb-search-box input:focus-visible, .dropdown-select:focus-visible { outline: none; }
-    .dropdown-select:focus-visible { border-color: var(--zo-primary); }
-    button.popular-card, button.daychip { font: inherit; }
+    .zo-pill select:focus-visible, .zo-search input:focus-visible, .sb-search-box input:focus-visible { outline: none; }
+    button.daychip { font: inherit; }
 
     .daychip { background: transparent; color: var(--zo-fg-muted); }
     .daychip.on { color: var(--zo-primary-fg); }
@@ -1410,7 +1331,7 @@
       .home-center-container { padding: 0 8px 16px; }
       .home-composer-input { font-size: 16px; }
       .int-grid { grid-template-columns: 1fr; }
-      .integrations-view, .browser-view, .auto-editor { padding-left: 12px; padding-right: 12px; }
+      .integrations-view, .auto-editor { padding-left: 12px; padding-right: 12px; }
       .zo-list-row { flex-wrap: wrap; gap: 8px; }
       .pg-head { flex-wrap: wrap; gap: 8px; }
       .sk-tabs button { min-width: 0; }
@@ -1455,7 +1376,6 @@
       .ft-more { display: inline-flex; }
     }
     ::-webkit-scrollbar-thumb { background: color-mix(in oklab, var(--zo-border) 50%, transparent); }
-    * { scrollbar-color: color-mix(in oklab, var(--zo-border) 50%, transparent) transparent; }
   
     .ai-filter-chip {
       font-size: 11.5px;
@@ -1974,10 +1894,11 @@
 
           <div class="settings-section-subtitle" style="font-weight: 600; color: var(--zo-fg);">Inbound channels</div>
           <div class="settings-section-subtitle">Inbound channels: email __AGENT_NAME__ or call it while you are away. Automations with Notify use email.</div>
-          <div id="channelsList" class="chan-list"><div class="pg-empty">Loading…</div>
+          <div id="channelsList" class="chan-list"><div class="pg-empty">Loading…</div></div>
         </div>
 
-        </section>
+      </div>
+    </section>
     </div>
   </main>
 
@@ -2272,7 +2193,7 @@
       strip.innerHTML = wsTabs.map(t => `<div class="wtab${t === activeTab ? ' active' : ''}" role="tab" tabindex="0" aria-selected="${t === activeTab}" onclick="focusTab('${t}')" onkeydown="if(event.key==='Enter'||event.key===' '){event.preventDefault();focusTab('${t}')}" onauxclick="if(event.button===1)closeTab('${t}')">${tabIcon(t)}<span class="wtab-label">${esc(TAB_META[t])}</span><button class="wtab-x" onclick="event.stopPropagation();closeTab('${t}')" title="Close tab" aria-label="Close ${esc(TAB_META[t])}">${X_ICON}</button></div>`).join('');
       const a = strip.querySelector('.wtab.active'); if (a) a.scrollIntoView({ block: 'nearest', inline: 'nearest' });
     }
-    function openInTab(name, inNew) {
+    function openInTab(name) {
       if (activeTab === 'newtab') {
         const i = wsTabs.indexOf('newtab');
         if (i >= 0) wsTabs.splice(i, 1);
@@ -2388,11 +2309,6 @@
         e.preventDefault();
         sendPromptFromHome();
       }
-    }
-
-    function injectHomePrompt(text) {
-      const el = document.getElementById('homeComposerInput');
-      el.value = text; el.focus(); el.dispatchEvent(new Event('input'));
     }
 
     function sendPromptFromHome() {
@@ -3486,7 +3402,7 @@
     function switchNav(name, e) {
       if (isNarrow() && !document.body.classList.contains('sb-collapsed')) { document.body.classList.add('sb-collapsed'); }
       if (name === 'home') { renderSidebarChatHistory(); showHomeView(); return; }
-      openInTab(name === 'space' ? 'terminal' : name, !!(e && (e.metaKey || e.ctrlKey)));
+      openInTab(name);
     }
 
     function activateTab(name) {

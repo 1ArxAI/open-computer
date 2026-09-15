@@ -8,7 +8,6 @@ import struct
 import asyncio
 from fastapi import WebSocket, WebSocketDisconnect
 import os
-import uuid
 import json
 import time
 import subprocess
@@ -120,7 +119,7 @@ async def auth_gate(request: Request, call_next):
     path = request.url.path
     if path in ("/health", "/login", "/auth/login", "/robots.txt", "/favicon.ico") or request.method == "OPTIONS":
         resp = await call_next(request)
-    elif path.startswith(("/api/", "/zo/", "/models", "/personas", "/auth/", "/mcp")) and not is_authed(request):
+    elif path.startswith(("/api/", "/zo/", "/models", "/auth/", "/mcp")) and not is_authed(request):
         resp = JSONResponse({"detail": "Unauthorized. Sign in at /login."}, status_code=401)
     elif path == "/" and not is_authed(request):
         resp = RedirectResponse("/login", status_code=302)
@@ -832,29 +831,6 @@ async def delete_from_trash(req: DeleteTrashRequest):
 
 # ==================== TERMINAL & EXECUTION ====================
 
-class ExecRequest(BaseModel):
-    command: str
-    cwd: Optional[str] = None
-
-@app.post("/api/terminal")
-async def terminal_exec(req: ExecRequest):
-    target_cwd = (WORKSPACE_DIR / (req.cwd or "").lstrip("/")).resolve()
-    if not str(target_cwd).startswith(str(WORKSPACE_DIR)):
-        target_cwd = WORKSPACE_DIR
-
-    try:
-        # run in a worker thread so a long command never blocks the event loop (chats, SSE, other requests)
-        res = await asyncio.to_thread(subprocess.run, req.command, shell=True, cwd=str(target_cwd), capture_output=True, text=True, timeout=45)
-        return {
-            "exit_code": res.returncode,
-            "stdout": res.stdout,
-            "stderr": res.stderr
-        }
-    except subprocess.TimeoutExpired:
-        return {"exit_code": 124, "stdout": "", "stderr": "Command timed out after 45s"}
-    except Exception as e:
-        return {"exit_code": 1, "stdout": "", "stderr": str(e)}
-
 # ==================== AUTOMATIONS ====================
 
 class AutomationBody(BaseModel):
@@ -966,12 +942,6 @@ async def stop_task(tid: str):
         raise HTTPException(404, "Task not found")
     return await agent.stop_task(tid)
 
-@app.get("/api/tasks/{tid}/logs")
-async def task_log(tid: str, lines: int = 200):
-    if not agent.get_task(tid):
-        raise HTTPException(404, "Task not found")
-    return {"log": agent.task_logs(tid, lines)}
-
 @app.post("/api/automations/parse-schedule")
 async def parse_schedule(body: ScheduleText):
     try:
@@ -1001,10 +971,6 @@ class AgentBody(BaseModel):
 @app.get("/api/agents")
 async def get_agents():
     return {"agents": agent.list_agents(), "scopes": list(agent.SCOPES)}
-
-@app.get("/personas/available")
-async def personas_available():
-    return {"personas": [{"id": a["id"], "name": a["name"], "handle": a["handle"], "model": a.get("model"), "scope": a.get("scope")} for a in agent.list_agents()]}
 
 @app.post("/api/agents")
 async def upsert_agent(body: AgentBody):
@@ -1213,11 +1179,6 @@ def _system_stats_sync():
 @app.get("/api/update/check")
 async def check_updates(force: bool = False):
     return await updater.check_for_updates(force=force)
-
-
-@app.get("/api/update/version")
-async def get_version():
-    return updater.get_current_version()
 
 
 @app.post("/api/update/apply")
@@ -1715,13 +1676,6 @@ async def apps_connected():
 async def apps_connect(slug: str):
     try:
         return {"url": await agent.pd_connect_link(slug)}
-    except Exception as e:
-        raise HTTPException(502, f"Pipedream error: {e}")
-
-@app.get("/api/apps/{slug}/tools")
-async def apps_tools(slug: str, refresh: bool = False):
-    try:
-        return {"slug": slug, "tools": await agent.pd_app_tools(slug, refresh)}
     except Exception as e:
         raise HTTPException(502, f"Pipedream error: {e}")
 

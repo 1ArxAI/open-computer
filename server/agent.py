@@ -858,19 +858,6 @@ def set_default_model(model: str):
 # ---------------------------------------------------------------- json stores
 
 
-def _read(p: Path, default=None):
-    try:
-        return json.loads(p.read_text(encoding="utf-8"))
-    except Exception:
-        return default
-
-
-def _write(p: Path, obj):
-    tmp = p.with_suffix(p.suffix + ".tmp")
-    tmp.write_text(json.dumps(obj, indent=2, ensure_ascii=False), encoding="utf-8")
-    tmp.replace(p)
-
-
 def now_iso() -> str:
     return datetime.now(TZ).isoformat(timespec="seconds")
 
