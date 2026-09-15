@@ -80,12 +80,20 @@ def _tinyfish_key() -> str:
     return e.get("TINYFISH_API_KEY", "")
 
 
-async def _web_search(query: str) -> str:
+_RECENCY_MINUTES = {"day": 1440, "week": 10080, "month": 43200, "year": 525600}
+
+
+async def _web_search(query: str, time_range: str = "", topic: str = "") -> str:
+    """time_range: day|week|month|year (anything else = no date filter). topic: 'news' searches the news index."""
     key = _tinyfish_key()
     if key:  # TinyFish Search: ranked results with dates, free tier. Falls back to DuckDuckGo below on any error.
         try:
             async with httpx.AsyncClient(timeout=30) as c:
                 params = {"query": query, **({"location": env()["SU_SEARCH_LOCATION"]} if env().get("SU_SEARCH_LOCATION") else {})}
+                if _RECENCY_MINUTES.get((time_range or "").lower()):
+                    params["recency_minutes"] = _RECENCY_MINUTES[time_range.lower()]
+                if (topic or "").lower() == "news":
+                    params["domain_type"] = "news"
                 r = await c.get("https://api.search.tinyfish.ai", params=params, headers={"X-API-Key": key})
             r.raise_for_status()
             res = r.json().get("results") or []

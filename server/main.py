@@ -119,7 +119,7 @@ async def auth_gate(request: Request, call_next):
     path = request.url.path
     if path in ("/health", "/login", "/auth/login", "/robots.txt", "/favicon.ico") or request.method == "OPTIONS":
         resp = await call_next(request)
-    elif path.startswith(("/api/", "/zo/", "/models", "/auth/", "/mcp")) and not is_authed(request):
+    elif path.startswith(("/api/", "/zo/", "/models", "/personas", "/auth/", "/mcp")) and not is_authed(request):
         resp = JSONResponse({"detail": "Unauthorized. Sign in at /login."}, status_code=401)
     elif path == "/" and not is_authed(request):
         resp = RedirectResponse("/login", status_code=302)
@@ -971,6 +971,11 @@ class AgentBody(BaseModel):
 @app.get("/api/agents")
 async def get_agents():
     return {"agents": agent.list_agents(), "scopes": list(agent.SCOPES)}
+
+@app.get("/personas/available")
+async def personas_available():
+    """Zo-compatible: the same shape as https://api.zo.computer/personas/available."""
+    return {"personas": [{"id": a["id"], "name": a["name"], "prompt": a.get("prompt", ""), "model": a.get("model"), "image": None} for a in agent.list_agents()]}
 
 @app.post("/api/agents")
 async def upsert_agent(body: AgentBody):

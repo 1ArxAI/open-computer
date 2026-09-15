@@ -49,7 +49,9 @@ BUILTIN_TOOLS = [
     _tool("grep", "Search file contents recursively (regex). Returns file:line:text, max 200 lines.", {"pattern": {"type": "string"}, "path": {"type": "string", "description": "Folder to search, default workspace"}}, ["pattern"]),
     _tool("glob", "Find files by glob pattern, e.g. Projects/**/*.json", {"pattern": {"type": "string"}}),
     _tool("web_fetch", "Fetch a URL and return readable text (HTML stripped).", {"url": {"type": "string"}}),
-    _tool("web_search", "Search the web. Returns titles, URLs, snippets.", {"query": {"type": "string"}}),
+    _tool("web_search", "Search the web. Returns titles, URLs, snippets, dates. For news or current events set topic=news and time_range=day or week.",
+          {"query": {"type": "string"}, "time_range": {"type": "string", "enum": ["anytime", "day", "week", "month", "year"], "description": "Recency window, default anytime"},
+           "topic": {"type": "string", "enum": ["general", "news"], "description": "Search index, default general"}}, ["query"]),
     _tool("send_email", "Send an email to the owner (or a recipient). Uses SMTP_* or RESEND_API_KEY secrets.",
           {"subject": {"type": "string"}, "body": {"type": "string"}, "to": {"type": "string", "description": "Optional; defaults to NOTIFY_EMAIL"}}, ["subject", "body"]),
     _tool("send_telegram", "Send a Telegram message to the owner (TELEGRAM_BOT_TOKEN + TELEGRAM_CHAT_ID).", {"text": {"type": "string"}}),
@@ -152,7 +154,7 @@ async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
         if name == "web_fetch":
             return await _web_fetch(args["url"])
         if name == "web_search":
-            return await _web_search(args["query"])
+            return await _web_search(args["query"], args.get("time_range") or "", args.get("topic") or "")
         if name == "send_email":
             return await asyncio.to_thread(send_email, args["subject"], args["body"], args.get("to"))
         if name == "send_telegram":
