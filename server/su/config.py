@@ -28,7 +28,18 @@ from openai import AsyncOpenAI
 
 log = logging.getLogger("su")
 
-HOME =Path(os.environ.get("SU_HOME", str(Path(__file__).resolve().parent.parent)))  # the install folder
+def _install_root() -> Path:
+    """The folder that holds .env, data/ and workspace/. SU_HOME wins; otherwise walk up from this file until install.sh is found."""
+    if os.environ.get("SU_HOME"):
+        return Path(os.environ["SU_HOME"])
+    here = Path(__file__).resolve()
+    for p in here.parents:
+        if (p / "install.sh").exists() or (p / ".env.example").exists():
+            return p
+    return here.parents[2]  # server/su/config.py -> repo root
+
+
+HOME = _install_root()  # the install folder
 WORKSPACE = HOME / "workspace"
 SKILLS_DIR = WORKSPACE / "Skills"
 DATA = HOME / "data" / "su"
