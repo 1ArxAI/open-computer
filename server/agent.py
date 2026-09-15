@@ -2751,13 +2751,12 @@ def digest_text() -> str:
 
 
 async def ensure_digest():
-    if digest_text() or not cc_available() or not _digest_source():
+    if digest_text() or not quick_available() or not _digest_source():
         return
     try:
-        out = await cc_quick("Condense the owner rules and operating manual below into at most 250 tokens of terse imperative bullet points. "
-                             "Keep every hard rule: secrets, approvals, folders, what may be sent outward, reporting, machines. Drop examples, "
-                             "schedule syntax and explanations. Output only the bullets.\n\n" + _digest_source(),
-                             model=env().get("SU_DIGEST_MODEL_ALIAS", "opus"), timeout=150)
+        out = await quick("Condense the owner rules and operating manual below into at most 250 tokens of terse imperative bullet points. "
+                          "Keep every hard rule: secrets, approvals, folders, what may be sent outward, reporting, machines. Drop examples, "
+                          "schedule syntax and explanations. Output only the bullets.\n\n" + _digest_source(), timeout=150)
         if out:
             DIGEST_FILE.write_text(f"<!-- source:{_digest_hash()} -->\n{out.strip()}\n", encoding="utf-8")
     except Exception as e:
@@ -2896,7 +2895,7 @@ def forget(fid: str) -> bool:
 async def remember_turn(conv: Dict, user_input: str, answer: str):
     """After a chat turn: pull out the few facts worth keeping (owner, preferences, projects, decisions, people, key names).
     Runs in the background on the cheap model; a paragraph usually yields nothing or one line."""
-    if len(user_input.strip()) < 12 or _APPROVE_RE.match(user_input) or not cc_available():
+    if len(user_input.strip()) < 12 or _APPROVE_RE.match(user_input) or not quick_available():
         return
     facts = memory_facts()
     known = "\n".join(f"{f['id']}: {f['text']}" for f in facts[-MEMORY_MAX:]) or "(none)"
@@ -2907,7 +2906,7 @@ async def remember_turn(conv: Dict, user_input: str, answer: str):
               "Each fact under 20 words, specific, standalone. If a known fact is now outdated, list its id under drop. "
               'Output only JSON: {"add": ["..."], "drop": ["id"]}. Usually add is empty.')
     try:
-        out = await cc_quick(prompt, model="haiku", timeout=60)
+        out = await quick(prompt, timeout=60)
         j = _json_in(out) or {}
     except Exception as e:
         print("memory error", e); return
@@ -2940,12 +2939,11 @@ async def to_schema(text: str, schema: Dict):
             return obj
     except Exception:
         pass
-    if not cc_available():
+    if not quick_available():
         return {"error": "answer was not valid JSON and no conversion model is available", "text": text}
     try:
-        out = await cc_quick(f"Convert this answer into a JSON object that matches the JSON Schema. Use only information in the answer; "
-                             f"null for anything missing. Output only the JSON.\n\nSchema:\n{json.dumps(schema)}\n\nAnswer:\n{text[:6000]}",
-                             model="haiku", timeout=60)
+        out = await quick(f"Convert this answer into a JSON object that matches the JSON Schema. Use only information in the answer; "
+                          f"null for anything missing. Output only the JSON.\n\nSchema:\n{json.dumps(schema)}\n\nAnswer:\n{text[:6000]}", timeout=60)
         obj = _json_in(out)
         return obj if isinstance(obj, dict) else {"error": "conversion did not return an object", "text": text}
     except Exception as e:
@@ -3401,6 +3399,48 @@ async def cc_quick(prompt: str, system: str = "", model: str = "haiku", timeout:
         raise RuntimeError(f"quick pass failed: {err.decode('utf-8', 'replace')[-300:]}")
 
 
+def quick_model(model: Optional[str] = None) -> str:
+    """The model for short helper calls (triage, memory, folding, digest, JSON conversion): SU_QUICK_MODEL, else the given
+    or default chat model. Any configured provider works; the Claude Code CLI is used only when the model is a claude-code one."""
+    m = env().get("SU_QUICK_MODEL") or model or default_model()
+    if m.startswith("gemini-cli:"):  # the Gemini CLI is a full harness, not a one-shot endpoint; use the API or first chat provider
+        ps = chat_providers()
+        m = "google:gemini-2.5-flash" if "google" in ps else (f"{ps[0]}:{(SEED_MODELS.get(ps[0]) or ['default'])[0]}" if ps else m)
+    return m
+
+
+def quick_available() -> bool:
+    m = quick_model()
+    return cc_available() if m.startswith("claude-code:") else bool(m and not m.startswith("gemini-cli:") and chat_providers())
+
+
+async def quick(prompt: str, system: str = "", model: Optional[str] = None, timeout: int = 60) -> str:
+    """One-shot text completion on the quick model, no tools. Raises on failure so callers can fall back."""
+    m = quick_model(model)
+    if m.startswith("claude-code:"):
+        if not cc_available():
+            raise RuntimeError("Claude Code is not available")
+        return await cc_quick(prompt, system=system, model=m.split(":", 1)[1], timeout=timeout)
+    provider, mid = split_model(m)
+    if provider == "google" and _gemini_native_ok():
+        return (await asyncio.wait_for(gemini_simple(mid, (system + "\n\n" if system else "") + prompt), timeout=timeout)).strip()
+    msgs = ([{"role": "system", "content": system}] if system else []) + [{"role": "user", "content": prompt}]
+    r = await asyncio.wait_for(client_for(provider).chat.completions.create(model=mid, messages=msgs, temperature=0), timeout=timeout)
+    return (r.choices[0].message.content or "").strip()
+
+
+def build_model_for(model: str) -> str:
+    """Model for a Build turn: SU_BUILD_MODEL when set and usable, otherwise the model the owner picked."""
+    b = env().get("SU_BUILD_MODEL", "").strip()
+    if not b or model != default_model():
+        return model
+    if b.startswith("claude-code:") and not cc_available():
+        return model
+    if b.startswith("gemini-cli:") and not gemini_cli_available():
+        return model
+    return b
+
+
 PLANNER = """You are SU's first-responder. The owner just sent a message. Decide and answer in one shot. You have NO tools: write plain text only, never tool calls or XML.
 Output format: first line exactly `MODE: direct`, `MODE: do` or `MODE: build`, then a blank line, then the text.
 - `direct`: a question, greeting or small request answerable from what you know and the conversation (no tools needed). Text = the complete short answer. Use the memory facts when they answer it.
@@ -3420,16 +3460,21 @@ def quick_facts() -> str:
             f"Time: {datetime.now(TZ).strftime('%A %d %B %Y %H:%M')} {TZ.key}.\n" + memory_text())
 
 
-async def first_reply(conv: Dict, user_input: str, system: str) -> Optional[Dict[str, str]]:
-    """Returns {"mode": "direct"|"build", "text": ...} or None if the quick pass failed."""
+async def first_reply(conv: Dict, user_input: str, system: str, model: Optional[str] = None) -> Optional[Dict[str, str]]:
+    """Returns {"mode": "direct"|"do"|"build", "text": ...} or None if the quick pass failed."""
+    if not quick_available():
+        return None
     history = history_transcript(conv, limit_chars=3000)
     prompt = (f"Conversation so far:\n{history}\n\n" if history else "") + f"Owner's message:\n{user_input}"
     try:
-        out = await cc_quick(prompt, system=quick_facts() + "\n\n" + PLANNER + (("\n\n" + system.strip()) if system and system.strip() else ""), model=env().get("SU_CHAT_MODEL_ALIAS", "sonnet"))
-    except Exception:
+        out = await quick(prompt, system=quick_facts() + "\n\n" + PLANNER + (("\n\n" + system.strip()) if system and system.strip() else ""), model=model)
+    except Exception as e:
+        log.warning("triage failed, running as build: %s", e)
         return None
-    m = re.match(r"\s*MODE:\s*(direct|do|build)[ \t]*(?:TOOLS:\s*((?:(?!PROJECTS:)[A-Za-z0-9_:, ])*))?[ \t]*(?:PROJECTS:\s*([A-Za-z0-9_\-, ]*))?\s*\n*(.*)$", out, re.S | re.I)
+    out = re.sub(r"^```[a-z]*\s*|```\s*$", "", out.strip(), flags=re.M)  # tolerate a code fence or a line of preamble before MODE:
+    m = re.search(r"^\s*MODE:\s*(direct|do|build)[ \t]*(?:TOOLS:\s*((?:(?!PROJECTS:)[A-Za-z0-9_:\-, ])*))?[ \t]*(?:PROJECTS:\s*([A-Za-z0-9_\-, ]*))?[ \t]*\n*(.*)$", out, re.S | re.I | re.M)
     if not m:
+        log.warning("triage output had no MODE line, running as build: %r", out[:120])
         return None
     text = re.sub(r"<(invoke|function_calls|parameter|antml:[a-z_]+)[^>]*>.*?(</\1>|$)", "", m.group(4), flags=re.S).strip()
     groups = [g.strip().lower() for g in (m.group(2) or "").split(",") if g.strip() and g.strip().lower() != "none"]
@@ -3449,19 +3494,19 @@ async def plan_turn(conv: Dict, user_input: str, extra_system: str, emit, model:
         return {"tier": "chat", "extra_system": extra_system, "model": model}
     if pend and (mode == "build" or _APPROVE_RE.match(user_input)):
         conv.pop("pending_build", None)
-        if model == default_model():
-            model = env().get("SU_BUILD_MODEL", "claude-code:opus")
-        extra = (extra_system + '\n\nThe owner approved this plan: """' + pend["plan"] + '"""\nfor this request: """' + pend["input"] +
+        model = build_model_for(model)
+        extra =(extra_system + '\n\nThe owner approved this plan: """' + pend["plan"] + '"""\nfor this request: """' + pend["input"] +
                  '"""\nDo the work now. Your final message is the closing report only: what was done, what was verified, what is left.')
         return {"tier": "build", "extra_system": extra, "model": model, "projects": pend.get("projects") or []}
     if pend:
         conv.pop("pending_build", None)  # the owner said something else: plan again from scratch
     if mode == "build":  # owner pressed Build: straight to the build model with every key listed, no plan, no confirmation
-        if model == default_model():
-            model = env().get("SU_BUILD_MODEL", "claude-code:opus")
+        model = build_model_for(model)
         return {"tier": "build", "extra_system": extra_system + "\n\nDo the work now. Your final message is the closing report only: what was done, what was verified, what is left.", "model": model}
+    if not quick_available():  # no model for triage: run as a build, and say so once instead of pretending to read the request
+        return {"tier": "build", "extra_system": extra_system, "model": model}
     await emit({"type": "status", "text": "Reading your request"})
-    fr = await first_reply(conv, user_input, extra_system)
+    fr = await first_reply(conv, user_input, extra_system, model=model)
     if not fr:
         return {"tier": "build", "extra_system": extra_system, "model": model}
     if fr["mode"] == "direct" and fr["text"]:
@@ -3471,9 +3516,8 @@ async def plan_turn(conv: Dict, user_input: str, extra_system: str, emit, model:
             plan = re.sub(r"\s*Starting now\.?\s*$", "", fr["text"]).rstrip() + "\n\nReply build to start, or tell me what to change."
             conv["pending_build"] = {"input": user_input, "plan": plan, "projects": fr.get("projects") or []}
             return {"tier": "chat", "extra_system": extra_system, "model": model, "final": plan}
-        if model == default_model():
-            model = env().get("SU_BUILD_MODEL", "claude-code:opus")
-        extra = (extra_system + '\n\nYou have ALREADY sent the owner this first reply, so do not repeat or rephrase it: """' + fr["text"] +
+        model = build_model_for(model)
+        extra =(extra_system + '\n\nYou have ALREADY sent the owner this first reply, so do not repeat or rephrase it: """' + fr["text"] +
                  '"""\nNow do the work it describes. Your final message is the closing report only: what was done, what was verified, what is left.')
         return {"tier": "build", "extra_system": extra, "model": model, "announce": fr["text"], "projects": fr.get("projects") or []}
     return {"tier": "do", "extra_system": extra_system, "model": model, "groups": fr.get("groups") or [], "projects": fr.get("projects") or []}
@@ -3481,7 +3525,6 @@ async def plan_turn(conv: Dict, user_input: str, extra_system: str, emit, model:
 
 def _finish_turn(conv: Dict, user_input: str, text: str):
     conv["messages"] += [{"role": "user", "content": user_input}, {"role": "assistant", "content": text}]
-    conv["cc_seen"] = conv.get("cc_seen", 0)  # a Claude Code session did not see this turn; transcript bridging covers it
     if not conv.get("title") or conv["title"] == "New chat":
         conv["title"] = user_input.strip().splitlines()[0][:60]
     save_conversation(conv)
@@ -3493,7 +3536,7 @@ FOLD_AT, FOLD_KEEP = 24, 8
 async def fold_history(conv: Dict):
     """Long chats: fold older turns into a short summary (kept in conv['summary']); stored messages stay intact for the UI."""
     msgs = conv["messages"]; start = conv.get("folded_upto", 0)
-    if len(msgs) - start <= FOLD_AT or not cc_available():
+    if len(msgs) - start <= FOLD_AT or not quick_available():
         return
     cut = len(msgs) - FOLD_KEEP
     while cut > start and msgs[cut].get("role") != "user":
@@ -3509,9 +3552,8 @@ async def fold_history(conv: Dict):
         elif m.get("content"):
             lines.append(f"{m['role']}: {str(m['content'])[:800]}")
     try:
-        out = await cc_quick((f"Previous summary:\n{conv.get('summary', '')}\n\n" if conv.get("summary") else "") + "New turns:\n" + "\n".join(lines)
-                             + "\n\nWrite the updated summary of this conversation in at most 300 tokens: decisions, facts, file paths, open items. Plain text.",
-                             model="haiku", timeout=60)
+        out = await quick((f"Previous summary:\n{conv.get('summary', '')}\n\n" if conv.get("summary") else "") + "New turns:\n" + "\n".join(lines)
+                          + "\n\nWrite the updated summary of this conversation in at most 300 tokens: decisions, facts, file paths, open items. Plain text.", timeout=60)
     except Exception as e:
         print("fold error", e); return
     if out:
