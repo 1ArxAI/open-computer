@@ -1753,6 +1753,12 @@
               <button type="button" class="ai-chip" onclick="fillProviderPreset('OpenRouter', 'https://openrouter.ai/api/v1')">OpenRouter</button>
               <button type="button" class="ai-chip" onclick="fillProviderPreset('Local Ollama', 'http://127.0.0.1:11434/v1')">Ollama / Local</button>
             </div>
+            <div class="ai-preset-chips" style="margin-top: 6px;">
+              <span class="ai-preset-label">Sign in instead:</span>
+              <a class="ai-chip" href="/api/oauth/openrouter/start" title="Authorise on OpenRouter; the key it issues is stored here">Connect OpenRouter</a>
+              <button type="button" class="ai-chip" onclick="openrouterHeadless()" title="No public URL? Get a code on OpenRouter and paste it here">OpenRouter by code</button>
+              <span class="ai-add-status">Claude and Gemini subscriptions sign in on the box: run <code>claude login</code> or <code>gemini</code> in Terminal and they appear as runtimes.</span>
+            </div>
             <div class="ai-add-grid">
               <div class="ai-input-group">
                 <label for="newProvName">Provider Name</label>
@@ -3825,6 +3831,13 @@
       key.onkeydown = (e) => { if (e.key === 'Enter') save.click(); if (e.key === 'Escape') cancel.click(); };
       const row = document.createElement('div'); row.className = 'rule-row'; row.append(url, key, save, cancel); box.appendChild(row); key.focus();
     }
+    async function openrouterHeadless() {
+      window.open('/api/oauth/openrouter/start?headless=true', '_blank', 'noopener');
+      const code = (await askName('Paste the code OpenRouter showed you', '', 'Connect') || '').trim(); if (!code) return;
+      try { const d = await fetchJson('/api/oauth/openrouter/code', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ code }) }); notify('OpenRouter connected: ' + d.models + ' models'); await loadProviders(); loadModels(); }
+      catch (e) { notify('OpenRouter sign-in failed: ' + e.message, 'error'); }
+    }
+    if (new URLSearchParams(location.search).get('connected') === 'openrouter') { history.replaceState(null, '', '/'); setTimeout(() => { notify('OpenRouter connected'); openSettings('models'); }, 300); }
     function fillProviderPreset(name, url) {
       const n = document.getElementById('newProvName');
       const u = document.getElementById('newProvUrl');

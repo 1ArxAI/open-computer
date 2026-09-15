@@ -241,6 +241,7 @@ if "*" in _cors_origins:  # credentialed requests must never be wildcard-open
     print("SU_CORS_ORIGINS: '*' is not allowed with cookies; ignoring it. List exact origins instead.")
     _cors_origins = [o for o in _cors_origins if o != "*"]
 app.include_router(agent.services.router)  # private reverse proxy for http services: /api/svc/<label>/
+app.include_router(agent.oauth.router)  # OAuth sign-in for providers that offer it (OpenRouter PKCE)
 
 app.add_middleware(
     CORSMiddleware,

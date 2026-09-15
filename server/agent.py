@@ -25,7 +25,7 @@ from su.runtime_gemini_native import _gemini_stream, run_gemini_native
 from su.loop import _Fn, _Msg, _Resp, _TC, _stream_completion, refs_context, run_agent, types_SimpleNamespace
 from su.channels import CHANNELS_FILE, _chan_save, _chan_state, _mail_fetch_unseen, _mail_text, channel_run_hook, channels_status, email_channel_tick, mail_allowed, mail_clean_body, telegram_channel_loop, telegram_config
 from su.scheduler import _running_lock, automation_default_model, run_automation, scheduler_loop, tunnel_url_tick
-from su import audio, diagram, files, media_tools, research, rrule, rules, scopes, services, tool_docs
+from su import audio, diagram, files, media_tools, oauth, research, rrule, rules, scopes, services, tool_docs
 from su.rules import create_rule, delete_rule, edit_rule, list_rules, rules_text
 from su.automations import normalise_schedule
 from su.personas import persona_scopes
