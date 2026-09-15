@@ -280,7 +280,8 @@ class AskRequest(BaseModel):
     persona_id: Optional[str] = None  # agent id or handle (Zo-compatible name)
     agent: Optional[str] = None
     output_format: Optional[Dict[str, Any]] = None  # JSON Schema: the answer comes back as an object in `output`
-    mode: Optional[str] = None  # "chat" (live web answer, no machine tools) or "build" (straight to the build model); None = SU decides
+    mode: Optional[str] = None  # "chat" (live web answer, no machine tools) or "build" (read the request, then plan or do); None behaves like build
+    approve: Optional[bool] = False  # run the plan this conversation is waiting on (the Run button); never inferred from the text
     refs: Optional[List[Dict[str, Any]]] = None  # [{type: chat|automation|task, id, name}] the owner referenced with @ in the composer
 
 @app.get("/robots.txt", response_class=PlainTextResponse)
@@ -436,6 +437,10 @@ async def zo_ask(req: AskRequest):
     conv = agent.load_conversation(req.conversation_id) if req.conversation_id else None
     if not conv:
         conv = agent.new_conversation(req.input.strip().splitlines()[0][:60] if req.input.strip() else "New chat")
+    if req.approve and not conv.get("pending_build"):
+        raise HTTPException(409, "There is no plan waiting to run in this conversation.")
+    if req.approve and not req.input.strip():
+        req.input = "Run the plan."
     agent_id = req.agent or req.persona_id
 
     schema = json.dumps(req.output_format) if req.output_format else ""
@@ -443,7 +448,8 @@ async def zo_ask(req: AskRequest):
     extra += agent.refs_context(req.refs)
 
     async def work(on_event):
-        out = await agent.run_agent(conv, req.input, req.model_name, on_event, extra_system=extra, agent_id=agent_id, plan_first=True, mode=req.mode if req.mode in ('chat', 'build') else None)
+        out = await agent.run_agent(conv, req.input, req.model_name, on_event, extra_system=extra, agent_id=agent_id, plan_first=True,
+                                    mode=req.mode if req.mode in ('chat', 'build') else None, approve=bool(req.approve))
         asyncio.create_task(agent.remember_turn(conv, req.input, out or ""))
         return {"title": conv.get("title"), "model": conv.get("model")}
 

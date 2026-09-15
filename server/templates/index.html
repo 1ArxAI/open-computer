@@ -1035,6 +1035,22 @@
     .zo-btn-primary { height: 32px; display: inline-flex; align-items: center; gap: 4px; padding: 0 12px 0 10px; border-radius: 10px; border: 1px solid transparent; background: var(--zo-primary); color: var(--zo-primary-fg); font-size: 13px; font-weight: 500; cursor: pointer; }
     .zo-btn-primary:hover { background: var(--accent-blue-hover); }
     .zo-btn-primary svg { width: 18px; height: 18px; }
+    .zo-btn-primary:disabled { opacity: .55; cursor: default; }
+    /* Chat / Build segmented control */
+    .mode-seg { display: inline-flex; height: 32px; border: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); border-radius: 10px; overflow: hidden; background: color-mix(in oklab, var(--zo-bg) 50%, transparent); }
+    .mode-btn { height: 100%; padding: 0 12px; border: 0; background: transparent; color: var(--zo-fg-muted); font: inherit; font-size: 13px; cursor: pointer; }
+    .mode-btn + .mode-btn { border-left: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); }
+    .mode-btn[aria-checked="true"] { background: var(--zo-primary); color: var(--zo-primary-fg); }
+    .mode-btn:focus-visible { outline: 2px solid var(--zo-primary); outline-offset: -2px; }
+    /* Plan card: what Build understood and will do, waiting for Run */
+    .plan-card { border: 1px solid var(--zo-primary); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; background: color-mix(in oklab, var(--zo-primary) 6%, transparent); }
+    .plan-head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; font-size: 12px; color: var(--zo-fg-muted); }
+    .plan-head strong { color: var(--zo-fg); font-size: 13px; }
+    .plan-body { font-size: 14px; line-height: 1.5; white-space: normal; }
+    .plan-actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .plan-card.done { border-color: var(--zo-border); background: transparent; }
+    .plan-card.done .plan-actions { display: none; }
+    .plan-state { font-size: 12px; color: var(--zo-fg-muted); }
     .pg-search { display: flex; align-items: center; padding: 4px 16px 12px; flex: none; }
     .zo-search { flex: 1; min-width: 0; display: flex; align-items: center; gap: 6px; height: 32px; padding: 5px 10px; border-radius: 10px; border: 1px solid var(--zo-border); background: color-mix(in oklab, var(--zo-bg) 60%, transparent); color: var(--zo-fg-muted); cursor: text; }
     .zo-search input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--zo-fg); font-size: 13px; }
@@ -1535,7 +1551,7 @@
             <div class="home-composer-controls">
               <span class="zo-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">__AGENT_NAME__</text></svg></span>
             <label class="zo-pill" title="Model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><select id="homeModelSelect" onchange="setModel(this.value)" aria-label="Model" title="Letters: T text · I image · V video · A audio · F file"><option value="">Loading models…</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
-              <label class="zo-pill" title="Mode"><select class="mode-select" onchange="setChatMode(this.value)" aria-label="How __AGENT_NAME__ handles this message" title="Auto: __AGENT_NAME__ decides · Chat: answer with web lookups, no tools · Build: straight to the build model"><option value="">Auto</option><option value="chat">Chat</option><option value="build">Build</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+              <div class="mode-seg" role="radiogroup" aria-label="How __AGENT_NAME__ handles this message"><button type="button" class="mode-btn" data-mode="chat" role="radio" aria-checked="true" onclick="setChatMode('chat')" title="Answers with web lookups. No access to this machine.">Chat</button><button type="button" class="mode-btn" data-mode="build" role="radio" aria-checked="false" onclick="setChatMode('build')" title="Reads the request, shows a plan for multi-step work, then does it with full tools.">Build</button></div>
             </div>
             <button class="zo-send" id="homeSendBtn" onclick="sendPromptFromHome()">Send</button>
           </div>
@@ -2046,7 +2062,7 @@
         <div class="composer-controls">
           <div class="selector-group">
             <label class="zo-pill" title="Model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><select id="modelSelect" onchange="setModel(this.value)" title="Letters: T text · I image · V video · A audio · F file"><option value="">Loading models...</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
-            <label class="zo-pill" title="Mode"><select class="mode-select" onchange="setChatMode(this.value)" aria-label="How __AGENT_NAME__ handles this message" title="Auto: __AGENT_NAME__ decides · Chat: answer with web lookups, no tools · Build: straight to the build model"><option value="">Auto</option><option value="chat">Chat</option><option value="build">Build</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+            <div class="mode-seg" role="radiogroup" aria-label="How __AGENT_NAME__ handles this message"><button type="button" class="mode-btn" data-mode="chat" role="radio" aria-checked="true" onclick="setChatMode('chat')" title="Answers with web lookups. No access to this machine.">Chat</button><button type="button" class="mode-btn" data-mode="build" role="radio" aria-checked="false" onclick="setChatMode('build')" title="Reads the request, shows a plan for multi-step work, then does it with full tools.">Build</button></div>
           </div>
           <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
         </div>
@@ -2449,9 +2465,8 @@
       const text = input.value.trim();
       if (!text) return;
       input.value = '';
-      switchNav('files');
+      showWorkspaceView();
       toggleChatPanel(false);
-      
       // Inject into chat drawer composer and send
       const chatInput = document.getElementById('chatInput');
       chatInput.value = text;
@@ -4374,9 +4389,17 @@ async function deleteProvider(pid, name) {
     
     let currentConversationId = null;
     let currentModel = store.get('su_model') || '';
-    let chatMode = '';  // Auto on every load; Chat and Build are chosen per session
-    function setChatMode(v) { chatMode = v; document.querySelectorAll('.mode-select').forEach(el => { if (el.value !== v) el.value = v; }); const ph = v === 'chat' ? 'Ask anything. I will look it up.' : v === 'build' ? 'Describe what to build.' : 'What should we do today?'; [chatInput, document.getElementById('homeComposerInput')].forEach(el => { if (el) el.placeholder = ph; }); }
-    setChatMode(chatMode);
+    // Chat answers with the web only; Build reads the request, plans multi-step work and runs it with full tools.
+    // The last choice is remembered for new chats; an existing chat reopens in the mode it was last used in.
+    let chatMode = store.get('su_mode_default') === 'build' ? 'build' : 'chat';
+    function setChatMode(v, remember = true) {
+      chatMode = v === 'build' ? 'build' : 'chat';
+      document.querySelectorAll('.mode-btn').forEach(b => b.setAttribute('aria-checked', String(b.dataset.mode === chatMode)));
+      const ph = chatMode === 'chat' ? 'Ask anything. I will look it up.' : 'Describe what to do. Multi-step work shows a plan first.';
+      [chatInput, document.getElementById('homeComposerInput')].forEach(el => { if (el) el.placeholder = ph; });
+      if (remember) store.set('su_mode_default', chatMode);
+    }
+    setChatMode(chatMode, false);
     let modelsCache = null;
     chatInput.addEventListener('keydown', (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } });
     attachMentions(chatInput); attachMentions(document.getElementById('homeComposerInput'));
@@ -4684,6 +4707,16 @@ async function deleteProvider(pid, name) {
         if (!(paras.length && paras[paras.length - 1].dataset.raw === (ev.text || ''))) finalEl.innerHTML = formatMarkdown(ev.text || '');
         finishTrace(trace); stampTime(trace.parentElement, ev.ts); addSpeak(trace.parentElement); noteAnswerDone();
       }
+      else if (ev.type === 'plan') {
+        // Build understood the request and is waiting for Run. ev.pending=false renders an old plan that was not run.
+        const pending = ev.pending !== false;
+        const card = document.createElement('div'); card.className = 'plan-card' + (pending ? '' : ' done');
+        card.innerHTML = `<div class="plan-head"><strong>Plan</strong>${ev.model ? `<span>runs on <code>${esc(ev.model)}</code></span>` : ''}<span class="plan-state">${pending ? 'Waiting for you' : (ev.ran ? 'Ran' : 'Not run')}</span></div>`
+          + `<div class="plan-body">${formatMarkdown(ev.text || '')}</div>`
+          + `<div class="plan-actions"><button type="button" class="zo-btn-primary plan-run" onclick="runPlan(this)">Run</button><button type="button" class="zo-pill" onclick="chatInput.focus()">Change it</button><span class="plan-state">Nothing runs until you press Run. Typing a new message drops this plan.</span></div>`;
+        finalEl.innerHTML = ''; finalEl.appendChild(card);
+        finishTrace(trace); stampTime(trace.parentElement, ev.ts); noteAnswerDone();
+      }
       else if (ev.type === 'timing') { const t = trace.parentElement.querySelector('.trace-toggle'); if (t && ev.total_ms) { const sp = document.createElement('span'); sp.className = 'trace-time'; sp.textContent = (ev.total_ms / 1000).toFixed(1) + ' s'; t.after(sp); } }
       else if (ev.type === 'error') { finalEl.innerHTML = '<span style="color:#f87171;">' + esc(ev.text) + '</span>'; finishTrace(trace); stampTime(trace.parentElement, ev.ts); noteAnswerDone(); }
       trace.parentElement && (trace.parentElement.scrollTop = trace.parentElement.scrollHeight);
@@ -4721,7 +4754,7 @@ async function deleteProvider(pid, name) {
         await streamSSE('/api/conversations/' + id + '/stream?since=0', null, ev => {
           if (ev.type === 'end') { renderSidebarChatHistory(); refreshRuns(); return; }
           if (ev.type === 'start' && ev.input) { const fb = msgsContainer.querySelector('.msg-user[data-fallback]'); if (fb) { fb.textContent = ev.input; delete fb.dataset.fallback; } else if (!msgsContainer.querySelector('.msg-user')) addUserBubble(ev.input); }
-          if (ev.type === 'final' || ev.type === 'error') fin.innerHTML = '';
+          if (ev.type === 'final' || ev.type === 'error' || ev.type === 'plan') fin.innerHTML = '';
           renderEvent(ev, trace, fin);
         }, mine.signal);
         if (trace.parentElement && trace.parentElement.querySelector('.ai-status')) finishTrace(trace);
@@ -4759,19 +4792,28 @@ async function deleteProvider(pid, name) {
     }
     setInterval(checkForUpdate, 90000);
     document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshRuns(); });
-    async function sendMessage() {
+    // A plan card waits for Run. Any other message in that chat drops the plan; the card then shows as superseded.
+    function supersedePlans(except) { msgsContainer.querySelectorAll('.plan-card:not(.done)').forEach(c => { if (c === except) return; c.classList.add('done'); const st = c.querySelector('.plan-state'); if (st) st.textContent = 'Not run'; }); }
+    async function runPlan(btn) {
+      const card = btn.closest('.plan-card'); if (!card || chatAbort) return;
+      card.classList.add('done'); const st = card.querySelector('.plan-state'); if (st) st.textContent = 'Running';
+      setChatMode('build', false);
+      await sendMessage({ approve: true, text: 'Run the plan.' });
+    }
+    async function sendMessage(opts = {}) {
       if (chatAbort) return;
-      const text = chatInput.value.trim(); if (!text) return;
+      const text = (opts.text || chatInput.value).trim(); if (!text) return;
       chatInput.value = ''; chatAbort = new AbortController(); const mine = chatAbort;
       setSending(true);
       if (!currentConversationId && msgsContainer.querySelector('.msg-user') == null) msgsContainer.innerHTML = '';
+      if (!opts.approve) supersedePlans();
       addUserBubble(text); const w = addAiShell(); const trace = w.querySelector('.trace'); const fin = w.querySelector('.msg-ai-body'); renderEvent({ type: 'status', text: 'Thinking…' }, trace, fin);
       msgsContainer.scrollTop = msgsContainer.scrollHeight;
       try {
         const refs = refsIn(text); refs.forEach(r => delete pendingRefs[r.name]);
-        await streamSSE('/zo/ask', { input: text, model_name: currentModel || null, conversation_id: currentConversationId, stream: true, mode: chatMode || null, refs: refs.length ? refs : null }, ev => {
+        await streamSSE('/zo/ask', { input: text, model_name: currentModel || null, conversation_id: currentConversationId, stream: true, mode: chatMode, approve: !!opts.approve, refs: refs.length ? refs : null }, ev => {
           if (ev.type === 'start') { currentConversationId = ev.conversation_id; renderSidebarChatHistory(); refreshRuns(); }
-          if (ev.type === 'final' || ev.type === 'error') fin.innerHTML = '';
+          if (ev.type === 'final' || ev.type === 'error' || ev.type === 'plan') fin.innerHTML = '';
           if (ev.type === 'end') { renderSidebarChatHistory(); refreshRuns(); return; }
           renderEvent(ev, trace, fin);
         }, mine.signal);
@@ -4785,11 +4827,14 @@ async function deleteProvider(pid, name) {
       let c; try { c = await fetchJson('/api/conversations/' + id); } catch (e) { alert('Could not open chat: ' + e.message); return; }
       currentConversationId = id; showWorkspaceView(); if (isNarrow()) toggleChatPanel(false); msgsContainer.innerHTML = '';
       document.getElementById('chatTitle').textContent = c.title || 'Chat'; document.getElementById('chatTitleBtn').title = c.title || 'Chat';
+      if (c.mode === 'chat' || c.mode === 'build') setChatMode(c.mode, false);
       let w = null;
+      const lastPlan = [...c.messages].reverse().find(m => m.role === 'assistant' && m.plan);
       c.messages.forEach((m, i) => {
         if (m.role === 'user') { addUserBubble(m.content); w = null; }
         else if (m.role === 'assistant') { if (!w) w = addAiShell(); const trace = w.querySelector('.trace'); const fin = w.querySelector('.msg-ai-body');
           (m.tool_calls || []).forEach(tc => { let args = {}; try { args = JSON.parse(tc.function.arguments); } catch (e) {} renderEvent({ type: 'tool_call', name: tc.function.name, args }, trace, fin); });
+          if (m.plan) { const pending = !!c.pending_build && m === lastPlan; const ran = !pending && c.messages[i + 1] && c.messages[i + 1].role === 'user' && c.messages[i + 1].content === 'Run the plan.'; renderEvent({ type: 'plan', text: m.content, model: pending ? (c.pending_build.model || c.model) : c.model, pending, ran, ts: m.ts }, trace, fin); return; }
           if (m.content) {
             // Earlier paragraphs in the same turn (plan/understanding) render as text; the last one is the report.
             let last = true; for (let j = i + 1; j < c.messages.length && c.messages[j].role !== 'user'; j++) if (c.messages[j].role === 'assistant' && c.messages[j].content) { last = false; break; }

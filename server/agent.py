@@ -2888,7 +2888,7 @@ def system_prompt(extra: str = "", tier: str = "build", projects: Optional[List[
                 "Use them whenever the answer depends on anything current, factual, priced, scheduled or checkable, then answer from what you found "
                 "and give the source URL on its own line. Answer from knowledge only for timeless or personal questions. "
                 "Never name the search provider or the tools: to the owner it is simply you looking it up. "
-                "If the owner asks about this machine or wants something done, say in one line to send it with Auto or Build selected. " + STYLE + "\n" + extra + date)
+                "If the owner asks about this machine or wants something done, say in one line to switch the composer to Build and send it again. " + STYLE + "\n" + extra + date)
     dg = digest_text() if tier == "do" else ""
     if tier == "do" and dg:  # small task: fixed instructions, skill names, secret names, and the digest instead of the full rules and manual
         return (head + _FIXED + "Tools beyond the core set are loaded on demand: call more_tools(group) first, then the tool.\n\n"
@@ -3401,26 +3401,24 @@ async def first_reply(conv: Dict, user_input: str, system: str, model: Optional[
 _APPROVE_RE = re.compile(r"^\s*(build|build it|go|go ahead|yes|yes please|ok|okay|do it|proceed|start|approved?)\b[\s.!]*$", re.I)
 
 
-async def plan_turn(conv: Dict, user_input: str, extra_system: str, emit, model: str, mode: Optional[str] = None) -> Dict[str, Any]:
-    """Plan-first triage shared by every runtime. Returns tier/extra_system/model, plus `final` when the turn ends here
-    (a direct answer, or a plan waiting for the owner to reply "build") or `announce` (plan text to show before an auto build)."""
+async def plan_turn(conv: Dict, user_input: str, extra_system: str, emit, model: str, mode: Optional[str] = None, approve: bool = False) -> Dict[str, Any]:
+    """Triage for a Build turn. Chat mode answers with web only. Build mode reads the request: a direct answer ends the turn,
+    a small task runs with the core tools, and multi-step work first returns a plan (`final` + `plan`) that waits for the
+    owner to press Run (approve=True on the next request). Nothing typed in the box approves a plan."""
     pend = conv.get("pending_build")
-    if mode == "chat":  # owner pressed Chat: answer with live web only, no triage
+    if mode == "chat":  # web answers only, no machine, no triage
         conv.pop("pending_build", None)
         return {"tier": "chat", "extra_system": extra_system, "model": model}
-    if pend and (mode == "build" or _APPROVE_RE.match(user_input)):
+    if pend and approve:
         conv.pop("pending_build", None)
         model = build_model_for(model)
-        extra =(extra_system + '\n\nThe owner approved this plan: """' + pend["plan"] + '"""\nfor this request: """' + pend["input"] +
+        extra = (extra_system + '\n\nThe owner approved this plan: """' + pend["plan"] + '"""\nfor this request: """' + pend["input"] +
                  '"""\nDo the work now. Your final message is the closing report only: what was done, what was verified, what is left.')
         return {"tier": "build", "extra_system": extra, "model": model, "projects": pend.get("projects") or []}
     if pend:
-        conv.pop("pending_build", None)  # the owner said something else: plan again from scratch
-    if mode == "build":  # owner pressed Build: straight to the build model with every key listed, no plan, no confirmation
-        model = build_model_for(model)
-        return {"tier": "build", "extra_system": extra_system + "\n\nDo the work now. Your final message is the closing report only: what was done, what was verified, what is left.", "model": model}
-    if not quick_available():  # no model for triage: run as a build, and say so once instead of pretending to read the request
-        return {"tier": "build", "extra_system": extra_system, "model": model}
+        conv.pop("pending_build", None)  # the owner said something else: the old plan is dropped and this message is read afresh
+    if not quick_available():  # no model for triage: run as a build without pretending to read the request first
+        return {"tier": "build", "extra_system": extra_system, "model": build_model_for(model)}
     await emit({"type": "status", "text": "Reading your request"})
     fr = await first_reply(conv, user_input, extra_system, model=model)
     if not fr:
@@ -3429,9 +3427,9 @@ async def plan_turn(conv: Dict, user_input: str, extra_system: str, emit, model:
         return {"tier": "chat", "extra_system": extra_system, "model": model, "final": fr["text"]}
     if fr["mode"] == "build" and fr["text"]:
         if env().get("SU_CONFIRM_BUILD", "1") != "0":
-            plan = re.sub(r"\s*Starting now\.?\s*$", "", fr["text"]).rstrip() + "\n\nReply build to start, or tell me what to change."
-            conv["pending_build"] = {"input": user_input, "plan": plan, "projects": fr.get("projects") or []}
-            return {"tier": "chat", "extra_system": extra_system, "model": model, "final": plan}
+            plan = re.sub(r"\s*Starting now\.?\s*$", "", fr["text"]).rstrip()
+            conv["pending_build"] = {"input": user_input, "plan": plan, "projects": fr.get("projects") or [], "model": build_model_for(model)}
+            return {"tier": "chat", "extra_system": extra_system, "model": model, "final": plan, "plan": True}
         model = build_model_for(model)
         extra =(extra_system + '\n\nYou have ALREADY sent the owner this first reply, so do not repeat or rephrase it: """' + fr["text"] +
                  '"""\nNow do the work it describes. Your final message is the closing report only: what was done, what was verified, what is left.')
@@ -3439,11 +3437,23 @@ async def plan_turn(conv: Dict, user_input: str, extra_system: str, emit, model:
     return {"tier": "do", "extra_system": extra_system, "model": model, "groups": fr.get("groups") or [], "projects": fr.get("projects") or []}
 
 
-def _finish_turn(conv: Dict, user_input: str, text: str):
-    conv["messages"] += [{"role": "user", "content": user_input}, {"role": "assistant", "content": text}]
+def _finish_turn(conv: Dict, user_input: str, text: str, plan: bool = False):
+    conv["messages"] += [{"role": "user", "content": user_input}, {"role": "assistant", "content": text, **({"plan": True} if plan else {})}]
     if not conv.get("title") or conv["title"] == "New chat":
         conv["title"] = user_input.strip().splitlines()[0][:60]
     save_conversation(conv)
+
+
+async def _end_with_plan_or_final(conv: Dict, user_input: str, pt: Dict[str, Any], emit) -> str:
+    """A turn that ends in the planner: either a direct answer or a plan card waiting for Run."""
+    text = pt["final"]
+    _finish_turn(conv, user_input, text, plan=bool(pt.get("plan")))
+    if pt.get("plan"):
+        pend = conv.get("pending_build") or {}
+        await emit({"type": "plan", "text": text, "model": pend.get("model") or conv.get("model"), "input": user_input})
+    else:
+        await emit({"type": "final", "text": text})
+    return text
 
 
 FOLD_AT, FOLD_KEEP = 24, 8
@@ -3480,7 +3490,7 @@ async def fold_history(conv: Dict):
 def model_history(conv: Dict) -> List[Dict]:
     """Messages to send: the summary of folded turns (if any) then the recent turns, without UI-only keys."""
     start = conv.get("folded_upto", 0)
-    hist = [{k: v for k, v in m.items() if k != "ts"} for m in conv["messages"][start:]]
+    hist = [{k: v for k, v in m.items() if k not in ("ts", "plan")} for m in conv["messages"][start:]]  # UI-only keys never reach the provider
     if start and conv.get("summary"):
         hist = [{"role": "user", "content": "Summary of the earlier part of this conversation:\n" + conv["summary"]}, {"role": "assistant", "content": "Noted."}] + hist
     return hist
@@ -3717,8 +3727,10 @@ async def _gemini_stream(client, model, contents, cfg, emit):
 
 
 async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event: Optional[Callable[[Dict], Any]] = None,
-                    extra_system: str = "", agent_id: Optional[str] = None, plan_first: bool = False, mode: Optional[str] = None) -> str:
+                    extra_system: str = "", agent_id: Optional[str] = None, plan_first: bool = False, mode: Optional[str] = None, approve: bool = False) -> str:
     """Append user_input to conv, run the tool loop, persist, return final text."""
+    if mode in ("chat", "build"):
+        conv["mode"] = mode  # the composer reopens the chat in the mode it was last used in
     persona = get_agent(agent_id or conv.get("agent"))
     if persona:
         conv["agent"] = persona["id"]
@@ -3744,12 +3756,10 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
         tier, projects = "build", None
         if plan_first and env().get("SU_PLAN_FIRST", "1") != "0":
             await ensure_digest()
-            pt = await plan_turn(conv, user_input, extra_system, emit, model, mode)
+            pt = await plan_turn(conv, user_input, extra_system, emit, model, mode, approve)
             tier, extra_system, model, projects = pt["tier"], pt["extra_system"], pt["model"], pt.get("projects"); conv["model"] = model
             if pt.get("final") is not None:
-                _finish_turn(conv, user_input, pt["final"])
-                await emit({"type": "final", "text": pt["final"]})
-                return pt["final"]
+                return await _end_with_plan_or_final(conv, user_input, pt, emit)
             if pt.get("announce"):
                 await emit({"type": "text", "text": pt["announce"]})
                 conv["messages"] += [{"role": "user", "content": user_input}, {"role": "assistant", "content": pt["announce"]}]; save_conversation(conv)
@@ -3765,12 +3775,10 @@ async def run_agent(conv: Dict, user_input: str, model: Optional[str], on_event:
     tier, announce, preload, projects = "build", None, [], None
     if plan_first and env().get("SU_PLAN_FIRST", "1") != "0":
         await ensure_digest()
-        pt = await plan_turn(conv, user_input, extra_system, emit, model, mode)
+        pt = await plan_turn(conv, user_input, extra_system, emit, model, mode, approve)
         tier, extra_system, model, preload, projects = pt["tier"], pt["extra_system"], pt["model"], pt.get("groups") or [], pt.get("projects"); conv["model"] = model
         if pt.get("final") is not None:
-            _finish_turn(conv, user_input, pt["final"])
-            await emit({"type": "final", "text": pt["final"]})
-            return pt["final"]
+            return await _end_with_plan_or_final(conv, user_input, pt, emit)
         announce = pt.get("announce")
         if model.startswith("claude-code:"):  # approved build routed to the build model
             return await run_agent(conv, user_input, model, on_event, extra_system, agent_id, plan_first=False)
