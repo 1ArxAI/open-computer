@@ -288,7 +288,7 @@ To access your personal computer from anywhere with free SSL (`https://yourname.
 ### Step 4: Sign In and Connect Your AI Provider (Takes 10 Seconds!)
 
 1. **Sign In**: In your browser, enter the Linux username (e.g. `suop` or `opencomputer`) and the Linux password you set during installation.
-2. **Open Settings**: Click the **Settings (⚙️)** gear icon in the bottom-left sidebar, then click the **AI** tab.
+2. **Open Settings**: Click the **Settings (⚙️)** gear icon in the bottom-left sidebar, then click the **Models** tab.
 3. **Add Your AI Provider**:
    - You don't have to deal with editing messy `.env` files or scrolling through huge lists of companies!
    - Simply click one of the **Quick fill** buttons:
@@ -329,10 +329,10 @@ Open Computer includes a **Universal AI Provider Manager**. You can connect any 
 
 Open Computer can generate images and save them directly to your cloud computer's workspace:
 
-1. **Pick an Image Model**: Go to **Settings (⚙️) › AI › Model Preferences** and choose your preferred image model:
+1. **Pick an Image Model**: Go to **Settings (⚙️) › Models › Model Preferences** and choose your preferred image model:
    - **OpenAI**: `openai:dall-e-3` or `openai:dall-e-2`
    - **OpenRouter**: `openrouter:black-forest-labs/flux-1-schnell`, `openrouter:black-forest-labs/flux-1-dev`, `openrouter:google/gemini-2.5-flash-image`, `openrouter:recraft/recraft-v3`
-   - **Fal.ai**: `fal-ai/flux/schnell`, `fal-ai/recraft-v3` (set `FAL_KEY` in Settings › Advanced)
+   - **Fal.ai**: `fal-ai/flux/schnell`, `fal-ai/recraft-v3` (set `FAL_KEY` in Settings › Keys)
    - **Together AI**: `together:black-forest-labs/FLUX.1-schnell`
 2. **Generate in Chat**: Simply ask the agent in natural language:
    > *"Generate a high-resolution image of a futuristic neon city street in Tokyo during rain."*
@@ -346,7 +346,7 @@ You never have to worry about missing new features, security fixes, or updates:
 
 ### Method A: 1-Click Update from the Web UI (Recommended)
 1. Open Computer automatically checks GitHub periodically for new updates.
-2. When a new version is released, an **"Update Available"** badge appears in the top navigation bar and in **Settings (⚙️) › Profile**.
+2. When a new version is released, an **"Update Available"** badge appears in the top navigation bar and in **Settings (⚙️) › System**.
 3. Click **Update Now**: Open Computer will pull the latest code, update python dependencies, and reload the background service in ~5 seconds.
 4. Your chat history, files, automations, and keys are **100% preserved**.
 
@@ -394,7 +394,7 @@ You can run 100% private, free local models using **Ollama**:
    curl -fsSL https://ollama.com/install.sh | sh
    ollama pull llama3.2
    ```
-2. Go to **Settings › AI**, click the **Ollama / Local** preset chip (`http://127.0.0.1:11434/v1`), leave the API key blank, and click **Add Provider**.
+2. Go to **Settings › Models**, click the **Ollama / Local** preset chip (`http://127.0.0.1:11434/v1`), leave the API key blank, and click **Add Provider**.
 3. Your local models will appear in the model picker!
 
 #### 4. How do I access Open Computer from my phone or tablet?
