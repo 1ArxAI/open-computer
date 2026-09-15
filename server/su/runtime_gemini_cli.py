@@ -115,6 +115,11 @@ async def run_gemini_cli(conv: Dict, user_input: str, model: str, on_event=None,
         proc.kill()
         final = "Gemini CLI run timed out."
         await emit({"type": "error", "text": final})
+    except Exception as ex:  # a reader failure must not leave the CLI running unobserved
+        if proc.returncode is None:
+            proc.kill()
+        final = f"Gemini CLI reader failed, run stopped: {type(ex).__name__}: {ex}"
+        await emit({"type": "error", "text": final})
     conv["messages"].append({"role": "assistant", "content": final})
     conv["cc_seen"] = len(conv["messages"])
     if not conv.get("title") or conv["title"] == "New chat":

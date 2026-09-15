@@ -209,6 +209,17 @@ async def _schedule_restart():
     os._exit(0)
 
 
+async def _restore_stash() -> str:
+    """Re-apply the pre-update stash. On conflict, put the tree back at HEAD so the service can still start;
+    the stash survives a failed pop, so nothing is lost. (A half-applied pop once left merge markers in two
+    modules and the gateway crash-looped behind a Cloudflare 502.)"""
+    pop = await run_git_async(["stash", "pop"], timeout=10)
+    if pop["ok"]:
+        return ""
+    await run_git_async(["reset", "--hard", "HEAD"], timeout=10)
+    return " Local edits conflicted with the update and were kept in git stash (see: git stash show -p) instead of being applied."
+
+
 async def apply_update() -> Dict[str, Any]:
     """
     Apply updates:
@@ -227,7 +238,7 @@ async def apply_update() -> Dict[str, Any]:
         old_commit = current["commit"]
 
         # Check for dirty working tree
-        status_res = await run_git_async(["status", "--porcelain"], timeout=10)
+        status_res = await run_git_async(["status", "--porcelain", "--untracked-files=no"], timeout=10)  # untracked files never conflict
         stashed = False
         if status_res["ok"] and status_res["out"]:
             stash_res = await run_git_async(["stash", "push", "-m", "opencomputer-autoupdate-backup"], timeout=15)
@@ -242,15 +253,14 @@ async def apply_update() -> Dict[str, Any]:
 
         if not pull_res["ok"]:
             if stashed:
-                await run_git_async(["stash", "pop"], timeout=10)
+                await _restore_stash()
             return {
                 "ok": False,
                 "error": f"Failed to pull latest changes: {pull_res['err'] or pull_res['out']}"
             }
 
         # Restore stashed changes if any
-        if stashed:
-            await run_git_async(["stash", "pop"], timeout=10)
+        note = await _restore_stash() if stashed else ""
 
         # Check and update Python requirements if venv pip exists
         pip_path = HOME / "server" / "venv" / "bin" / "pip"
@@ -283,7 +293,7 @@ async def apply_update() -> Dict[str, Any]:
 
         return {
             "ok": True,
-            "message": f"Successfully updated from {old_commit} to {new_commit}. Open Computer is restarting...",
+            "message": f"Successfully updated from {old_commit} to {new_commit}. Open Computer is restarting...{note}",
             "old_commit": old_commit,
             "new_commit": new_commit,
             "branch": branch,

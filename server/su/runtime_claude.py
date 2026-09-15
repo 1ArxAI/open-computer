@@ -145,6 +145,11 @@ async def run_claude_code(conv: Dict, user_input: str, model: str, on_event=None
         proc.kill()
         final = "Claude Code run timed out."
         await emit({"type": "error", "text": final})
+    except Exception as ex:  # a reader failure must not leave the CLI running unobserved
+        if proc.returncode is None:
+            proc.kill()
+        final = f"Claude Code reader failed, run stopped: {type(ex).__name__}: {ex}"
+        await emit({"type": "error", "text": final})
     finally:
         try:
             mcp_path.unlink()
