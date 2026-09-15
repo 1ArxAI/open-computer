@@ -100,7 +100,8 @@ async def run_claude_code(conv: Dict, user_input: str, model: str, on_event=None
         cmd += ["--disallowedTools", ",".join(disallow)]
     e = {**os.environ, **{k: v for k, v in env().items() if k.isupper()}, "HOME": str(HOME.parent), "TERM": "dumb",
          "PATH": str(Path.home() / ".local/bin") + ":" + os.environ.get("PATH", "")}
-    proc = await asyncio.create_subprocess_exec(*cmd, cwd=str(WORKSPACE), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, env=e)
+    proc = await asyncio.create_subprocess_exec(*cmd, cwd=str(WORKSPACE), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, env=e,
+                                                limit=32 * 1024 * 1024)  # a stream-json line carries a whole tool result; asyncio's default 64 KiB raised ValueError
     final, last_text = "", ""
     try:
         while True:

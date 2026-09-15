@@ -52,10 +52,11 @@ async def run_automation(a: Dict, trigger: str = "schedule", on_event=None, conv
     extra = (f"This is an automation run of '{a['name']}' ({a.get('schedule_text')}). Owner notification channel: {notify}. "
              + ("Use send_email only when there is a result worth reporting; stay silent otherwise. " if notify == "email" else "")
              + ("Use send_telegram only when there is a result worth reporting; stay silent otherwise. " if notify == "telegram" else "")
-             + "Finish with a one-paragraph summary of what you did.")
+             + "Finish with a one-paragraph summary of what you did. If the task did not succeed (a command failed, nothing was produced), "
+             + "begin that summary with the word FAILED: so the run is recorded as a failure.")
     try:
         final = await asyncio.wait_for(run_agent(conv, a["prompt"], model, on_event, extra_system=extra, agent_id=a.get("agent")), timeout=1800)
-        rec["status"] = "error" if final.startswith(("Model error", "Stopped after")) else "ok"
+        rec["status"] = "error" if final.lstrip("*# ").startswith(("Model error", "Stopped", "FAILED")) else "ok"
         rec["summary"] = final[:2000]
     except Exception as e:
         rec["status"], rec["summary"] = "error", f"{type(e).__name__}: {e}"

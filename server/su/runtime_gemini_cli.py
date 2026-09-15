@@ -76,7 +76,8 @@ async def run_gemini_cli(conv: Dict, user_input: str, model: str, on_event=None,
         # Google retired the free "Code Assist for individuals" tier for Gemini CLI in Sep 2026 (UNSUPPORTED_CLIENT); opt in only if it returns
         e.pop("GEMINI_API_KEY", None)
         e["GOOGLE_GENAI_USE_GCA"] = "true"
-    proc = await asyncio.create_subprocess_exec(*cmd, cwd=str(WORKSPACE), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, env=e)
+    proc = await asyncio.create_subprocess_exec(*cmd, cwd=str(WORKSPACE), stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE, env=e,
+                                                limit=32 * 1024 * 1024)  # same as runtime_claude: one JSON line can exceed asyncio's 64 KiB default
     final, last_text, buf = "", "", ""
     await emit({"type": "status", "text": f"Gemini CLI ({model})"})
     try:
