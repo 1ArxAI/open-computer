@@ -38,6 +38,7 @@ from .skills import create_skill, read_skill
 from .tasks import _proc_env, delete_task, get_task, list_tasks, save_task, start_task, stop_task, task_logs
 from .web import _web_fetch, _web_search, send_email, send_telegram
 from . import files, media_tools, research, rules, tool_docs
+from .redact import redact
 
 EXTRA = (files, research, rules, media_tools, tool_docs)  # each exposes TOOLS and async handle(name, args)
 
@@ -105,6 +106,11 @@ BUILTIN_TOOLS = [
 
 
 async def execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
+    """Every tool result is redacted before the model sees it: secret values from .env never enter the transcript."""
+    return redact(await _execute_tool(name, args, mcp_servers))
+
+
+async def _execute_tool(name: str, args: Dict, mcp_servers: List[Dict]) -> str:
     try:
         if name == "run_command":
             cwd = args.get("cwd") or str(WORKSPACE)

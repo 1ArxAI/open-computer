@@ -148,10 +148,10 @@ async def email_channel_tick():
         try:
             if channel_run_hook:
                 async def _work(on_event, _conv=conv, _prompt=prompt):
-                    return await run_agent(_conv, _prompt, cfg["model"], on_event, extra_system=extra)
+                    return await run_agent(_conv, _prompt, cfg["model"], on_event, extra_system=extra, agent_id=env().get("SU_CHANNEL_AGENT") or None)
                 final = await channel_run_hook(conv, "email", _work)
             else:
-                final = await run_agent(conv, prompt, cfg["model"], None, extra_system=extra)
+                final = await run_agent(conv, prompt, cfg["model"], None, extra_system=extra, agent_id=env().get("SU_CHANNEL_AGENT") or None)
         except Exception as e:
             final = f"SU could not complete this: {type(e).__name__}: {e}"
         try:
@@ -207,7 +207,7 @@ async def telegram_channel_loop():
                     await c.post(f"{api}/sendChatAction", json={"chat_id": chat_id, "action": "typing"})
                     extra = "This instruction arrived on Telegram from the owner. Do the work now with your tools; reply briefly in plain text (no markdown tables), under 3500 characters."
                     try:
-                        final = await run_agent(conv, text, cfg["model"], None, extra_system=extra)
+                        final = await run_agent(conv, text, cfg["model"], None, extra_system=extra, agent_id=env().get("SU_CHANNEL_AGENT") or None)
                     except Exception as e:
                         final = f"SU could not complete this: {type(e).__name__}: {e}"
                     for i in range(0, max(1, len(final)), 3800):
