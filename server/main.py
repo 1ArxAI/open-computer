@@ -1097,11 +1097,20 @@ async def update_or_toggle_provider(pid: str, body: Dict[str, Any]):
         agent.set_provider_enabled(pid, bool(body.get("enabled", True)))
         agent._models_cache.clear()
         return {"providers": agent.provider_status(), "default": agent.default_model()}
-    name = body.get("name") or pid
-    base_url = body.get("base_url") or ""
-    api_key = body.get("api_key") or ""
+    cur = next((p for p in agent.get_custom_providers() if p["id"] == pid), {})  # fields left out keep their current value
+    name = body.get("name") or cur.get("name") or pid
+    base_url = body.get("base_url") or cur.get("base_url") or ""
+    api_key = body["api_key"] if "api_key" in body else cur.get("api_key", "")
     prov = await agent.add_custom_provider(name, base_url, api_key, pid)
     return {"ok": True, "provider": prov, "providers": agent.provider_status(), "default": agent.default_model()}
+
+@app.get("/api/providers/{pid}/key")
+async def reveal_provider_key(pid: str):
+    """The stored key for one provider, fetched on demand when the owner presses Show or Edit; the list never carries it."""
+    cur = next((p for p in agent.get_custom_providers() if p["id"] == pid), None)
+    if cur is None:
+        raise HTTPException(404, "Provider not found")
+    return {"id": pid, "name": cur.get("name"), "base_url": cur.get("base_url"), "api_key": cur.get("api_key", "")}
 
 # ==================== SKILLS ====================
 

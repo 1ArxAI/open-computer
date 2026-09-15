@@ -3802,6 +3802,29 @@
     }
 
     // --- SETTINGS: providers + rules ---
+    // Provider key: shown and edited on demand; the provider list itself only carries a masked value.
+    async function revealProviderKey(id, btn) {
+      const box = document.getElementById('provkey-' + id); const val = box && box.querySelector('.pk-val'); if (!val) return;
+      if (btn.dataset.on) { val.textContent = btn.dataset.masked; btn.textContent = 'Show'; delete btn.dataset.on; return; }
+      try { const d = await fetchJson('/api/providers/' + encodeURIComponent(id) + '/key'); btn.dataset.masked = val.textContent; val.textContent = d.api_key || '(no key)'; btn.textContent = 'Hide'; btn.dataset.on = '1'; }
+      catch (e) { notify('Could not read the key: ' + e.message, 'error'); }
+    }
+    async function editProviderKey(id) {
+      const box = document.getElementById('provkey-' + id); if (!box) return;
+      let d; try { d = await fetchJson('/api/providers/' + encodeURIComponent(id) + '/key'); } catch (e) { notify('Could not read the provider: ' + e.message, 'error'); return; }
+      box.innerHTML = '';
+      const url = document.createElement('input'); url.type = 'url'; url.className = 'zo-input'; url.value = d.base_url || ''; url.setAttribute('aria-label', 'Base URL for ' + (d.name || id)); url.style.minWidth = '260px';
+      const key = document.createElement('input'); key.type = 'password'; key.className = 'zo-input'; key.value = d.api_key || ''; key.placeholder = 'API key (blank for local)'; key.setAttribute('aria-label', 'API key for ' + (d.name || id)); key.autocomplete = 'new-password';
+      const save = document.createElement('button'); save.className = 'zo-btn-primary'; save.textContent = 'Save';
+      const cancel = document.createElement('button'); cancel.className = 'zo-pill'; cancel.textContent = 'Cancel'; cancel.onclick = () => loadProviders();
+      save.onclick = async () => {
+        save.disabled = true; save.textContent = 'Testing…';
+        try { await fetchJson('/api/providers/' + encodeURIComponent(id), { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ name: d.name, base_url: url.value.trim(), api_key: key.value.trim() }) }); notify('Provider updated'); await loadProviders(); loadModels(); }
+        catch (e) { notify('Could not save: ' + e.message, 'error'); save.disabled = false; save.textContent = 'Save'; }
+      };
+      key.onkeydown = (e) => { if (e.key === 'Enter') save.click(); if (e.key === 'Escape') cancel.click(); };
+      const row = document.createElement('div'); row.className = 'rule-row'; row.append(url, key, save, cancel); box.appendChild(row); key.focus();
+    }
     function fillProviderPreset(name, url) {
       const n = document.getElementById('newProvName');
       const u = document.getElementById('newProvUrl');
@@ -3959,7 +3982,9 @@ async function deleteProvider(pid, name) {
                   <span class="ai-prov-badge${off ? ' badge-off' : ''}">${p.enabled ? (modelsList.length + ' model' + (modelsList.length === 1 ? '' : 's')) : 'Offline'}</span>
                 </div>
                 <div class="ai-prov-url" title="${esc(p.base_url)}">${esc(p.base_url)}</div>
-                <div class="ai-prov-key">Key: ${esc(p.masked_key || (p.has_key ? '••••' : 'None (local/open)'))}</div>
+                <div class="ai-prov-key" id="provkey-${esc(p.id)}"><span class="pk-label">Key:</span> <span class="pk-val">${esc(p.masked_key || (p.has_key ? '••••' : 'None (local/open)'))}</span>
+                  <button type="button" class="ai-chip" onclick="revealProviderKey('${esc(p.id)}', this)">Show</button>
+                  <button type="button" class="ai-chip" onclick="editProviderKey('${esc(p.id)}')">Edit</button></div>
                 ${modelsList.length || (p.filters && Object.keys(p.filters).length) ? `
                   <div class="ai-prov-models">
                     ${modelsList.slice(0, 6).map(m => `<span class="ai-model-tag" title="${esc(m)}">${esc(m)}</span>`).join('')}
