@@ -768,9 +768,31 @@
     }
     body { background: var(--zo-sidebar); color: var(--zo-fg); font-size: 14px; line-height: 20px; }
     html { color-scheme: dark; } html.light { color-scheme: light; }
-    /* native select popups: explicit colours so browsers that ignore color-scheme (e.g. Edge on Linux) still match the theme */
-    select, select option { color-scheme: inherit; }
-    select option { background: var(--zo-bg); color: var(--zo-fg); font-weight: 400; }
+    /* Native select styling across platforms (Ubuntu / Linux / Windows / macOS) */
+    select, select option, select optgroup {
+      color-scheme: inherit;
+      font-family: inherit;
+    }
+    select {
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      appearance: none;
+    }
+    select::-ms-expand {
+      display: none;
+    }
+    select option {
+      background: var(--zo-bg);
+      color: var(--zo-fg);
+      font-weight: 400;
+      padding: 6px 10px;
+    }
+    select optgroup {
+      background: var(--zo-card);
+      color: var(--zo-fg-muted);
+      font-weight: 600;
+      font-size: 11px;
+    }
     html.light .home-composer-card, html.light #chat-card .composer-card, html.light .auto-editor textarea#autoPrompt { box-shadow: none; }
     html.light .zo-card { box-shadow: 0 1px 2px rgba(0,0,0,.04); }
     button, input, select, textarea { font-family: inherit; }
@@ -1048,13 +1070,13 @@
     /* composer dropdowns: flat like Zo (icon · label · chevron), hover only */
     .composer-controls .selector-group { flex: 1; min-width: 0; gap: 2px; }
     .composer-controls .send-btn { flex: none; }
-    .composer-controls .zo-pill, .home-composer-controls .zo-pill { height: 32px; min-width: 0; padding: 0; background: transparent; border: 1px solid transparent; border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--zo-fg); }
+    .composer-controls .zo-pill, .home-composer-controls .zo-pill { height: 32px; min-width: 0; padding: 0 10px; background: transparent; border: 1px solid transparent; border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--zo-fg); }
     .composer-controls .zo-pill:hover, .home-composer-controls .zo-pill:hover { background: var(--hover); }
     .composer-controls .zo-pill:focus-within, .home-composer-controls .zo-pill:focus-within { border-color: var(--zo-primary); }
     .composer-controls .zo-pill > svg, .home-composer-controls .zo-pill > svg { color: var(--zo-fg-muted); }
     .composer-controls .zo-pill select, .home-composer-controls .zo-pill select { min-width: 0; max-width: 240px; padding: 0 26px 0 8px; font-size: 14px; font-weight: 500; text-overflow: ellipsis; }
     .composer-controls .zo-pill > svg:first-child + select, .home-composer-controls .zo-pill > svg:first-child + select { padding-left: 30px; }
-    .composer-controls .zo-pill:has(#modelSelect) { flex: 0 1 auto; }
+    .composer-controls .zo-pill:has(#modelSelect), .composer-controls .zo-model-pill { flex: 0 1 auto; }
     .composer-controls #modelSelect { flex: 1 1 auto; }
     .send-btn.stopping { background: var(--zo-accent); color: var(--zo-fg); }
     /* home */
@@ -1070,12 +1092,234 @@
     .zo-pill:hover { background: color-mix(in oklab, var(--zo-bg) 90%, transparent); }
     .zo-pill svg { width: 16px; height: 16px; flex: none; color: var(--zo-fg-muted); }
     .zo-pill select { appearance: none; -webkit-appearance: none; background: transparent; border: none; color: inherit; font-size: 13px; outline: none; cursor: pointer; max-width: 240px; text-overflow: ellipsis; }
-    /* model pill: the select covers the whole pill, icons are decoration only, so every click opens the native list */
-    .zo-pill:has(> select) { position: relative; padding: 0; }
-    .zo-pill:has(> select) > svg { position: absolute; top: 50%; transform: translateY(-50%); pointer-events: none; }
-    .zo-pill:has(> select) > svg:first-child { left: 9px; }
-    .zo-pill:has(> select) > svg:last-child { right: 8px; }
-    .zo-pill:has(> select) > select { height: 100%; padding: 0 28px 0 31px; }
+    /* ==========================================
+       CUSTOM SLEEK MODEL PICKER PILL & DROPDOWN
+       ========================================== */
+    .zo-model-pill {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 0 9px 0 9px;
+      height: 32px;
+      border-radius: 10px;
+      background: color-mix(in oklab, var(--zo-bg) 50%, transparent);
+      border: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent);
+      color: var(--zo-fg);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .zo-model-pill:hover {
+      background: color-mix(in oklab, var(--zo-bg) 90%, transparent);
+      border-color: color-mix(in oklab, var(--zo-border) 60%, transparent);
+    }
+    .zo-model-pill:focus-visible, .zo-model-pill.active {
+      outline: none;
+      border-color: var(--zo-primary);
+      box-shadow: 0 0 0 1px var(--zo-primary);
+    }
+    .zo-model-pill svg {
+      width: 15px;
+      height: 15px;
+      flex: none;
+      color: var(--zo-fg-muted);
+    }
+    .zo-model-pill .zo-model-pill-chevron {
+      width: 13px;
+      height: 13px;
+      transition: transform 0.15s ease;
+    }
+    .zo-model-pill.active .zo-model-pill-chevron {
+      transform: rotate(180deg);
+    }
+    .zo-model-pill-name {
+      display: inline-block;
+      max-width: 175px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      color: var(--zo-fg);
+      font-size: 13px;
+      font-weight: 500;
+      line-height: 1;
+    }
+    .composer-controls .zo-model-pill {
+      height: 32px;
+      background: transparent;
+      border: 1px solid transparent;
+      padding: 0 8px;
+    }
+    .composer-controls .zo-model-pill:hover {
+      background: var(--hover);
+    }
+    .composer-controls .zo-model-pill:focus-within, .composer-controls .zo-model-pill.active {
+      border-color: var(--zo-primary);
+      background: color-mix(in oklab, var(--zo-primary) 6%, transparent);
+    }
+    .composer-controls .zo-model-pill .zo-model-pill-name {
+      max-width: 210px;
+      font-size: 14px;
+    }
+
+    /* Floating custom dropdown menu (consistent on Ubuntu, macOS, Windows) */
+    .zo-model-dropdown {
+      position: fixed;
+      z-index: 2100;
+      width: 320px;
+      max-width: min(92vw, 360px);
+      background: color-mix(in oklab, var(--zo-card) 95%, transparent);
+      border: 1px solid color-mix(in oklab, var(--zo-border) 65%, transparent);
+      border-radius: 14px;
+      box-shadow: 0 18px 48px rgba(0, 0, 0, 0.45), 0 0 0 1px rgba(255, 255, 255, 0.06);
+      backdrop-filter: blur(24px);
+      -webkit-backdrop-filter: blur(24px);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      animation: zoModelDropIn 0.14s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes zoModelDropIn {
+      from { opacity: 0; transform: scale(0.97) translateY(4px); }
+      to { opacity: 1; transform: scale(1) translateY(0); }
+    }
+    .zo-model-drop-header {
+      padding: 8px 10px 6px;
+      border-bottom: 1px solid color-mix(in oklab, var(--zo-border) 35%, transparent);
+    }
+    .zo-model-search-box {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      height: 32px;
+      padding: 0 9px;
+      border-radius: 8px;
+      background: color-mix(in oklab, var(--zo-bg) 65%, transparent);
+      border: 1px solid color-mix(in oklab, var(--zo-border) 45%, transparent);
+      color: var(--zo-fg);
+    }
+    .zo-model-search-box svg {
+      width: 14px;
+      height: 14px;
+      color: var(--zo-fg-muted);
+      flex: none;
+    }
+    .zo-model-search-box input {
+      flex: 1;
+      min-width: 0;
+      background: transparent;
+      border: none;
+      outline: none;
+      font-size: 13px;
+      color: var(--zo-fg);
+      font-family: inherit;
+    }
+    .zo-model-search-box input::placeholder {
+      color: var(--zo-fg-muted);
+    }
+    .zo-model-list {
+      max-height: 290px;
+      overflow-y: auto;
+      padding: 5px;
+    }
+    .zo-model-group-title {
+      padding: 8px 10px 4px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--zo-fg-muted);
+    }
+    .zo-model-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 7px 9px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 13px;
+      color: var(--zo-fg);
+      transition: background 0.12s ease, color 0.12s ease;
+      user-select: none;
+    }
+    .zo-model-item:hover, .zo-model-item:focus-visible {
+      background: var(--hover);
+      outline: none;
+    }
+    .zo-model-item.active {
+      background: color-mix(in oklab, var(--zo-primary) 14%, transparent);
+      color: var(--zo-primary);
+      font-weight: 600;
+    }
+    .zo-model-item-left {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      min-width: 0;
+      flex: 1;
+    }
+    .zo-model-item-check {
+      width: 14px;
+      height: 14px;
+      flex: none;
+      color: var(--zo-primary);
+      opacity: 0;
+    }
+    .zo-model-item.active .zo-model-item-check {
+      opacity: 1;
+    }
+    .zo-model-item-name {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .zo-model-caps {
+      display: flex;
+      align-items: center;
+      gap: 3px;
+      flex: none;
+    }
+    .zo-cap-tag {
+      font-size: 9.5px;
+      font-weight: 700;
+      padding: 1px 4.5px;
+      border-radius: 4px;
+      background: color-mix(in oklab, var(--zo-fg) 8%, transparent);
+      color: var(--zo-fg-muted);
+    }
+    .zo-cap-tag.t { color: #38bdf8; background: rgba(56, 189, 248, 0.12); }
+    .zo-cap-tag.i { color: #c084fc; background: rgba(192, 132, 252, 0.12); }
+    .zo-cap-tag.v { color: #fb923c; background: rgba(251, 146, 60, 0.12); }
+    .zo-cap-tag.a { color: #4ade80; background: rgba(74, 222, 128, 0.12); }
+    .zo-cap-tag.f { color: #facc15; background: rgba(250, 204, 21, 0.12); }
+
+    .zo-model-footer {
+      padding: 6px 10px;
+      border-top: 1px solid color-mix(in oklab, var(--zo-border) 35%, transparent);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 11.5px;
+      color: var(--zo-fg-muted);
+      background: color-mix(in oklab, var(--zo-bg) 40%, transparent);
+    }
+    .zo-model-footer-link {
+      color: var(--zo-primary);
+      cursor: pointer;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    .zo-model-footer-link:hover {
+      text-decoration: underline;
+    }
+    @media (max-width: 480px) {
+      .zo-model-pill-name {
+        max-width: 125px;
+      }
+    }
     .zo-iconbtn { width: 32px; height: 32px; flex: none; display: inline-flex; align-items: center; justify-content: center; padding: 0; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--zo-fg-muted); cursor: pointer; }
     .zo-iconbtn:hover { background: var(--hover); color: var(--zo-fg); }
     .zo-send { height: 32px; padding: 0 12px; border-radius: 10px; border: 1px solid transparent; background: var(--zo-accent); color: var(--zo-fg-muted); font-size: 13px; cursor: pointer; }
@@ -1619,7 +1863,7 @@
           <div class="home-composer-bottom">
             <div class="home-composer-controls">
               <span class="zo-avatar" aria-hidden="true"><svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">__AGENT_INITIALS__</text></svg></span>
-            <label class="zo-pill" title="Model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><select id="homeModelSelect" onchange="setModel(this.value)" aria-label="Model" title="Letters: T text · I image · V video · A audio · F file"><option value="">Loading models…</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+            <button type="button" class="zo-model-pill" id="homeModelPill" title="Select model" onclick="openModelPicker(this, 'homeModelSelect')" aria-haspopup="listbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="15" height="15" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><span class="zo-model-pill-name" id="homeModelSelectLabel">Loading models…</span><svg class="zo-model-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><select id="homeModelSelect" onchange="setModel(this.value)" style="display:none;" aria-label="Model"><option value="">Loading models…</option></select></button>
               <div class="mode-seg" role="radiogroup" aria-label="How __AGENT_NAME__ handles this message"><button type="button" class="mode-btn" data-mode="chat" role="radio" aria-checked="true" onclick="setChatMode('chat')" title="Answers with web lookups. No access to this machine.">Chat</button><button type="button" class="mode-btn" data-mode="build" role="radio" aria-checked="false" onclick="setChatMode('build')" title="Reads the request, shows a plan for multi-step work, then does it with full tools.">Build</button></div>
             </div>
             <button class="zo-send" id="homeSendBtn" onclick="sendPromptFromHome()">Send</button>
@@ -1762,7 +2006,11 @@
             <textarea id="autoPrompt" aria-label="Automation prompt" placeholder="What should __AGENT_NAME__ do on each run?"></textarea>
             <div class="sched-detail">
               <span>Model</span>
-              <select id="autoModel" aria-label="Model" style="padding: 5px 8px; max-width: 360px;"><option value="">Default</option></select>
+              <button type="button" class="zo-model-pill" id="autoModelPill" style="max-width: 360px;" onclick="openModelPicker(this, 'autoModel')" aria-haspopup="listbox">
+                <span class="zo-model-pill-name" id="autoModelLabel">Default</span>
+                <svg class="zo-model-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                <select id="autoModel" aria-label="Model" onchange="updateModelPillLabel('autoModel')" style="display:none;"><option value="">Default</option></select>
+              </button>
             </div>
             <div id="autoRunPanel" style="display: none; border: 1px solid var(--border); border-radius: 10px; padding: 12px; background: var(--zo-bg);">
               <div style="font-size: 12px; color: var(--text-muted); margin-bottom: 6px;" id="autoRunTitle">Run</div>
@@ -1967,15 +2215,19 @@
           <div class="zo-list" id="modelPrefsCard">
             <div class="zo-list-row">
               <span class="zo-list-label"><span>Default Chat Model</span><span class="zo-list-sub">Used for new chats</span></span>
-              <label class="zo-pill" style="max-width: 320px;">
-                <select id="defaultModelSelect" onchange="setDefaultModel(this.value)"><option value="">Loading…</option></select>
-              </label>
+              <button type="button" class="zo-model-pill" id="defaultModelPill" style="max-width: 320px;" onclick="openModelPicker(this, 'defaultModelSelect')" aria-haspopup="listbox">
+                <span class="zo-model-pill-name" id="defaultModelSelectLabel">Loading…</span>
+                <svg class="zo-model-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                <select id="defaultModelSelect" onchange="setDefaultModel(this.value); updateModelPillLabel('defaultModelSelect');" style="display:none;"><option value="">Loading…</option></select>
+              </button>
             </div>
             <div class="zo-list-row">
               <span class="zo-list-label"><span>Image Model</span><span class="zo-list-sub">Model used by generate_image</span></span>
-              <label class="zo-pill" style="max-width: 320px;">
-                <select id="mediaImageSelect" onchange="saveMedia({ image: this.value })"><option value="">Loading…</option></select>
-              </label>
+              <button type="button" class="zo-model-pill" id="mediaImagePill" style="max-width: 320px;" onclick="openModelPicker(this, 'mediaImageSelect')" aria-haspopup="listbox">
+                <span class="zo-model-pill-name" id="mediaImageSelectLabel">Loading…</span>
+                <svg class="zo-model-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>
+                <select id="mediaImageSelect" onchange="saveMedia({ image: this.value }); updateModelPillLabel('mediaImageSelect');" style="display:none;"><option value="">Loading…</option></select>
+              </button>
             </div>
             <div class="zo-list-row">
               <span class="zo-list-label"><span>Video Model</span><span class="zo-list-sub" id="mediaVideoHint">fal.ai model id</span></span>
@@ -2118,7 +2370,7 @@
         <textarea class="chat-textarea" id="chatInput" placeholder="What should we do today?" rows="2" oninput="document.getElementById('sendBtn').classList.toggle('ready', !!this.value.trim())"></textarea>
         <div class="composer-controls">
           <div class="selector-group">
-            <label class="zo-pill" title="Model"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="16" height="16" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><select id="modelSelect" onchange="setModel(this.value)" title="Letters: T text · I image · V video · A audio · F file"><option value="">Loading models...</option></select><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg></label>
+            <button type="button" class="zo-model-pill" id="modelPill" title="Select model" onclick="openModelPicker(this, 'modelSelect')" aria-haspopup="listbox"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" width="15" height="15" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><rect x="9" y="9" width="6" height="6"/><path d="M15 2v2M9 2v2M15 20v2M9 20v2M2 15h2M2 9h2M20 15h2M20 9h2"/></svg><span class="zo-model-pill-name" id="modelSelectLabel">Loading models...</span><svg class="zo-model-pill-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="13" height="13" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg><select id="modelSelect" onchange="setModel(this.value)" style="display:none;" aria-label="Model"><option value="">Loading models...</option></select></button>
             <div class="mode-seg" role="radiogroup" aria-label="How __AGENT_NAME__ handles this message"><button type="button" class="mode-btn" data-mode="chat" role="radio" aria-checked="true" onclick="setChatMode('chat')" title="Answers with web lookups. No access to this machine.">Chat</button><button type="button" class="mode-btn" data-mode="build" role="radio" aria-checked="false" onclick="setChatMode('build')" title="Reads the request, shows a plan for multi-step work, then does it with full tools.">Build</button></div>
           </div>
           <button class="send-btn" id="sendBtn" onclick="sendMessage()">Send</button>
@@ -2564,7 +2816,11 @@
     }
     function setModel(v) {
       currentModel = v; store.set('su_model', v);
-      ['modelSelect', 'homeModelSelect'].forEach(id => { const el = document.getElementById(id); if (el && el.value !== v) el.value = v; });
+      ['modelSelect', 'homeModelSelect'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el && el.value !== v) el.value = v;
+        updateModelPillLabel(id);
+      });
     }
 
     // ==========================================
@@ -4461,6 +4717,7 @@ async function deleteProvider(pid, name) {
             defSel.value = curDef;
           }
         }
+        updateModelPillLabel('defaultModelSelect');
       }
 
       // Load media options (image / video models)
@@ -4548,6 +4805,7 @@ async function deleteProvider(pid, name) {
         sel.appendChild(new Option(formatOpt(m.image), m.image));
       }
       sel.value = m.image || '';
+      updateModelPillLabel('mediaImageSelect');
 
       if (inp) {
         inp.value = m.video || '';
@@ -4715,14 +4973,288 @@ async function deleteProvider(pid, name) {
     // JS string literal that is safe inside a double-quoted HTML attribute (no quotes, angle brackets or ampersands survive).
     function jsq(v) { return "'" + String(v == null ? '' : v).replace(/[\\'"<>&\n\r\u2028\u2029]/g, c => '\\u' + c.charCodeAt(0).toString(16).padStart(4, '0')) + "'"; }
     const SAFE_STATUS = x => ['ok', 'error', 'running'].includes(x) ? x : '';
+    // ==========================================
+    // CUSTOM SLEEK MODEL PICKER DROPDOWN
+    // ==========================================
+    let activeModelPicker = null;
+
+    function updateModelPillLabel(selectId) {
+      const sel = document.getElementById(selectId);
+      let lblId = selectId + 'Label';
+      if (selectId === 'autoModel') lblId = 'autoModelLabel';
+      const lbl = document.getElementById(lblId);
+      if (!sel || !lbl) return;
+      const opt = sel.options[sel.selectedIndex];
+      if (opt) {
+        const text = opt.text.split('  ·  ')[0].trim();
+        lbl.textContent = text || 'Select model';
+        lbl.title = opt.text;
+      } else {
+        lbl.textContent = 'Select model';
+      }
+    }
+
+    function openModelPicker(triggerEl, selectId) {
+      if (activeModelPicker) {
+        const wasSame = activeModelPicker.targetId === selectId;
+        closeModelPicker();
+        if (wasSame) return;
+      }
+
+      const sel = document.getElementById(selectId);
+      if (!sel) return;
+
+      triggerEl.classList.add('active');
+
+      const popup = document.createElement('div');
+      popup.id = 'zoModelPickerDropdown';
+      popup.className = 'zo-model-dropdown';
+      popup.setAttribute('role', 'listbox');
+
+      activeModelPicker = { popup, triggerEl, targetId: selectId };
+
+      renderModelPickerContent(popup, sel, '');
+
+      document.body.appendChild(popup);
+      positionModelPicker(popup, triggerEl);
+
+      const input = popup.querySelector('.zo-model-search-box input');
+      if (input) setTimeout(() => input.focus(), 40);
+    }
+
+    function closeModelPicker() {
+      if (activeModelPicker) {
+        if (activeModelPicker.triggerEl) activeModelPicker.triggerEl.classList.remove('active');
+        if (activeModelPicker.popup) activeModelPicker.popup.remove();
+        activeModelPicker = null;
+      }
+    }
+
+    function positionModelPicker(popup, triggerEl) {
+      const rect = triggerEl.getBoundingClientRect();
+      const popupHeight = popup.offsetHeight || 320;
+      const spaceBelow = window.innerHeight - rect.bottom;
+      const spaceAbove = rect.top;
+
+      if (spaceBelow < 290 && spaceAbove > spaceBelow) {
+        popup.style.bottom = (window.innerHeight - rect.top + 6) + 'px';
+        popup.style.top = 'auto';
+      } else {
+        popup.style.top = (rect.bottom + 6) + 'px';
+        popup.style.bottom = 'auto';
+      }
+
+      let left = rect.left;
+      const popupWidth = popup.offsetWidth || 320;
+      if (left + popupWidth > window.innerWidth - 12) {
+        left = Math.max(8, window.innerWidth - popupWidth - 12);
+      }
+      popup.style.left = left + 'px';
+    }
+
+    function renderCapsBadges(capsStr) {
+      if (!capsStr) return '';
+      const letters = capsStr.split(',').map(s => s.trim()).filter(Boolean);
+      const titles = { T: 'Text', I: 'Vision / Image', V: 'Video', A: 'Audio', F: 'Files' };
+      return `<div class="zo-model-caps">` + letters.map(c => {
+        const l = c.toLowerCase();
+        const t = titles[c.toUpperCase()] || c;
+        return `<span class="zo-cap-tag ${l}" title="${esc(t)}">${esc(c)}</span>`;
+      }).join('') + `</div>`;
+    }
+
+    function renderModelPickerContent(popup, sel, query = '') {
+      const q = (query || '').toLowerCase().trim();
+      const curVal = sel.value;
+
+      const sections = [];
+      const topOptions = [];
+      Array.from(sel.children).forEach(child => {
+        if (child.tagName === 'OPTION') {
+          const parts = child.text.split('  ·  ');
+          topOptions.push({
+            value: child.value,
+            text: child.text,
+            cleanName: parts[0].trim(),
+            caps: parts[1] ? parts[1].trim() : '',
+            selected: child.value === curVal
+          });
+        } else if (child.tagName === 'OPTGROUP') {
+          const grpOptions = [];
+          Array.from(child.children).forEach(opt => {
+            const parts = opt.text.split('  ·  ');
+            grpOptions.push({
+              value: opt.value,
+              text: opt.text,
+              cleanName: parts[0].trim(),
+              caps: parts[1] ? parts[1].trim() : '',
+              selected: opt.value === curVal
+            });
+          });
+          if (grpOptions.length > 0) {
+            sections.push({ title: child.label || 'Models', options: grpOptions });
+          }
+        }
+      });
+
+      if (topOptions.length > 0) {
+        sections.unshift({ title: '', options: topOptions });
+      }
+
+      const filteredSections = [];
+      sections.forEach(sec => {
+        const matching = sec.options.filter(o => 
+          !q || o.cleanName.toLowerCase().includes(q) || o.value.toLowerCase().includes(q) || (sec.title && sec.title.toLowerCase().includes(q))
+        );
+        if (matching.length > 0) {
+          filteredSections.push({ title: sec.title, options: matching });
+        }
+      });
+
+      const totalItems = sections.reduce((acc, s) => acc + s.options.length, 0);
+
+      let html = '';
+
+      if (totalItems > 4 || q) {
+        html += `
+          <div class="zo-model-drop-header">
+            <div class="zo-model-search-box">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+              <input type="search" placeholder="Search models..." value="${esc(query)}" autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+        `;
+      }
+
+      html += `<div class="zo-model-list">`;
+
+      if (filteredSections.length === 0) {
+        html += `<div class="zo-model-empty" style="padding: 20px 12px; text-align: center; color: var(--zo-fg-muted); font-size: 13px;">No models match "${esc(query)}"</div>`;
+      } else {
+        filteredSections.forEach(sec => {
+          if (sec.title) {
+            html += `<div class="zo-model-group-title">${esc(sec.title)}</div>`;
+          }
+          sec.options.forEach(o => {
+            html += `
+              <div class="zo-model-item${o.selected ? ' active' : ''}" data-value="${esc(o.value)}" role="option" aria-selected="${o.selected}">
+                <div class="zo-model-item-left">
+                  <svg class="zo-model-item-check" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12l5 5L20 7"/></svg>
+                  <span class="zo-model-item-name" title="${esc(o.text)}">${esc(o.cleanName)}</span>
+                </div>
+                ${renderCapsBadges(o.caps)}
+              </div>
+            `;
+          });
+        });
+      }
+
+      html += `</div>`;
+
+      html += `
+        <div class="zo-model-footer">
+          <span>${totalItems} model${totalItems === 1 ? '' : 's'} available</span>
+          <span class="zo-model-footer-link" onclick="closeModelPicker(); openSettings('models');">Manage ›</span>
+        </div>
+      `;
+
+      popup.innerHTML = html;
+
+      const input = popup.querySelector('.zo-model-search-box input');
+      if (input) {
+        input.oninput = (e) => {
+          renderModelPickerContent(popup, sel, e.target.value);
+          const newInput = popup.querySelector('.zo-model-search-box input');
+          if (newInput) {
+            newInput.focus();
+            newInput.setSelectionRange(newInput.value.length, newInput.value.length);
+          }
+        };
+        input.onkeydown = (e) => {
+          if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const firstItem = popup.querySelector('.zo-model-item');
+            if (firstItem) firstItem.focus();
+          } else if (e.key === 'Enter') {
+            const firstItem = popup.querySelector('.zo-model-item');
+            if (firstItem) {
+              selectPickerOption(sel, firstItem.dataset.value);
+            }
+          } else if (e.key === 'Escape') {
+            closeModelPicker();
+          }
+        };
+      }
+
+      popup.querySelectorAll('.zo-model-item').forEach(item => {
+        item.setAttribute('tabindex', '0');
+        item.onclick = (e) => {
+          e.stopPropagation();
+          selectPickerOption(sel, item.dataset.value);
+        };
+        item.onkeydown = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            selectPickerOption(sel, item.dataset.value);
+          } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            const all = Array.from(popup.querySelectorAll('.zo-model-item'));
+            const idx = all.indexOf(item);
+            if (idx >= 0 && idx < all.length - 1) all[idx + 1].focus();
+          } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            const all = Array.from(popup.querySelectorAll('.zo-model-item'));
+            const idx = all.indexOf(item);
+            if (idx > 0) all[idx - 1].focus();
+            else if (input) input.focus();
+          } else if (e.key === 'Escape') {
+            closeModelPicker();
+          }
+        };
+      });
+    }
+
+    function selectPickerOption(sel, value) {
+      sel.value = value;
+      sel.dispatchEvent(new Event('change', { bubbles: true }));
+      if (typeof sel.onchange === 'function') sel.onchange();
+      updateModelPillLabel(sel.id);
+      closeModelPicker();
+    }
+
+    document.addEventListener('mousedown', (e) => {
+      if (!activeModelPicker) return;
+      if (!activeModelPicker.popup.contains(e.target) && !activeModelPicker.triggerEl.contains(e.target)) {
+        closeModelPicker();
+      }
+    });
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && activeModelPicker) {
+        closeModelPicker();
+      }
+    });
+    window.addEventListener('resize', () => {
+      if (activeModelPicker) {
+        positionModelPicker(activeModelPicker.popup, activeModelPicker.triggerEl);
+      }
+    });
+    window.addEventListener('scroll', () => {
+      if (activeModelPicker) {
+        positionModelPicker(activeModelPicker.popup, activeModelPicker.triggerEl);
+      }
+    }, true);
+
     async function loadModels() {
       try { modelsCache = await (await api('/models/available')).json(); } catch (e) { modelsCache = { models: [], default: '', providers: [] }; }
       fillModelSelect(document.getElementById('modelSelect'), currentModel, false);
       currentModel = document.getElementById('modelSelect').value;
       fillModelSelect(document.getElementById('homeModelSelect'), currentModel, false);
+      updateModelPillLabel('modelSelect');
+      updateModelPillLabel('homeModelSelect');
       document.getElementById('lockBanner').style.display = (modelsCache.locked === false) ? 'block' : 'none';
     }
     function fillModelSelect(sel, value, allowDefault) {
+      if (!sel) return;
       sel.innerHTML = '';
       let filteredModels = (modelsCache && modelsCache.models) ? modelsCache.models : [];
       
@@ -4733,10 +5265,12 @@ async function deleteProvider(pid, name) {
       
       if (!modelsCache || !modelsCache.models.length) { 
         if (!allowDefault) sel.appendChild(new Option('No provider key · Settings › Models', '')); 
+        if (sel.id) updateModelPillLabel(sel.id);
         return; 
       }
       if (filteredModels.length === 0) {
         if (!allowDefault) sel.appendChild(new Option('No models match filters', ''));
+        if (sel.id) updateModelPillLabel(sel.id);
         return;
       }
       
@@ -4751,6 +5285,7 @@ async function deleteProvider(pid, name) {
         groups.get(v).appendChild(o); 
       });
       if (value && [...sel.options].some(o => o.value === value)) sel.value = value; else if (!allowDefault) sel.value = modelsCache.default;
+      if (sel.id) updateModelPillLabel(sel.id);
     }
     function newChat() { if (chatAbort) { chatAbort.abort(); chatAbort = null; setSending(false); } currentConversationId = null; msgsContainer.innerHTML = ''; document.getElementById('chatTitle').textContent = 'New Chat'; document.getElementById('chatTitleBtn').title = 'New chat'; welcome(); renderSidebarChatHistory(); chatInput.focus(); }
     function welcome() { msgsContainer.innerHTML = '<div class="chat-welcome"><div class="cw-title">__AGENT_NAME__</div><div class="cw-line"><b>Chat</b> answers from the web. No access to this machine.</div><div class="cw-line"><b>Build</b> reads your request, shows a plan for multi-step work, then does it here.</div></div>'; }
