@@ -678,21 +678,13 @@
       gap: 8px;
     }
     .send-btn {
-      background: var(--accent-blue);
-      color: var(--zo-primary-fg);
       border: none;
-      padding: 6px 16px;
-      border-radius: var(--radius-pill);
-      font-size: 12.5px;
-      font-weight: 600;
       cursor: pointer;
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 4px;
-      transition: background 0.15s ease;
+      justify-content: center;
+      transition: all 0.15s ease;
     }
-    .send-btn:hover { background: var(--accent-blue-hover); }
-    .send-btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
 
 
@@ -1058,17 +1050,69 @@
     #chat-card .composer-card { padding: 0; gap: 0; }
     .chat-textarea { font-size: 16px; line-height: 24px; padding: 14px 16px 6px; min-height: 72px; color: var(--zo-fg); }
     .chat-textarea::placeholder { color: var(--zo-fg-muted); }
-    .composer-controls { border-top: none; padding: 0 8px 8px; }
-    .selector-group { gap: 4px; }
-    .send-btn { height: 32px; padding: 0 12px; border-radius: 10px; background: var(--zo-accent); color: var(--zo-fg-muted); font-size: 13px; font-weight: 400; }
-    .send-btn.ready, .send-btn:not(:disabled):hover { background: var(--zo-primary); color: var(--zo-primary-fg); }
+    .composer-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      padding: 4px 10px 8px;
+      border-top: none;
+      min-width: 0;
+    }
+    .composer-controls .selector-group {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .send-btn {
+      height: 28px;
+      padding: 0 14px;
+      border-radius: 8px;
+      border: 1px solid transparent;
+      background: color-mix(in oklab, var(--zo-muted) 85%, transparent);
+      color: var(--zo-fg-muted);
+      font-family: inherit;
+      font-size: 12.5px;
+      font-weight: 600;
+      cursor: default;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      flex: none;
+      white-space: nowrap;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .send-btn.ready {
+      background: var(--zo-primary);
+      color: var(--zo-primary-fg);
+      cursor: pointer;
+      box-shadow: 0 1px 4px color-mix(in oklab, var(--zo-primary) 35%, transparent);
+    }
+    .send-btn.ready:hover {
+      background: var(--accent-blue-hover);
+      transform: translateY(-0.5px);
+    }
+    .send-btn.stopping {
+      background: rgba(239, 68, 68, 0.15);
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.3);
+      cursor: pointer;
+      font-weight: 600;
+    }
+    .send-btn.stopping:hover {
+      background: #ef4444;
+      color: #fff;
+    }
     .mention-pop { position: fixed; z-index: 60; min-width: 240px; max-width: 360px; max-height: 260px; overflow: auto; padding: 4px; border-radius: 10px; background: var(--zo-bg); border: 1px solid color-mix(in oklab, var(--zo-border) 40%, transparent); box-shadow: 0 8px 24px rgba(0,0,0,.25); transform: translateY(-100%); }
     .mention-pop div { display: flex; align-items: center; gap: 8px; padding: 6px 8px; border-radius: 7px; font-size: 13px; color: var(--zo-fg); cursor: pointer; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     .mention-pop div.on, .mention-pop div:hover { background: var(--zo-accent); }
     .mention-pop small { flex: none; font-size: 11px; color: var(--zo-fg-muted); text-transform: capitalize; }
     [draggable="true"] { -webkit-user-drag: element; }
     /* composer dropdowns: flat like Zo (icon · label · chevron), hover only */
-    .composer-controls .selector-group { flex: 1; min-width: 0; gap: 2px; }
     .composer-controls .send-btn { flex: none; }
     .composer-controls .zo-pill, .home-composer-controls .zo-pill { height: 32px; min-width: 0; padding: 0 10px; background: transparent; border: 1px solid transparent; border-radius: 10px; font-size: 14px; font-weight: 500; color: var(--zo-fg); }
     .composer-controls .zo-pill:hover, .home-composer-controls .zo-pill:hover { background: var(--hover); }
@@ -1076,9 +1120,8 @@
     .composer-controls .zo-pill > svg, .home-composer-controls .zo-pill > svg { color: var(--zo-fg-muted); }
     .composer-controls .zo-pill select, .home-composer-controls .zo-pill select { min-width: 0; max-width: 240px; padding: 0 26px 0 8px; font-size: 14px; font-weight: 500; text-overflow: ellipsis; }
     .composer-controls .zo-pill > svg:first-child + select, .home-composer-controls .zo-pill > svg:first-child + select { padding-left: 30px; }
-    .composer-controls .zo-pill:has(#modelSelect), .composer-controls .zo-model-pill { flex: 0 1 auto; }
+    .composer-controls .zo-pill:has(#modelSelect), .composer-controls .zo-model-pill { flex: 0 1 auto; min-width: 0; }
     .composer-controls #modelSelect { flex: 1 1 auto; }
-    .send-btn.stopping { background: var(--zo-accent); color: var(--zo-fg); }
     /* home */
     .home-hw { font-size: 12px; line-height: 16px; color: var(--zo-fg-muted); margin-left: 8px; white-space: nowrap; }
     .home-hw:empty { display: none; }
@@ -1147,21 +1190,36 @@
       line-height: 1;
     }
     .composer-controls .zo-model-pill {
-      height: 32px;
-      background: transparent;
-      border: 1px solid transparent;
+      height: 28px;
       padding: 0 8px;
+      border-radius: 8px;
+      background: color-mix(in oklab, var(--zo-bg) 65%, transparent);
+      border: 1px solid color-mix(in oklab, var(--zo-border) 40%, transparent);
+      flex: 0 1 auto;
+      min-width: 0;
+      gap: 5px;
     }
     .composer-controls .zo-model-pill:hover {
-      background: var(--hover);
+      background: color-mix(in oklab, var(--zo-bg) 95%, transparent);
+      border-color: color-mix(in oklab, var(--zo-border) 60%, transparent);
     }
-    .composer-controls .zo-model-pill:focus-within, .composer-controls .zo-model-pill.active {
+    .composer-controls .zo-model-pill:focus-within,
+    .composer-controls .zo-model-pill.active {
       border-color: var(--zo-primary);
-      background: color-mix(in oklab, var(--zo-primary) 6%, transparent);
+      box-shadow: 0 0 0 1px var(--zo-primary);
     }
     .composer-controls .zo-model-pill .zo-model-pill-name {
-      max-width: 210px;
-      font-size: 14px;
+      max-width: 120px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .composer-controls .zo-model-pill svg {
+      width: 13px;
+      height: 13px;
+    }
+    .composer-controls .zo-model-pill .zo-model-pill-chevron {
+      width: 11px;
+      height: 11px;
     }
 
     /* Floating custom dropdown menu (consistent on Ubuntu, macOS, Windows) */
@@ -1332,11 +1390,49 @@
     .zo-btn-primary svg { width: 18px; height: 18px; }
     .zo-btn-primary:disabled { opacity: .55; cursor: default; }
     /* Chat / Build segmented control */
-    .mode-seg { display: inline-flex; height: 32px; border: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); border-radius: 10px; overflow: hidden; background: color-mix(in oklab, var(--zo-bg) 50%, transparent); }
-    .mode-btn { height: 100%; padding: 0 12px; border: 0; background: transparent; color: var(--zo-fg-muted); font: inherit; font-size: 13px; cursor: pointer; }
-    .mode-btn + .mode-btn { border-left: 1px solid color-mix(in oklab, var(--zo-border) 30%, transparent); }
-    .mode-btn[aria-checked="true"] { background: var(--zo-primary); color: var(--zo-primary-fg); }
-    .mode-btn:focus-visible { outline: 2px solid var(--zo-primary); outline-offset: -2px; }
+    .mode-seg {
+      display: inline-flex;
+      align-items: center;
+      height: 28px;
+      padding: 2px;
+      border: 1px solid color-mix(in oklab, var(--zo-border) 35%, transparent);
+      border-radius: 8px;
+      background: color-mix(in oklab, var(--zo-bg) 60%, transparent);
+      flex: none;
+      user-select: none;
+    }
+    .mode-btn {
+      height: 22px;
+      padding: 0 10px;
+      border: 0;
+      border-radius: 6px;
+      background: transparent;
+      color: var(--zo-fg-muted);
+      font-family: inherit;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      line-height: 1;
+      white-space: nowrap;
+    }
+    .mode-btn:hover:not([aria-checked="true"]) {
+      color: var(--zo-fg);
+      background: color-mix(in oklab, var(--zo-fg) 6%, transparent);
+    }
+    .mode-btn[aria-checked="true"] {
+      background: var(--zo-primary);
+      color: var(--zo-primary-fg);
+      font-weight: 600;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.18);
+    }
+    .mode-btn:focus-visible {
+      outline: 2px solid var(--zo-primary);
+      outline-offset: 1px;
+    }
     /* Plan card: what Build understood and will do, waiting for Run */
     .plan-card { border: 1px solid var(--zo-primary); border-radius: 10px; padding: 12px 14px; display: flex; flex-direction: column; gap: 10px; background: color-mix(in oklab, var(--zo-primary) 6%, transparent); }
     .plan-head { display: flex; flex-wrap: wrap; gap: 6px 12px; align-items: baseline; font-size: 12px; color: var(--zo-fg-muted); }
