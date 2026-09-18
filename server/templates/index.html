@@ -795,7 +795,12 @@
     .sb-iconbtn { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 10px; border: 1px solid transparent; background: transparent; color: color-mix(in oklab, var(--zo-fg-muted) 70%, transparent); cursor: pointer; }
     .sb-iconbtn:hover { background: var(--hover); color: var(--zo-fg); }
     .sb-iconbtn svg { width: 18px; height: 18px; }
-    .sb-search { padding: 6px 8px 6px 0; }
+    .sb-search { display: flex; align-items: center; gap: 4px; padding: 6px 8px 6px 0; }
+    .sb-search .sb-search-box { flex: 1; min-width: 0; }
+    .sb-iconbtn.active { background: color-mix(in oklab, var(--zo-primary) 18%, transparent); color: var(--zo-primary); }
+    .sb-batch-bar { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; margin: 0 8px 6px 0; border-radius: 8px; background: color-mix(in oklab, var(--zo-muted) 40%, transparent); border: 1px solid var(--border); font-size: 12px; }
+    .chat-select-check { width: 15px; height: 15px; margin: 0 4px 0 2px; accent-color: var(--zo-primary); cursor: pointer; flex-shrink: 0; }
+    .chat-history-item.selected, .chats-row.selected { background: color-mix(in oklab, var(--zo-primary) 14%, transparent) !important; }
     .sb-search-box { display: flex; align-items: center; gap: 6px; height: 32px; padding: 5px 10px; border-radius: 10px; border: 1px solid var(--zo-border); background: color-mix(in oklab, var(--zo-bg) 60%, transparent); color: var(--zo-fg-muted); cursor: text; }
     .sb-search-box svg { width: 16px; height: 16px; flex: none; }
     .sb-search-box input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--zo-fg); font-size: 13px; }
@@ -1432,7 +1437,20 @@
       <div class="nav-row"><button class="nav-item" data-nav="terminal" onclick="switchNav('terminal', event)"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" width="18" height="18" aria-hidden="true"><path d="M7.5 7.5L8.72654 8.55719C9.24218 9.00163 9.5 9.22386 9.5 9.5C9.5 9.77614 9.24218 9.99836 8.72654 10.4428L7.5 11.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M11.5 12.5H15.5" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M12 21C15.7497 21 17.6246 21 18.9389 20.0451C19.3634 19.7367 19.7367 19.3634 20.0451 18.9389C21 17.6246 21 15.7497 21 12C21 8.25027 21 6.3754 20.0451 5.06107C19.7367 4.6366 19.3634 4.26331 18.9389 3.95491C17.6246 3 15.7497 3 12 3C8.25027 3 6.3754 3 5.06107 3.95491C4.6366 4.26331 4.26331 4.6366 3.95491 5.06107C3 6.3754 3 8.25027 3 12C3 15.7497 3 17.6246 3.95491 18.9389C4.26331 19.3634 4.6366 19.7367 5.06107 20.0451C6.3754 21 8.25027 21 12 21Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg></span><span class="nav-label">Terminal</span></button></div>
       <div class="nav-row"><button class="nav-item" data-nav="trash" onclick="switchNav('trash', event)"><span class="nav-ico"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><path d="M10 11v6M14 11v6"/></svg></span><span class="nav-label">Recycle Bin</span><span id="navTrashBadge" class="nav-badge" hidden>0</span></button></div>
     </nav>
-    <div class="sb-search"><label class="sb-search-box"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M17 17L21 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><input type="search" id="sidebarChatSearch" placeholder="Search chats" oninput="sidebarChatSearchInput(this.value)" aria-label="Search chats"></label></div>
+    <div class="sb-search">
+      <label class="sb-search-box"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M17 17L21 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><input type="search" id="sidebarChatSearch" placeholder="Search chats" oninput="sidebarChatSearchInput(this.value)" aria-label="Search chats"></label>
+      <button type="button" class="sb-iconbtn" id="btnSidebarSelectToggle" onclick="toggleSidebarSelectMode()" title="Select multiple chats" aria-label="Select chats">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="15" height="15"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+      </button>
+    </div>
+    <div id="sidebarBatchBar" class="sb-batch-bar" style="display: none;">
+      <span id="sidebarSelectedCount" style="color: var(--zo-fg-muted);">0 selected</span>
+      <div style="display: flex; gap: 6px; align-items: center;">
+        <button type="button" class="sb-viewall" onclick="selectAllSidebarChats()">All</button>
+        <button type="button" class="sb-viewall" id="btnSidebarDeleteBatch" onclick="batchDeleteSidebarChats()" style="color: #ef4444; font-weight: 600;" disabled>Delete</button>
+        <button type="button" class="sb-viewall" onclick="toggleSidebarSelectMode(false)">Done</button>
+      </div>
+    </div>
     <div class="sb-chats" id="sidebarChatList"></div>
     <div class="sb-footer">
       <button class="sb-update-badge" id="sbUpdateBadge" hidden onclick="openSettings('profile')">
@@ -1494,7 +1512,18 @@
 
     <!-- VIEW: ALL CHATS -->
     <section class="tab-content" id="content-chats" style="padding: 0; flex-direction: column; overflow: hidden;">
-      <div class="pg-head"><div><div class="pg-title">Chats</div><div class="pg-sub" id="chatsCount"></div></div></div>
+      <div class="pg-head" style="display: flex; align-items: center; justify-content: space-between;">
+        <div><div class="pg-title">Chats</div><div class="pg-sub" id="chatsCount"></div></div>
+        <div class="chats-head-actions" style="display: flex; align-items: center; gap: 8px;">
+          <button type="button" class="zo-btn" id="btnToggleChatsSelect" onclick="toggleChatsSelectMode()">Select</button>
+          <div id="chatsBatchBar" style="display: none; align-items: center; gap: 8px;">
+            <span id="chatsSelectedCount" style="font-size: 13px; font-weight: 500; color: var(--zo-fg-muted);">0 selected</span>
+            <button type="button" class="zo-btn" id="btnSelectAllChats" onclick="selectAllChatsView()">Select all</button>
+            <button type="button" class="zo-btn" id="btnDeleteSelectedChats" onclick="deleteSelectedChatsView()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" disabled>Delete selected</button>
+            <button type="button" class="zo-btn" onclick="toggleChatsSelectMode(false)">Done</button>
+          </div>
+        </div>
+      </div>
       <div class="pg-search"><label class="zo-search"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M17 17L21 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><input type="search" id="chatsSearch" placeholder="Search chats" oninput="renderChatsView()" aria-label="Search chats"></label></div>
       <div class="chats-list" id="chatsList"></div>
     </section>
@@ -2065,6 +2094,71 @@
       if (days < 7) return days + ' days ago';
       return d.toLocaleDateString(undefined, { month: 'long', day: 'numeric' }) + (d.getFullYear() !== now.getFullYear() ? ', ' + d.getFullYear() : '');
     }
+    let sidebarSelectMode = false;
+    let sidebarSelectedChats = new Set();
+
+    function toggleSidebarSelectMode(enable) {
+      sidebarSelectMode = typeof enable === 'boolean' ? enable : !sidebarSelectMode;
+      if (!sidebarSelectMode) sidebarSelectedChats.clear();
+      const bar = document.getElementById('sidebarBatchBar');
+      if (bar) bar.style.display = sidebarSelectMode ? 'flex' : 'none';
+      const toggleBtn = document.getElementById('btnSidebarSelectToggle');
+      if (toggleBtn) toggleBtn.classList.toggle('active', sidebarSelectMode);
+      updateSidebarBatchUI();
+      renderSidebarChatHistory();
+    }
+
+    function updateSidebarBatchUI() {
+      const countEl = document.getElementById('sidebarSelectedCount');
+      if (countEl) countEl.textContent = sidebarSelectedChats.size + ' selected';
+      const delBtn = document.getElementById('btnSidebarDeleteBatch');
+      if (delBtn) delBtn.disabled = sidebarSelectedChats.size === 0;
+    }
+
+    function onSidebarChatCheck(id, checked) {
+      if (checked) sidebarSelectedChats.add(id);
+      else sidebarSelectedChats.delete(id);
+      updateSidebarBatchUI();
+      const el = document.querySelector(`.chat-history-item[data-id="${id}"]`);
+      if (el) el.classList.toggle('selected', checked);
+    }
+
+    function selectAllSidebarChats() {
+      const container = document.getElementById('sidebarChatList');
+      if (!container) return;
+      const items = container.querySelectorAll('.chat-history-item');
+      const allAlready = items.length > 0 && Array.from(items).every(el => sidebarSelectedChats.has(el.dataset.id));
+      items.forEach(el => {
+        const id = el.dataset.id;
+        if (allAlready) sidebarSelectedChats.delete(id);
+        else sidebarSelectedChats.add(id);
+      });
+      updateSidebarBatchUI();
+      renderSidebarChatHistory();
+    }
+
+    async function batchDeleteSidebarChats() {
+      const ids = Array.from(sidebarSelectedChats);
+      if (!ids.length) return;
+      if (!confirm('Delete ' + ids.length + ' selected chat' + (ids.length === 1 ? '' : 's') + '?')) return;
+      try {
+        const res = await api('/api/conversations/batch-delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids })
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.detail || res.status);
+        sidebarSelectedChats.clear();
+        toggleSidebarSelectMode(false);
+        if (ids.includes(currentConversationId)) newChat();
+        else await renderSidebarChatHistory();
+        if (document.getElementById('content-chats').classList.contains('active')) renderChatsView();
+      } catch (e) {
+        notify('Could not delete chats: ' + e.message);
+      }
+    }
+
     async function renderSidebarChatHistory() {
       const container = document.getElementById('sidebarChatList');
       if (!container) return;
@@ -2080,12 +2174,26 @@
       (q ? threads : threads.slice(0, SIDEBAR_CHAT_LIMIT)).forEach((c, idx) => {
         const g = chatGroupLabel(c.updated);
         if (g !== last) { const h = document.createElement('div'); h.className = 'sb-group'; h.textContent = g; if (idx === 0 && threads.length > SIDEBAR_CHAT_LIMIT) { const a = document.createElement('button'); a.className = 'sb-viewall'; a.textContent = 'View all'; a.onclick = openChatsView; h.appendChild(a); } container.appendChild(h); last = g; }
+        const isSelected = sidebarSelectedChats.has(c.id);
+        const checkHtml = sidebarSelectMode ? `<input type="checkbox" class="chat-select-check" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); onSidebarChatCheck('${c.id}', this.checked)">` : '';
         const item = document.createElement('div');
-        item.className = 'chat-history-item' + (c.id === currentConversationId ? ' active' : '') + (activeRuns.some(r => r.conversation_id === c.id) ? ' running' : '');
+        item.className = 'chat-history-item' + (c.id === currentConversationId ? ' active' : '') + (isSelected ? ' selected' : '') + (activeRuns.some(r => r.conversation_id === c.id) ? ' running' : '');
         item.dataset.id = c.id; item.title = c.title;
-        item.draggable = true; item.ondragstart = (e) => dragRef(e, { type: 'chat', id: c.id, name: c.title || 'Untitled' });
-        item.innerHTML = `${sourceBadge(c)}<span class="chi-title">${esc(c.title)}</span><button class="chi-del" title="Delete chat" aria-label="Delete chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`;
-        item.onclick = (e) => { if (e.target.closest('.chi-del')) deleteChat(c.id, c.title); else openConversation(c.id); };
+        item.draggable = !sidebarSelectMode;
+        if (!sidebarSelectMode) item.ondragstart = (e) => dragRef(e, { type: 'chat', id: c.id, name: c.title || 'Untitled' });
+        item.innerHTML = `${checkHtml}${sourceBadge(c)}<span class="chi-title">${esc(c.title)}</span><button class="chi-del" title="Delete chat" aria-label="Delete chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`;
+        item.onclick = (e) => {
+          if (e.target.closest('.chi-del')) {
+            deleteChat(c.id, c.title);
+          } else if (sidebarSelectMode) {
+            const nextChecked = !sidebarSelectedChats.has(c.id);
+            onSidebarChatCheck(c.id, nextChecked);
+            const cb = item.querySelector('.chat-select-check');
+            if (cb) cb.checked = nextChecked;
+          } else {
+            openConversation(c.id);
+          }
+        };
         container.appendChild(item);
       });
       filterSidebarChats(q);
@@ -2105,6 +2213,78 @@
       return `<span class="${withLabel ? 'tag chats-src' : 'chi-src'}" title="${m[0]}"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" aria-hidden="true">${m[1]}</svg>${withLabel ? m[0] : ''}</span>`;
     }
     function openChatsView() { openInTab('chats'); }
+    let chatsSelectMode = false;
+    let chatsSelected = new Set();
+
+    function toggleChatsSelectMode(enable) {
+      chatsSelectMode = typeof enable === 'boolean' ? enable : !chatsSelectMode;
+      if (!chatsSelectMode) chatsSelected.clear();
+      const bar = document.getElementById('chatsBatchBar');
+      const toggleBtn = document.getElementById('btnToggleChatsSelect');
+      if (bar) bar.style.display = chatsSelectMode ? 'flex' : 'none';
+      if (toggleBtn) toggleBtn.style.display = chatsSelectMode ? 'none' : 'inline-flex';
+      updateChatsViewBatchUI();
+      renderChatsView();
+    }
+
+    function updateChatsViewBatchUI() {
+      const countEl = document.getElementById('chatsSelectedCount');
+      if (countEl) countEl.textContent = chatsSelected.size + ' selected';
+      const delBtn = document.getElementById('btnDeleteSelectedChats');
+      if (delBtn) {
+        delBtn.disabled = chatsSelected.size === 0;
+        delBtn.textContent = 'Delete selected' + (chatsSelected.size ? ' (' + chatsSelected.size + ')' : '');
+      }
+    }
+
+    function onChatsViewRowCheck(id, checked) {
+      if (checked) chatsSelected.add(id);
+      else chatsSelected.delete(id);
+      updateChatsViewBatchUI();
+      const row = document.querySelector(`.chats-row[data-id="${id}"]`);
+      if (row) {
+        row.classList.toggle('selected', checked);
+        const cb = row.querySelector('.chat-select-check');
+        if (cb) cb.checked = checked;
+      }
+    }
+
+    function selectAllChatsView() {
+      const list = document.getElementById('chatsList');
+      if (!list) return;
+      const rows = list.querySelectorAll('.chats-row');
+      const allAlready = rows.length > 0 && Array.from(rows).every(el => chatsSelected.has(el.dataset.id));
+      rows.forEach(el => {
+        const id = el.dataset.id;
+        if (allAlready) chatsSelected.delete(id);
+        else chatsSelected.add(id);
+      });
+      updateChatsViewBatchUI();
+      renderChatsView();
+    }
+
+    async function deleteSelectedChatsView() {
+      const ids = Array.from(chatsSelected);
+      if (!ids.length) return;
+      if (!confirm('Delete ' + ids.length + ' selected chat' + (ids.length === 1 ? '' : 's') + '?')) return;
+      try {
+        const res = await api('/api/conversations/batch-delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ ids })
+        });
+        const d = await res.json();
+        if (!res.ok) throw new Error(d.detail || res.status);
+        chatsSelected.clear();
+        toggleChatsSelectMode(false);
+        if (ids.includes(currentConversationId)) newChat();
+        await renderSidebarChatHistory();
+        renderChatsView();
+      } catch (e) {
+        notify('Could not delete chats: ' + e.message);
+      }
+    }
+
     function renderChatsView() {
       const list = document.getElementById('chatsList'); if (!list) return;
       const q = (document.getElementById('chatsSearch').value || '').trim().toLowerCase();
@@ -2118,12 +2298,28 @@
         const badge = sourceBadge(c, true);
         const g = chatGroupLabel(c.updated);
         if (g !== last) { const h = document.createElement('div'); h.className = 'chats-group'; h.textContent = g; list.appendChild(h); last = g; }
-        const row = document.createElement('div'); row.className = 'chats-row' + (c.id === currentConversationId ? ' active' : '') + (activeRuns.some(r => r.conversation_id === c.id) ? ' running' : ''); row.dataset.id = c.id; row.setAttribute('role', 'button'); row.tabIndex = 0;
+        const isSelected = chatsSelected.has(c.id);
+        const checkHtml = chatsSelectMode ? `<input type="checkbox" class="chat-select-check" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); onChatsViewRowCheck('${c.id}', this.checked)">` : '';
+        const row = document.createElement('div'); row.className = 'chats-row' + (c.id === currentConversationId ? ' active' : '') + (isSelected ? ' selected' : '') + (activeRuns.some(r => r.conversation_id === c.id) ? ' running' : ''); row.dataset.id = c.id; row.setAttribute('role', 'button'); row.tabIndex = 0;
         const when = new Date(c.updated); const time = isNaN(when) ? '' : when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
-        row.innerHTML = `<span class="chats-title">${esc(c.title || 'Untitled chat')}</span>${badge}<span class="chats-time">${esc(time)}</span><button class="chi-del zo-iconbtn" title="Delete chat" aria-label="Delete chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`;
+        row.innerHTML = `${checkHtml}<span class="chats-title">${esc(c.title || 'Untitled chat')}</span>${badge}<span class="chats-time">${esc(time)}</span><button class="chi-del zo-iconbtn" title="Delete chat" aria-label="Delete chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`;
         const open = () => { openConversation(c.id); toggleChatPanel(false); };
-        row.onclick = (e) => { if (e.target.closest('.chi-del')) deleteChat(c.id, c.title); else open(); };
-        row.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); open(); } };
+        row.onclick = (e) => {
+          if (e.target.closest('.chi-del')) {
+            deleteChat(c.id, c.title);
+          } else if (chatsSelectMode) {
+            onChatsViewRowCheck(c.id, !chatsSelected.has(c.id));
+          } else {
+            open();
+          }
+        };
+        row.onkeydown = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            if (chatsSelectMode) onChatsViewRowCheck(c.id, !chatsSelected.has(c.id));
+            else open();
+          }
+        };
         list.appendChild(row);
       });
     }

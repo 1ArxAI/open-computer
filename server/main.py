@@ -320,6 +320,29 @@ async def delete_conversation(cid: str):
         p.rename(CONV_TRASH / f"{int(time.time())}_{cid}.json")
     return {"ok": True}
 
+class BatchDeleteConversationsRequest(BaseModel):
+    ids: List[str]
+
+@app.post("/api/conversations/batch-delete")
+async def batch_delete_conversations(body: BatchDeleteConversationsRequest):
+    """Batch soft delete conversations: moved to data/su/conversations_trash."""
+    CONV_TRASH.mkdir(parents=True, exist_ok=True)
+    deleted = []
+    now = int(time.time())
+    for cid in body.ids:
+        clean_cid = re.sub(r'[^a-zA-Z0-9_-]', '', str(cid).strip())
+        if not clean_cid:
+            continue
+        p = agent.CONV_DIR / f"{clean_cid}.json"
+        if p.exists():
+            target = CONV_TRASH / f"{now}_{clean_cid}.json"
+            try:
+                p.rename(target)
+                deleted.append(clean_cid)
+            except Exception:
+                pass
+    return {"ok": True, "deleted": deleted, "count": len(deleted)}
+
 @app.post("/api/conversations/restore")
 async def restore_conversations(body: Dict[str, Any] = None):
     """Restore trashed conversations: {ids:[...]} or {all:true}."""
