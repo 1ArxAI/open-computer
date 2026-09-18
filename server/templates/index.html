@@ -688,14 +688,472 @@
 
 
 
-    /* v3: agent trace, automations, skills, mcp */
-    .trace { display: flex; flex-direction: column; gap: 3px; margin: 4px 0 8px; }
-    .trace-row { font-size: 12px; color: var(--text-muted); font-family: var(--font-mono); cursor: pointer; display: flex; gap: 6px; align-items: baseline; }
-    .trace-row .tr-name { color: var(--text-main); font-weight: 600; white-space: nowrap; }
-    .trace-row .tr-arg { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; flex: 1; }
-    .trace-row .tr-out { display: none; white-space: pre-wrap; background: #101114; border: 1px solid var(--border); border-radius: 6px; padding: 8px; margin: 4px 0 6px; font-size: 11.5px; max-height: 260px; overflow: auto; color: #cbd5e1; }
-    .trace-row.open .tr-out { display: block; }
-    .trace-row.err { color: #f87171; }
+    /* ==========================================
+       ZO-GRADE CODE BLOCKS & MARKDOWN
+       ========================================== */
+    .zo-code-block {
+      margin: 10px 0;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: color-mix(in oklab, var(--zo-bg) 80%, black);
+      box-shadow: var(--surface-card);
+      overflow: hidden;
+    }
+    .zo-code-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 6px 12px;
+      background: color-mix(in oklab, var(--zo-card) 60%, transparent);
+      border-bottom: 1px solid var(--border-light);
+      user-select: none;
+    }
+    .zo-code-lang {
+      font-size: 11px;
+      font-family: var(--font-mono);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--zo-fg-muted);
+    }
+    .zo-code-copy {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 3px 8px;
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--zo-fg-muted);
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+    .zo-code-copy:hover {
+      background: var(--hover);
+      color: var(--zo-fg);
+      border-color: var(--border-light);
+    }
+    .zo-code-copy.copied {
+      color: var(--accent-green);
+    }
+    .zo-code-pre {
+      margin: 0;
+      padding: 12px 14px;
+      font-family: var(--font-mono);
+      font-size: 12.5px;
+      line-height: 1.55;
+      overflow-x: auto;
+      color: color-mix(in oklab, var(--zo-fg) 92%, white);
+      white-space: pre;
+    }
+    .zo-code-pre code {
+      background: transparent !important;
+      padding: 0 !important;
+      border-radius: 0 !important;
+      font-family: inherit !important;
+      font-size: inherit !important;
+      color: inherit !important;
+    }
+
+    /* Zo Blockquote, Lists, Tables */
+    .zo-blockquote {
+      border-left: 3px solid var(--zo-primary);
+      margin: 8px 0;
+      padding: 6px 14px;
+      color: var(--zo-fg-muted);
+      background: color-mix(in oklab, var(--zo-primary) 6%, transparent);
+      border-radius: 0 6px 6px 0;
+      font-style: italic;
+    }
+    .zo-table-wrap {
+      margin: 10px 0;
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      box-shadow: var(--surface-card);
+    }
+    .zo-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      text-align: left;
+    }
+    .zo-table th {
+      background: color-mix(in oklab, var(--zo-card) 75%, transparent);
+      padding: 8px 12px;
+      font-weight: 600;
+      color: var(--zo-fg);
+      border-bottom: 1px solid var(--border);
+    }
+    .zo-table td {
+      padding: 8px 12px;
+      border-bottom: 1px solid var(--border-light);
+      color: var(--zo-fg);
+    }
+    .zo-table tr:last-child td {
+      border-bottom: none;
+    }
+    .zo-table tr:hover td {
+      background: var(--hover);
+    }
+    .zo-task-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin: 3px 0;
+      cursor: default;
+    }
+    .zo-task-item input[type=checkbox] {
+      appearance: none;
+      width: 15px;
+      height: 15px;
+      border-radius: 4px;
+      border: 1.5px solid color-mix(in oklab, var(--zo-border) 80%, transparent);
+      background: transparent;
+      display: inline-grid;
+      place-content: center;
+      cursor: default;
+    }
+    .zo-task-item input[type=checkbox]:checked {
+      background: var(--zo-primary);
+      border-color: var(--zo-primary);
+    }
+    .zo-task-item input[type=checkbox]:checked::before {
+      content: "";
+      width: 7px;
+      height: 4px;
+      border-left: 2px solid white;
+      border-bottom: 2px solid white;
+      transform: rotate(-45deg) translate(1px, -1px);
+    }
+    .zo-task-item.done span {
+      text-decoration: line-through;
+      color: var(--zo-fg-muted);
+    }
+    .zo-ol-item, .zo-ul-item {
+      display: flex;
+      gap: 8px;
+      margin: 2px 0;
+      align-items: baseline;
+    }
+    .zo-ol-num {
+      color: var(--zo-primary);
+      font-weight: 600;
+      font-size: 13px;
+      min-width: 18px;
+    }
+    .zo-ul-bullet {
+      color: var(--zo-fg-muted);
+      font-size: 16px;
+      line-height: 1;
+    }
+
+    /* Pro Tool Execution Accordion Cards */
+    .trace { display: flex; flex-direction: column; gap: 6px; margin: 8px 0 10px; }
+    .trace.collapsed { display: none; }
+    .trace-card {
+      background: color-mix(in oklab, var(--zo-card) 92%, transparent);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: var(--surface-card);
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      font-size: 12.5px;
+    }
+    .trace-card:hover {
+      border-color: color-mix(in oklab, var(--zo-border) 70%, transparent);
+    }
+    .trace-card.err {
+      border-color: color-mix(in oklab, var(--accent-red) 40%, transparent);
+      background: color-mix(in oklab, var(--accent-red) 5%, var(--zo-card));
+    }
+    .trace-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 10px;
+      cursor: pointer;
+      user-select: none;
+    }
+    .trace-card-icon {
+      width: 22px;
+      height: 22px;
+      border-radius: 5px;
+      background: color-mix(in oklab, var(--zo-muted) 80%, transparent);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--zo-fg-muted);
+      flex: none;
+    }
+    .trace-card.running .trace-card-icon {
+      color: var(--zo-primary);
+      background: color-mix(in oklab, var(--zo-primary) 15%, transparent);
+    }
+    .trace-card.success .trace-card-icon {
+      color: var(--accent-green);
+    }
+    .trace-card.err .trace-card-icon {
+      color: var(--accent-red);
+    }
+    .trace-card-name {
+      font-weight: 600;
+      color: var(--zo-fg);
+      font-size: 12px;
+      white-space: nowrap;
+    }
+    .trace-card-arg {
+      color: var(--zo-fg-muted);
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      flex: 1;
+      min-width: 0;
+    }
+    .trace-card-status {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      margin-left: auto;
+      flex: none;
+    }
+    .trace-card-chevron {
+      width: 14px;
+      height: 14px;
+      color: var(--zo-fg-muted);
+      transition: transform 0.18s ease;
+      flex: none;
+    }
+    .trace-card.open .trace-card-chevron {
+      transform: rotate(180deg);
+    }
+    .trace-card-body {
+      display: none;
+      border-top: 1px solid var(--border-light);
+      background: color-mix(in oklab, var(--zo-bg) 80%, black);
+      padding: 8px 12px 10px;
+    }
+    .trace-card.open .trace-card-body {
+      display: block;
+    }
+    .trace-console-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 6px;
+      font-size: 11px;
+      color: var(--zo-fg-muted);
+    }
+    .trace-console-title {
+      font-weight: 600;
+      letter-spacing: 0.3px;
+      text-transform: uppercase;
+      font-size: 10.5px;
+    }
+    .trace-copy-btn {
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 4px;
+      color: var(--zo-fg-muted);
+      font-size: 11px;
+      padding: 2px 6px;
+      cursor: pointer;
+    }
+    .trace-copy-btn:hover {
+      background: var(--hover);
+      color: var(--zo-fg);
+      border-color: var(--border-light);
+    }
+    .trace-console-out {
+      margin: 0;
+      font-family: var(--font-mono);
+      font-size: 11.5px;
+      line-height: 1.5;
+      color: color-mix(in oklab, var(--zo-fg) 85%, white);
+      white-space: pre-wrap;
+      max-height: 320px;
+      overflow-y: auto;
+      background: transparent;
+    }
+    .trace-summary-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: color-mix(in oklab, var(--zo-muted) 60%, transparent);
+      border: 1px solid var(--border-light);
+      font-size: 11.5px;
+      color: var(--zo-fg-muted);
+      cursor: pointer;
+      margin-bottom: 6px;
+      user-select: none;
+      transition: all 0.15s ease;
+    }
+    .trace-summary-pill:hover {
+      color: var(--zo-fg);
+      border-color: var(--border);
+      background: var(--zo-muted);
+    }
+
+    /* Global Command Palette (Ctrl+K / Cmd+K) */
+    .cmd-palette-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      -webkit-backdrop-filter: blur(4px);
+      z-index: 2000;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding-top: 14vh;
+      animation: cmdFadeIn 0.15s ease-out;
+    }
+    @keyframes cmdFadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .cmd-palette-modal {
+      width: 580px;
+      max-width: 92vw;
+      background: var(--zo-card);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      box-shadow: var(--shadow-lg), var(--surface-raise);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      animation: cmdScaleIn 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes cmdScaleIn {
+      from { transform: scale(0.97) translateY(-6px); opacity: 0; }
+      to { transform: scale(1) translateY(0); opacity: 1; }
+    }
+    .cmd-palette-search {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border);
+      background: color-mix(in oklab, var(--zo-card) 95%, transparent);
+    }
+    .cmd-palette-search svg {
+      color: var(--zo-fg-muted);
+      flex: none;
+    }
+    .cmd-palette-search input {
+      flex: 1;
+      border: none;
+      background: transparent;
+      outline: none;
+      font-size: 15px;
+      color: var(--zo-fg);
+      font-family: inherit;
+    }
+    .cmd-palette-search input::placeholder {
+      color: var(--zo-fg-muted);
+    }
+    .cmd-palette-esc {
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--zo-fg-muted);
+      background: var(--zo-muted);
+      border: 1px solid var(--border-light);
+      border-radius: 4px;
+      padding: 2px 6px;
+      letter-spacing: 0.5px;
+      flex: none;
+    }
+    .cmd-palette-list {
+      max-height: 360px;
+      overflow-y: auto;
+      padding: 6px;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .cmd-palette-group-title {
+      font-size: 10.5px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--zo-fg-muted);
+      padding: 8px 10px 4px;
+    }
+    .cmd-palette-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 8px 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      user-select: none;
+      font-size: 13.5px;
+      color: var(--zo-fg);
+      transition: background 0.1s ease;
+    }
+    .cmd-palette-item:hover, .cmd-palette-item.active {
+      background: var(--zo-muted);
+      color: var(--zo-fg);
+    }
+    .cmd-palette-item.active {
+      box-shadow: inset 2px 0 0 var(--zo-primary);
+    }
+    .cmd-palette-item-icon {
+      width: 20px;
+      height: 20px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--zo-fg-muted);
+      flex: none;
+    }
+    .cmd-palette-item.active .cmd-palette-item-icon {
+      color: var(--zo-primary);
+    }
+    .cmd-palette-item-label {
+      flex: 1;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .cmd-palette-item-hint {
+      font-size: 11px;
+      color: var(--zo-fg-muted);
+      flex: none;
+    }
+    .cmd-palette-empty {
+      padding: 24px 16px;
+      text-align: center;
+      color: var(--zo-fg-muted);
+      font-size: 13px;
+    }
+    .cmd-palette-footer {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      padding: 8px 14px;
+      border-top: 1px solid var(--border-light);
+      background: color-mix(in oklab, var(--zo-card) 60%, transparent);
+      font-size: 11px;
+      color: var(--zo-fg-muted);
+    }
+    .cmd-palette-footer kbd {
+      background: var(--zo-muted);
+      border: 1px solid var(--border-light);
+      border-radius: 3px;
+      padding: 1px 4px;
+      font-size: 10px;
+      font-family: inherit;
+      margin-right: 3px;
+    }
+
     .msg-ai-body pre { white-space: pre-wrap; }
     .msg-ts { display: flex; align-items: center; gap: 6px; font-size: 11px; line-height: 14px; color: var(--zo-fg-muted); margin-top: -2px; }
     .msg-speak { width: 20px; height: 20px; padding: 0; border: none; border-radius: 5px; background: transparent; color: var(--zo-fg-muted); cursor: pointer; display: inline-flex; align-items: center; justify-content: center; }
@@ -726,7 +1184,7 @@
     .tag { display: inline-block; font-size: 10.5px; padding: 1px 6px; border: 1px solid var(--border); border-radius: 4px; color: var(--text-muted); margin-right: 4px; }
     .modal-bg { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.65); z-index: 1200; align-items: center; justify-content: center; }
     .modal-bg.open { display: flex; }
-    .modal-card { width: 460px; max-width: 92vw; background: #17181c; border: 1px solid var(--border); border-radius: 12px; padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+    .modal-card { width: 460px; max-width: 92vw; background: var(--zo-card); border: 1px solid var(--border); border-radius: 14px; padding: 22px; display: flex; flex-direction: column; gap: 12px; box-shadow: var(--shadow-lg), var(--surface-raise); }
     .modal-card input, .modal-card select { background: var(--bg-input); border: 1px solid var(--border); color: var(--text-main); border-radius: 8px; padding: 8px 10px; font-size: 13px; }
     .modal-card label { font-size: 12px; color: var(--text-muted); }
     .lock-banner { background: rgba(239,68,68,0.12); border-bottom: 1px solid rgba(239,68,68,0.3); color: #fca5a5; font-size: 12px; padding: 6px 12px; display: none; }
@@ -757,9 +1215,26 @@
       --radius-sm: 7.5px; --radius-md: 10px; --radius-lg: 15px;
       --font: "Hanken Grotesk", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       --hover: color-mix(in oklab, var(--zo-fg) 6%, transparent);
+      --surface-raise: inset 0 1px 0 rgba(255, 255, 255, 0.08), 0 1px 3px rgba(0, 0, 0, 0.24);
+      --surface-card: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      --foil-bezel: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 -1px 0 rgba(0, 0, 0, 0.18);
+      --shadow-2xs: 0px 1px 1px 0px rgba(0, 0, 0, 0.14);
+      --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.24);
+      --shadow-md: 0px 4px 12px rgba(0, 0, 0, 0.28);
+      --shadow-lg: 0px 12px 32px rgba(0, 0, 0, 0.38);
     }
     body { background: var(--zo-sidebar); color: var(--zo-fg); font-size: 14px; line-height: 20px; }
-    html { color-scheme: dark; } html.light { color-scheme: light; }
+    html { color-scheme: dark; }
+    html.light {
+      color-scheme: light;
+      --surface-raise: inset 0 1px 0 rgba(255, 255, 255, 0.85), 0 1px 2px rgba(0, 0, 0, 0.05);
+      --surface-card: inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      --foil-bezel: inset 0 1px 0 rgba(255, 255, 255, 0.9), inset 0 -1px 0 rgba(0, 0, 0, 0.05);
+      --shadow-2xs: 0px 1px 1px 0px rgba(0, 0, 0, 0.03);
+      --shadow-sm: 0px 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0px 4px 12px rgba(0, 0, 0, 0.08);
+      --shadow-lg: 0px 12px 32px rgba(0, 0, 0, 0.12);
+    }
     /* Native select styling across platforms (Ubuntu / Linux / Windows / macOS) */
     select, select option, select optgroup {
       color-scheme: inherit;
@@ -1037,15 +1512,32 @@
     .msg-user { align-self: stretch; max-width: none; background: color-mix(in oklab, var(--zo-muted) 50%, transparent); border: 1px solid color-mix(in oklab, var(--zo-border) 40%, transparent); border-radius: 10px; padding: 12px 16px; font-size: 16px; line-height: 24px; color: var(--zo-fg); }
     .msg-ai { max-width: none; align-self: stretch; padding: 0 4px; }
     .msg-ai-body { font-size: 16px; line-height: 26px; }
-    .trace-row { font-family: inherit; font-size: 12px; }
+    .trace-card { font-family: inherit; }
     .trace.collapsed { display: none; }
-    .trace-toggle { align-self: flex-start; margin: 0 0 6px; padding: 0; border: none; background: none; font-size: 12px; color: var(--zo-fg-muted); cursor: pointer; }
-    .trace-toggle:hover { color: var(--zo-fg); text-decoration: underline; }
-    .trace-time { font-size: 12px; color: var(--zo-fg-muted); opacity: .7; margin-left: 8px; }
-    .ai-status { display: flex; align-items: center; gap: 8px; margin: 2px 0 8px; font-size: 12px; color: var(--zo-fg-muted); }
+    .trace-toggle {
+      align-self: flex-start;
+      margin: 0 0 6px;
+      padding: 3px 10px;
+      border: 1px solid var(--border-light);
+      border-radius: 20px;
+      background: color-mix(in oklab, var(--zo-muted) 60%, transparent);
+      font-size: 11.5px;
+      color: var(--zo-fg-muted);
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.15s ease;
+    }
+    .trace-toggle:hover {
+      color: var(--zo-fg);
+      background: var(--zo-muted);
+      border-color: var(--border);
+    }
+    .trace-time { font-size: 11.5px; color: var(--zo-fg-muted); opacity: .7; margin-left: 6px; }
+    .ai-status { display: flex; align-items: center; gap: 8px; margin: 4px 0 8px; font-size: 12.5px; color: var(--zo-fg-muted); }
     .ai-status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--zo-primary); animation: ai-pulse 1.2s ease-in-out infinite; }
     @keyframes ai-pulse { 0%, 100% { opacity: .35; } 50% { opacity: 1; } }
-    .trace-row .tr-name { font-weight: 500; color: var(--zo-fg-muted); }
     .composer-wrapper { background: transparent; border-top: none; padding: 8px 12px 12px; }
     #chat-card .composer-card { padding: 0; gap: 0; }
     .chat-textarea { font-size: 16px; line-height: 24px; padding: 14px 16px 6px; min-height: 72px; color: var(--zo-fg); }
@@ -1898,6 +2390,7 @@
   <aside id="sidebar">
     <div class="sb-top">
       <span class="sb-brand" aria-label="__AGENT_NAME__"><svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true"><rect x="2" y="2" width="20" height="20" rx="6" fill="currentColor"/><text x="12" y="16" text-anchor="middle" font-size="10" font-weight="700" fill="oklch(0.2598 0.0306 262.667)" font-family="inherit">__AGENT_INITIALS__</text></svg><span class="home-hw" id="homeHw"></span></span>
+      <button class="sb-iconbtn" title="Command Palette (Ctrl+K)" aria-label="Command Palette" onclick="openCommandPalette()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><rect x="3" y="3" width="18" height="18" rx="3"/><path d="m9 10 2 2-2 2M13 14h2"/></svg></button>
       <button class="sb-iconbtn" title="Collapse sidebar" aria-label="Collapse sidebar" onclick="toggleSidebar(true)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><rect width="18" height="18" x="3" y="3" rx="2"></rect><path d="M9 3v18"></path><path d="m16 15-3-3 3-3"></path></svg></button>
     </div>
     <nav class="nav-list">
@@ -2570,11 +3063,14 @@
       setTimeout(() => { if (xtermFitAddon) { xtermFitAddon.fit(); notifyTerminalResize(); } }, 250);
     }
 
-    // Keyboard shortcut Ctrl+\ or Cmd+\ to toggle chat panel
+    // Keyboard shortcut Ctrl+\ or Cmd+\ to toggle chat panel, Ctrl+K or Cmd+K for Command Palette
     window.addEventListener('keydown', (e) => {
       if ((e.ctrlKey || e.metaKey) && e.key === '\\') {
         e.preventDefault();
         toggleChatPanel();
+      } else if ((e.ctrlKey || e.metaKey) && (e.key === 'k' || e.key === 'K')) {
+        e.preventDefault();
+        toggleCommandPalette();
       }
     });
 
@@ -5400,15 +5896,44 @@ async function deleteProvider(pid, name) {
       if (!st) { st = document.createElement('div'); st.className = 'ai-status'; st.innerHTML = '<span class="ai-status-dot"></span><span class="ai-status-text"></span>'; trace.parentElement.insertBefore(st, trace.nextSibling); }
       return st;
     }
+    function toolIconSvg(name) {
+      name = (name || '').toLowerCase();
+      if (name === 'bash' || name === 'run_command') {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>';
+      }
+      if (name.includes('read') || name.includes('file') || name.includes('write') || name.includes('edit')) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>';
+      }
+      if (name.includes('search') || name.includes('web') || name.includes('browser') || name.includes('fetch')) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20M2 12h20"/></svg>';
+      }
+      if (name.includes('subagent') || name.includes('task') || name.includes('skill') || name.includes('agent')) {
+        return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>';
+      }
+      return '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="13" height="13"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 3"/></svg>';
+    }
+    function copyTraceCard(btn) {
+      const out = btn.closest('.trace-card').querySelector('.trace-console-out');
+      if (!out) return;
+      navigator.clipboard.writeText(out.innerText).then(() => {
+        const orig = btn.textContent;
+        btn.textContent = 'Copied!';
+        setTimeout(() => { btn.textContent = orig; }, 1500);
+      }).catch(() => notify('Could not copy'));
+    }
     function finishTrace(trace) {
       const st = trace.parentElement.querySelector('.ai-status'); if (st) st.remove();
       const n = trace.children.length; let t = trace.parentElement.querySelector('.trace-toggle');
       if (!n) { if (t) t.remove(); return; }
       trace.classList.add('collapsed');
       if (!t) { t = document.createElement('button'); t.className = 'trace-toggle'; trace.parentElement.insertBefore(t, trace); }
-      const label = (open) => (open ? 'Hide ' : 'Show ') + n + ' step' + (n > 1 ? 's' : '');
-      t.textContent = label(false);
-      t.onclick = () => { const collapsed = trace.classList.toggle('collapsed'); t.textContent = label(!collapsed); };
+      const hasErrors = !!trace.querySelector('.trace-card.err');
+      const icon = hasErrors
+        ? '<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2" width="12" height="12"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>'
+        : '<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2.5" width="12" height="12"><path d="M5 12l5 5L20 7"/></svg>';
+      const label = (open) => `${icon} <span>${open ? 'Hide' : 'Completed'} ${n} step${n > 1 ? 's' : ''}</span>`;
+      t.innerHTML = label(false);
+      t.onclick = () => { const collapsed = trace.classList.toggle('collapsed'); t.innerHTML = label(!collapsed); };
     }
     // "19:15" today, "8 Sep, 19:15" on other days; '' when the timestamp is missing or unparseable.
     function fmtTs(iso) {
@@ -5526,16 +6051,51 @@ async function deleteProvider(pid, name) {
       if (ev.type === 'status') {
         statusEl(trace).querySelector('.ai-status-text').textContent = ev.text || '';
       } else if (ev.type === 'tool_call') {
-        const row = document.createElement('div'); row.className = 'trace-row'; row.dataset.name = ev.name;
-        row.innerHTML = `<span class="tr-name">${esc(toolLabel(ev.name, ev.args))}</span><span class="tr-arg">${esc(argSummary(ev.name, ev.args))}</span>`;
-        const out = document.createElement('div'); out.className = 'tr-out'; out.textContent = JSON.stringify(ev.args, null, 1); row.appendChild(out);
-        row.onclick = () => row.classList.toggle('open'); trace.appendChild(row);
+        const card = document.createElement('div'); card.className = 'trace-card running'; card.dataset.name = ev.name;
+        const iconSvg = toolIconSvg(ev.name);
+        const nameLabel = toolLabel(ev.name, ev.args);
+        const argStr = argSummary(ev.name, ev.args);
+        card.innerHTML = `
+          <div class="trace-card-header" onclick="this.parentElement.classList.toggle('open')">
+            <span class="trace-card-icon">${iconSvg}</span>
+            <span class="trace-card-name">${esc(nameLabel)}</span>
+            <span class="trace-card-arg" title="${esc(argStr)}">${esc(argStr)}</span>
+            <span class="trace-card-status"><span class="spin" style="width:12px;height:12px;border:2px solid color-mix(in oklab, var(--zo-primary) 35%, transparent);border-top-color:var(--zo-primary);border-radius:50%;animation:zo-spin .9s linear infinite;"></span></span>
+            <svg class="trace-card-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>
+          </div>
+          <div class="trace-card-body">
+            <div class="trace-console-bar">
+              <span class="trace-console-title">${esc(ev.name)} details</span>
+              <button type="button" class="trace-copy-btn" onclick="copyTraceCard(this)">Copy</button>
+            </div>
+            <pre class="trace-console-out">${esc(typeof ev.args === 'string' ? ev.args : JSON.stringify(ev.args, null, 2))}</pre>
+          </div>
+        `;
+        trace.appendChild(card);
       } else if (ev.type === 'tool_result') {
-        const rows = trace.querySelectorAll('.trace-row'); const row = rows[rows.length - 1];
-        if (row) { const out = row.querySelector('.tr-out'); out.textContent = (out.textContent ? out.textContent + '\n\n→ ' : '') + (ev.output || ''); if ((ev.output || '').startsWith('Tool error')) { row.classList.add('err'); const nm = row.querySelector('.tr-name'); if (nm && !nm.textContent.endsWith('failed')) nm.textContent += ' · failed'; } }
+        const cards = trace.querySelectorAll('.trace-card'); const card = cards[cards.length - 1];
+        if (card) {
+          card.classList.remove('running');
+          const isErr = (ev.output || '').startsWith('Tool error') || (ev.output || '').startsWith('Error:');
+          if (isErr) {
+            card.classList.add('err');
+            const statusSpan = card.querySelector('.trace-card-status');
+            if (statusSpan) statusSpan.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-red)" stroke-width="2.5" width="13" height="13"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>';
+            const nm = card.querySelector('.trace-card-name');
+            if (nm && !nm.textContent.endsWith('· failed')) nm.textContent += ' · failed';
+          } else {
+            card.classList.add('success');
+            const statusSpan = card.querySelector('.trace-card-status');
+            if (statusSpan) statusSpan.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="var(--accent-green)" stroke-width="2.5" width="13" height="13"><path d="M5 12l5 5L20 7"/></svg>';
+          }
+          const out = card.querySelector('.trace-console-out');
+          if (out) {
+            out.textContent = (out.textContent ? out.textContent + '\n\n→ Output:\n' : '') + (ev.output || '');
+          }
+        }
       } else if (ev.type === 'text') {
         // Plan/understanding paragraph: a real assistant paragraph above the tool rows (or above the final report if rows already exist).
-        if ((ev.text || '').trim()) { const p = document.createElement('div'); p.className = 'msg-ai-body'; p.dataset.raw = ev.text; p.innerHTML = formatMarkdown(ev.text); const w = trace.parentElement; w.insertBefore(p, trace.querySelector('.trace-row') ? finalEl : (w.querySelector('.trace-toggle') || trace)); }
+        if ((ev.text || '').trim()) { const p = document.createElement('div'); p.className = 'msg-ai-body'; p.dataset.raw = ev.text; p.innerHTML = formatMarkdown(ev.text); const w = trace.parentElement; w.insertBefore(p, trace.querySelector('.trace-card, .trace-row') ? finalEl : (w.querySelector('.trace-toggle') || trace)); }
       } else if (ev.type === 'delta') {
         finalEl.dataset.buf = (finalEl.dataset.buf || '') + (ev.text || '');
         if (!finalEl._deltaTimer) finalEl._deltaTimer = setTimeout(() => { finalEl._deltaTimer = null; finalEl.innerHTML = formatMarkdown(finalEl.dataset.buf); msgsContainer.scrollTop = msgsContainer.scrollHeight; }, 60);
@@ -5687,11 +6247,96 @@ async function deleteProvider(pid, name) {
         if (!msgsContainer.querySelector('.msg-user')) { const run = activeRuns.find(r => r.conversation_id === id); if (run && run.title) addUserBubble(run.title).dataset.fallback = '1'; }
         const shell = addAiShell(); renderEvent({ type: 'status', text: 'Working…' }, shell.querySelector('.trace'), shell.querySelector('.msg-ai-body')); attachRun(id, shell.querySelector('.trace'), shell.querySelector('.msg-ai-body')); }
     }
+    function copyCodeBlock(btn) {
+      const block = btn.closest('.zo-code-block');
+      const code = block ? (block.querySelector('code') || {}).innerText : '';
+      if (!code) return;
+      navigator.clipboard.writeText(code).then(() => {
+        const span = btn.querySelector('span');
+        const orig = span ? span.textContent : 'Copy';
+        btn.classList.add('copied');
+        if (span) span.textContent = 'Copied!';
+        setTimeout(() => {
+          btn.classList.remove('copied');
+          if (span) span.textContent = orig;
+        }, 1500);
+      }).catch(() => notify('Could not copy'));
+    }
+
     function formatMarkdown(str) {
-      let s = esc(str || '');
-      s = s.replace(/```([a-z]*)\n([\s\S]*?)```/g, '<pre style="background: #111215; padding: 10px; border-radius: 6px; border: 1px solid var(--border); font-family: var(--font-mono); font-size: 12px; overflow-x:auto;"><code>$2</code></pre>');
-      s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>').replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>').replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:var(--zo-primary);">$1</a>');
-      s = s.replace(/^(?:- |\* )(.*)$/gm, '• $1').replace(/\n/g, '<br>');
+      if (!str) return '';
+      let text = String(str);
+
+      // 1. Streaming fence safety: If odd count of ``` fences, close it virtually so code displays cleanly while streaming
+      const fenceCount = (text.match(/```/g) || []).length;
+      if (fenceCount % 2 !== 0) {
+        text += '\n```';
+      }
+
+      // 2. Extract code blocks before escaping HTML
+      const codeBlocks = [];
+      text = text.replace(/```([a-zA-Z0-9_-]*)\n([\s\S]*?)```/g, (match, lang, code) => {
+        const placeholder = `\x00CODEBLOCK_${codeBlocks.length}\x00`;
+        const l = (lang || 'code').toLowerCase();
+        codeBlocks.push(`
+          <div class="zo-code-block">
+            <div class="zo-code-header">
+              <span class="zo-code-lang">${esc(l)}</span>
+              <button type="button" class="zo-code-copy" onclick="copyCodeBlock(this)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" width="12" height="12" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+                <span>Copy</span>
+              </button>
+            </div>
+            <pre class="zo-code-pre"><code>${esc(code.replace(/\n$/, ''))}</code></pre>
+          </div>
+        `);
+        return placeholder;
+      });
+
+      // 3. Escape HTML
+      let s = esc(text);
+
+      // 4. Markdown tables: | col | col | \n |---|---| \n | cell | cell |
+      s = s.replace(/(?:^|\n)(\|.+?\|\n\|[-:\|\s]+?\|\n(?:\|.+?\|\n?)+)/g, (match, tableStr) => {
+        const rows = tableStr.trim().split('\n').map(r => r.trim());
+        if (rows.length < 2) return match;
+        const parseRow = (r) => r.replace(/^\||\|$/g, '').split('|').map(c => c.trim());
+        const headers = parseRow(rows[0]);
+        const dataRows = rows.slice(2).map(parseRow);
+        let html = '<div class="zo-table-wrap"><table class="zo-table"><thead><tr>';
+        headers.forEach(h => { html += `<th>${h}</th>`; });
+        html += '</tr></thead><tbody>';
+        dataRows.forEach(row => {
+          html += '<tr>';
+          row.forEach(cell => { html += `<td>${cell}</td>`; });
+          html += '</tr>';
+        });
+        html += '</tbody></table></div>';
+        return html;
+      });
+
+      // 5. Blockquotes: > text
+      s = s.replace(/^&gt;\s?(.*)$/gm, '<blockquote class="zo-blockquote">$1</blockquote>');
+
+      // 6. Headers
+      s = s.replace(/^###\s+(.+)$/gm, '<h4 style="font-size:14px;font-weight:600;margin:8px 0 4px;color:var(--zo-fg);">$1</h4>');
+      s = s.replace(/^##\s+(.+)$/gm, '<h3 style="font-size:15px;font-weight:600;margin:10px 0 4px;color:var(--zo-fg);">$1</h3>');
+      s = s.replace(/^#\s+(.+)$/gm, '<h2 style="font-size:16px;font-weight:700;margin:12px 0 6px;color:var(--zo-fg);">$1</h2>');
+
+      // 7. Inline code, bold, links
+      s = s.replace(/`([^`\n]+)`/g, '<code>$1</code>');
+      s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+      s = s.replace(/\[([^\]]+)\]\((https?:[^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer" style="color:var(--zo-primary);text-decoration:underline;">$1</a>');
+
+      // 8. Task lists & lists
+      s = s.replace(/^(?:-|\*)\s+\[([ xX])\]\s+(.*)$/gm, (m, checked, label) => {
+        const isChecked = checked.toLowerCase() === 'x';
+        return `<div class="zo-task-item${isChecked ? ' done' : ''}"><input type="checkbox" ${isChecked ? 'checked' : ''} disabled><span>${label}</span></div>`;
+      });
+      s = s.replace(/^(\d+)\.\s+(.*)$/gm, '<div class="zo-ol-item"><span class="zo-ol-num">$1.</span><span>$2</span></div>');
+      s = s.replace(/^(?:-|\*)\s+(.*)$/gm, '<div class="zo-ul-item"><span class="zo-ul-bullet">•</span><span>$1</span></div>');
+
+      // 9. Media embeds
       s = s.replace(/(?:https?:\/\/[^\s<]+)?\/api\/file\/raw\?path=([^\s<&"')]+)/g, (m, p) => {
         const path = decodeURIComponent(p); const kind = mediaKind(path);
         if (kind === 'image') return `<img class="chat-media" src="${rawUrl(path)}" alt="${esc(path.split('/').pop())}" onclick="openFileInEditor(${jsq(path)})">`;
@@ -5699,7 +6344,17 @@ async function deleteProvider(pid, name) {
         if (kind === 'audio') return `<audio class="chat-media" src="${rawUrl(path)}" controls></audio>`;
         return `<a href="${rawUrl(path)}" download="${esc(path.split('/').pop())}" rel="noopener" style="color:var(--zo-primary);">${esc(path.split('/').pop())}</a>`;
       });
-      return s.replace(/<\/pre><br>/g, '</pre>');
+
+      // 10. Line breaks (excluding HTML containers)
+      s = s.replace(/\n/g, '<br>');
+      s = s.replace(/<\/div><br>/g, '</div>').replace(/<\/blockquote><br>/g, '</blockquote>').replace(/<\/table><\/div><br>/g, '</table></div>').replace(/<\/h[234]><br>/g, '</h$1>');
+
+      // 11. Restore code blocks
+      codeBlocks.forEach((blockHtml, i) => {
+        s = s.replace(`\x00CODEBLOCK_${i}\x00`, blockHtml);
+      });
+
+      return s.replace(/<\/div><br>/g, '</div>');
     }
     async function loadSysTag() {
       try {
@@ -5895,6 +6550,158 @@ async function deleteProvider(pid, name) {
       if (modal) modal.style.display = 'none';
     }
 
+    // ==========================================
+    // GLOBAL COMMAND PALETTE (Ctrl+K / Cmd+K)
+    // ==========================================
+    let cmdPaletteActiveIndex = 0;
+    let cmdPaletteFilteredItems = [];
+
+    function getAllCommandPaletteItems() {
+      const items = [
+        // Quick Actions
+        { category: 'Quick Actions', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M12 5v14M5 12h14"/></svg>', label: 'New Chat', hint: 'Start fresh', run: () => newChat() },
+        { category: 'Quick Actions', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M15 3v18"/></svg>', label: 'Toggle AI Chat Panel', hint: 'Ctrl+\\', run: () => toggleChatPanel() },
+        { category: 'Quick Actions', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><rect width="18" height="18" x="3" y="3" rx="2"/><path d="M9 3v18"/></svg>', label: 'Toggle Sidebar', hint: 'Collapse/Expand', run: () => toggleSidebar() },
+        { category: 'Quick Actions', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><circle cx="12" cy="12" r="5"/><path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42"/></svg>', label: 'Toggle Light / Dark Mode', hint: 'Theme', run: () => {
+          const cur = document.documentElement.dataset.mode === 'light' ? 'dark' : 'light';
+          applyTheme(cur);
+        }},
+        { category: 'Quick Actions', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>', label: 'Check for System Updates', hint: 'Update', run: () => checkSystemUpdates(true) },
+
+        // Navigation
+        { category: 'Navigation', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>', label: 'Go to Home', hint: 'Overview', run: () => switchNav('home') },
+        { category: 'Navigation', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M8 7H16.75C18.8567 7 19.91 7 20.6667 7.50559C20.9943 7.72447 21.2755 8.00572 21.4944 8.33329C22 9.08996 22 10.1433 22 12.25C22 15.7612 22 17.5167 21.1573 18.7779C20.7926 19.3238 20.3238 19.7926 19.7779 20.1573C18.5167 21 16.7612 21 13.25 21H12C7.28595 21 4.92893 21 3.46447 19.5355C2 18.0711 2 15.714 2 11V7.94427C2 6.1278 2 5.21956 2.38032 4.53806C2.65142 4.05227 3.05227 3.65142 3.53806 3.38032C4.21956 3 5.1278 3 6.94427 3C8.10802 3 8.6899 3 9.19926 3.19101C10.3622 3.62712 10.8418 4.68358 11.3666 5.73313L12 7"/></svg>', label: 'Go to My Files', hint: 'Workspace', run: () => switchNav('files') },
+        { category: 'Navigation', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>', label: 'Open Terminal', hint: 'Shell', run: () => switchNav('terminal') },
+        { category: 'Navigation', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>', label: 'Go to Automations', hint: 'Scheduled', run: () => switchNav('automations') },
+        { category: 'Navigation', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/></svg>', label: 'Go to Skills', hint: 'Agent skills', run: () => switchNav('skills') },
+        { category: 'Navigation', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M3 6h18M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>', label: 'Go to Recycle Bin', hint: 'Trash', run: () => switchNav('trash') },
+        { category: 'Navigation', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>', label: 'Settings: AI Models', hint: 'Providers', run: () => openSettings('models') }
+      ];
+
+      // Recent Chats
+      if (allChats && allChats.length > 0) {
+        allChats.slice(0, 25).forEach(c => {
+          items.push({
+            category: 'Recent Chats',
+            icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>',
+            label: c.title || 'Untitled Chat',
+            hint: chatGroupLabel(c.updated) || 'Chat',
+            run: () => {
+              toggleChatPanel(false);
+              openConversation(c.id);
+            }
+          });
+        });
+      }
+
+      return items;
+    }
+
+    function openCommandPalette() {
+      const palette = document.getElementById('cmdPalette');
+      if (!palette) return;
+      palette.style.display = 'flex';
+      const input = document.getElementById('cmdPaletteInput');
+      if (input) {
+        input.value = '';
+        setTimeout(() => input.focus(), 30);
+      }
+      cmdPaletteActiveIndex = 0;
+      renderCommandPaletteList('');
+    }
+
+    function closeCommandPalette() {
+      const palette = document.getElementById('cmdPalette');
+      if (palette) palette.style.display = 'none';
+    }
+
+    function toggleCommandPalette() {
+      const palette = document.getElementById('cmdPalette');
+      if (palette && palette.style.display !== 'none') {
+        closeCommandPalette();
+      } else {
+        openCommandPalette();
+      }
+    }
+
+    function renderCommandPaletteList(query = '') {
+      const listEl = document.getElementById('cmdPaletteList');
+      if (!listEl) return;
+      const q = (query || '').toLowerCase().trim();
+      const all = getAllCommandPaletteItems();
+
+      cmdPaletteFilteredItems = all.filter(item =>
+        !q || item.label.toLowerCase().includes(q) || item.category.toLowerCase().includes(q) || (item.hint && item.hint.toLowerCase().includes(q))
+      );
+
+      if (cmdPaletteActiveIndex >= cmdPaletteFilteredItems.length) {
+        cmdPaletteActiveIndex = Math.max(0, cmdPaletteFilteredItems.length - 1);
+      }
+
+      if (cmdPaletteFilteredItems.length === 0) {
+        listEl.innerHTML = `<div class="cmd-palette-empty">No matching commands or chats found for "${esc(query)}"</div>`;
+        return;
+      }
+
+      let html = '';
+      let lastCategory = null;
+      cmdPaletteFilteredItems.forEach((item, idx) => {
+        if (item.category !== lastCategory) {
+          html += `<div class="cmd-palette-group-title">${esc(item.category)}</div>`;
+          lastCategory = item.category;
+        }
+        const isActive = idx === cmdPaletteActiveIndex;
+        html += `
+          <div class="cmd-palette-item${isActive ? ' active' : ''}" data-idx="${idx}" onclick="executeCommandPaletteItem(${idx})">
+            <span class="cmd-palette-item-icon">${item.icon}</span>
+            <span class="cmd-palette-item-label">${esc(item.label)}</span>
+            ${item.hint ? `<span class="cmd-palette-item-hint">${esc(item.hint)}</span>` : ''}
+          </div>
+        `;
+      });
+      listEl.innerHTML = html;
+
+      const activeEl = listEl.querySelector('.cmd-palette-item.active');
+      if (activeEl) activeEl.scrollIntoView({ block: 'nearest' });
+    }
+
+    function executeCommandPaletteItem(idx) {
+      const item = cmdPaletteFilteredItems[idx];
+      if (item && typeof item.run === 'function') {
+        closeCommandPalette();
+        try { item.run(); } catch (e) { console.error(e); }
+      }
+    }
+
+    const cmdInput = document.getElementById('cmdPaletteInput');
+    if (cmdInput) {
+      cmdInput.addEventListener('input', (e) => {
+        cmdPaletteActiveIndex = 0;
+        renderCommandPaletteList(e.target.value);
+      });
+      cmdInput.addEventListener('keydown', (e) => {
+        if (e.key === 'ArrowDown') {
+          e.preventDefault();
+          if (cmdPaletteFilteredItems.length > 0) {
+            cmdPaletteActiveIndex = (cmdPaletteActiveIndex + 1) % cmdPaletteFilteredItems.length;
+            renderCommandPaletteList(cmdInput.value);
+          }
+        } else if (e.key === 'ArrowUp') {
+          e.preventDefault();
+          if (cmdPaletteFilteredItems.length > 0) {
+            cmdPaletteActiveIndex = (cmdPaletteActiveIndex - 1 + cmdPaletteFilteredItems.length) % cmdPaletteFilteredItems.length;
+            renderCommandPaletteList(cmdInput.value);
+          }
+        } else if (e.key === 'Enter') {
+          e.preventDefault();
+          executeCommandPaletteItem(cmdPaletteActiveIndex);
+        } else if (e.key === 'Escape') {
+          e.preventDefault();
+          closeCommandPalette();
+        }
+      });
+    }
+
     // Initialize defaults
     welcome();
     loadModels(); loadSysTag(); setInterval(loadSysTag, 30000);
@@ -5975,6 +6782,23 @@ async function deleteProvider(pid, name) {
       <div id="updateModalLog" style="display:none; font-family: var(--font-mono); font-size: 11px; text-align: left; padding: 8px 12px; border-radius: 6px; background: color-mix(in oklab, var(--zo-bg) 60%, black); color: var(--accent-red); max-height: 100px; overflow-y: auto; margin-bottom: 14px;"></div>
       <div id="updateModalActions" style="display:none; justify-content: center; gap: 8px;">
         <button class="btn-sm" onclick="closeUpdateModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GLOBAL COMMAND PALETTE (Ctrl+K / Cmd+K) -->
+  <div id="cmdPalette" class="cmd-palette-backdrop" style="display: none;" onclick="if(event.target===this)closeCommandPalette()">
+    <div class="cmd-palette-modal" role="dialog" aria-modal="true" aria-label="Command Palette">
+      <div class="cmd-palette-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" width="17" height="17"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        <input type="text" id="cmdPaletteInput" placeholder="Type a command or search chats..." autocomplete="off" spellcheck="false">
+        <span class="cmd-palette-esc">ESC</span>
+      </div>
+      <div class="cmd-palette-list" id="cmdPaletteList" role="listbox"></div>
+      <div class="cmd-palette-footer">
+        <span><kbd>↑</kbd><kbd>↓</kbd> Navigate</span>
+        <span><kbd>↵</kbd> Select</span>
+        <span><kbd>esc</kbd> Dismiss</span>
       </div>
     </div>
   </div>
