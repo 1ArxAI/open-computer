@@ -795,12 +795,145 @@
     .sb-iconbtn { width: 32px; height: 32px; flex: none; display: flex; align-items: center; justify-content: center; padding: 0; border-radius: 10px; border: 1px solid transparent; background: transparent; color: color-mix(in oklab, var(--zo-fg-muted) 70%, transparent); cursor: pointer; }
     .sb-iconbtn:hover { background: var(--hover); color: var(--zo-fg); }
     .sb-iconbtn svg { width: 18px; height: 18px; }
-    .sb-search { display: flex; align-items: center; gap: 4px; padding: 6px 8px 6px 0; }
+    .sb-search { display: flex; align-items: center; gap: 6px; padding: 6px 8px 6px 0; }
     .sb-search .sb-search-box { flex: 1; min-width: 0; }
-    .sb-iconbtn.active { background: color-mix(in oklab, var(--zo-primary) 18%, transparent); color: var(--zo-primary); }
-    .sb-batch-bar { display: flex; align-items: center; justify-content: space-between; padding: 6px 8px; margin: 0 8px 6px 0; border-radius: 8px; background: color-mix(in oklab, var(--zo-muted) 40%, transparent); border: 1px solid var(--border); font-size: 12px; }
-    .chat-select-check { width: 15px; height: 15px; margin: 0 4px 0 2px; accent-color: var(--zo-primary); cursor: pointer; flex-shrink: 0; }
-    .chat-history-item.selected, .chats-row.selected { background: color-mix(in oklab, var(--zo-primary) 14%, transparent) !important; }
+    .sb-iconbtn.active { background: color-mix(in oklab, var(--zo-primary) 18%, transparent); color: var(--zo-primary); border-color: color-mix(in oklab, var(--zo-primary) 35%, transparent); }
+    
+    /* Custom sleek checkbox */
+    .zo-check {
+      width: 17px;
+      height: 17px;
+      border-radius: 5px;
+      border: 1.5px solid color-mix(in oklab, var(--zo-fg-muted) 38%, transparent);
+      background: transparent;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+      margin-right: 6px;
+    }
+    .zo-check:hover {
+      border-color: var(--zo-primary);
+      background: color-mix(in oklab, var(--zo-primary) 8%, transparent);
+    }
+    .zo-check.checked {
+      background: var(--zo-primary);
+      border-color: var(--zo-primary);
+      color: #fff;
+    }
+    .zo-check svg {
+      width: 11px;
+      height: 11px;
+      stroke: currentColor;
+      stroke-width: 2.4;
+      display: block;
+      opacity: 0;
+      transform: scale(0.5);
+      transition: all 0.14s ease;
+    }
+    .zo-check.checked svg {
+      opacity: 1;
+      transform: scale(1);
+    }
+
+    /* Selected states with refined accent glow */
+    .chat-history-item {
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .chat-history-item.selected {
+      background: color-mix(in oklab, var(--zo-primary) 14%, transparent) !important;
+      color: var(--zo-fg) !important;
+    }
+    .chats-row {
+      position: relative;
+      border: 1px solid transparent;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .chats-row.selected {
+      background: color-mix(in oklab, var(--zo-primary) 10%, transparent) !important;
+      border-color: color-mix(in oklab, var(--zo-primary) 28%, transparent);
+    }
+
+    /* Sidebar batch pill bar */
+    .sb-batch-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 5px 8px 5px 10px;
+      margin: 0 8px 6px 0;
+      border-radius: 9px;
+      background: color-mix(in oklab, var(--zo-muted) 65%, transparent);
+      border: 1px solid color-mix(in oklab, var(--zo-border) 45%, transparent);
+      font-size: 12px;
+      animation: sbSlideDown 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes sbSlideDown {
+      from { opacity: 0; transform: translateY(-4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .sb-batch-count {
+      font-weight: 500;
+      font-size: 12px;
+      color: var(--zo-fg);
+    }
+    .sb-batch-del {
+      height: 24px;
+      padding: 0 8px;
+      border-radius: 6px;
+      border: 1px solid rgba(239, 68, 68, 0.25);
+      background: rgba(239, 68, 68, 0.08);
+      color: #ef4444;
+      font-size: 11.5px;
+      font-weight: 600;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      transition: all 0.15s ease;
+    }
+    .sb-batch-del:hover:not(:disabled) {
+      background: #ef4444;
+      color: #fff;
+    }
+    .sb-batch-del:disabled {
+      opacity: 0.38;
+      cursor: default;
+    }
+
+    /* Floating batch action capsule for All Chats view */
+    .chats-floating-bar {
+      position: absolute;
+      bottom: 24px;
+      left: 50%;
+      transform: translateX(-50%) translateY(0);
+      z-index: 50;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      background: var(--zo-card);
+      border: 1px solid color-mix(in oklab, var(--zo-border) 80%, transparent);
+      box-shadow: 0 10px 32px rgba(0, 0, 0, 0.36), 0 0 0 1px rgba(255,255,255,0.06);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      animation: floatSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes floatSlideUp {
+      from { opacity: 0; transform: translateX(-50%) translateY(14px); }
+      to { opacity: 1; transform: translateX(-50%) translateY(0); }
+    }
+    .chats-batch-badge {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--zo-primary);
+      padding: 2px 8px;
+      border-radius: 999px;
+      background: color-mix(in oklab, var(--zo-primary) 12%, transparent);
+      white-space: nowrap;
+    }
     .sb-search-box { display: flex; align-items: center; gap: 6px; height: 32px; padding: 5px 10px; border-radius: 10px; border: 1px solid var(--zo-border); background: color-mix(in oklab, var(--zo-bg) 60%, transparent); color: var(--zo-fg-muted); cursor: text; }
     .sb-search-box svg { width: 16px; height: 16px; flex: none; }
     .sb-search-box input { flex: 1; min-width: 0; background: transparent; border: none; outline: none; color: var(--zo-fg); font-size: 13px; }
@@ -1444,10 +1577,13 @@
       </button>
     </div>
     <div id="sidebarBatchBar" class="sb-batch-bar" style="display: none;">
-      <span id="sidebarSelectedCount" style="color: var(--zo-fg-muted);">0 selected</span>
+      <span class="sb-batch-count" id="sidebarSelectedCount">0 selected</span>
       <div style="display: flex; gap: 6px; align-items: center;">
-        <button type="button" class="sb-viewall" onclick="selectAllSidebarChats()">All</button>
-        <button type="button" class="sb-viewall" id="btnSidebarDeleteBatch" onclick="batchDeleteSidebarChats()" style="color: #ef4444; font-weight: 600;" disabled>Delete</button>
+        <button type="button" class="sb-viewall" id="btnSidebarSelectAll" onclick="selectAllSidebarChats()">All</button>
+        <button type="button" class="sb-batch-del" id="btnSidebarDeleteBatch" onclick="batchDeleteSidebarChats()" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="12" height="12"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span id="btnSidebarDeleteBatchText">Delete</span>
+        </button>
         <button type="button" class="sb-viewall" onclick="toggleSidebarSelectMode(false)">Done</button>
       </div>
     </div>
@@ -1511,21 +1647,33 @@
     </section>
 
     <!-- VIEW: ALL CHATS -->
-    <section class="tab-content" id="content-chats" style="padding: 0; flex-direction: column; overflow: hidden;">
+    <section class="tab-content" id="content-chats" style="padding: 0; flex-direction: column; overflow: hidden; position: relative;">
       <div class="pg-head" style="display: flex; align-items: center; justify-content: space-between;">
         <div><div class="pg-title">Chats</div><div class="pg-sub" id="chatsCount"></div></div>
         <div class="chats-head-actions" style="display: flex; align-items: center; gap: 8px;">
-          <button type="button" class="zo-btn" id="btnToggleChatsSelect" onclick="toggleChatsSelectMode()">Select</button>
-          <div id="chatsBatchBar" style="display: none; align-items: center; gap: 8px;">
-            <span id="chatsSelectedCount" style="font-size: 13px; font-weight: 500; color: var(--zo-fg-muted);">0 selected</span>
-            <button type="button" class="zo-btn" id="btnSelectAllChats" onclick="selectAllChatsView()">Select all</button>
-            <button type="button" class="zo-btn" id="btnDeleteSelectedChats" onclick="deleteSelectedChatsView()" style="color: #ef4444; border-color: rgba(239, 68, 68, 0.4);" disabled>Delete selected</button>
-            <button type="button" class="zo-btn" onclick="toggleChatsSelectMode(false)">Done</button>
-          </div>
+          <button type="button" class="zo-pill" id="btnToggleChatsSelect" onclick="toggleChatsSelectMode()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="m9 12 2 2 4-4"/></svg>
+            <span id="btnToggleChatsSelectText">Select</span>
+          </button>
         </div>
       </div>
       <div class="pg-search"><label class="zo-search"><svg viewBox="0 0 24 24" fill="none" width="16" height="16" aria-hidden="true"><path d="M17 17L21 21" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path><path d="M19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19C15.4183 19 19 15.4183 19 11Z" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"></path></svg><input type="search" id="chatsSearch" placeholder="Search chats" oninput="renderChatsView()" aria-label="Search chats"></label></div>
       <div class="chats-list" id="chatsList"></div>
+
+      <!-- FLOATING BATCH ACTIONS CAPSULE -->
+      <div id="chatsBatchBar" class="chats-floating-bar" style="display: none;">
+        <span class="chats-batch-badge" id="chatsSelectedCount">0 selected</span>
+        <div style="height: 18px; width: 1px; background: color-mix(in oklab, var(--zo-border) 70%, transparent);"></div>
+        <button type="button" class="zo-pill" id="btnSelectAllChats" onclick="selectAllChatsView()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="m5 12 5 5L20 7"/></svg>
+          <span id="btnSelectAllChatsText">Select all</span>
+        </button>
+        <button type="button" class="zo-pill zo-danger" id="btnDeleteSelectedChats" onclick="deleteSelectedChatsView()" disabled>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+          <span id="btnDeleteSelectedChatsText">Delete</span>
+        </button>
+        <button type="button" class="zo-pill" onclick="toggleChatsSelectMode(false)">Done</button>
+      </div>
     </section>
 
     <!-- VIEW 1: TERMINAL (Native Arch Linux PTY via xterm.js) -->
@@ -2112,15 +2260,24 @@
       const countEl = document.getElementById('sidebarSelectedCount');
       if (countEl) countEl.textContent = sidebarSelectedChats.size + ' selected';
       const delBtn = document.getElementById('btnSidebarDeleteBatch');
-      if (delBtn) delBtn.disabled = sidebarSelectedChats.size === 0;
+      if (delBtn) {
+        delBtn.disabled = sidebarSelectedChats.size === 0;
+        const txt = document.getElementById('btnSidebarDeleteBatchText');
+        if (txt) txt.textContent = sidebarSelectedChats.size ? `Delete (${sidebarSelectedChats.size})` : 'Delete';
+      }
     }
 
-    function onSidebarChatCheck(id, checked) {
+    function onSidebarChatCheck(id, forceChecked) {
+      const checked = typeof forceChecked === 'boolean' ? forceChecked : !sidebarSelectedChats.has(id);
       if (checked) sidebarSelectedChats.add(id);
       else sidebarSelectedChats.delete(id);
       updateSidebarBatchUI();
       const el = document.querySelector(`.chat-history-item[data-id="${id}"]`);
-      if (el) el.classList.toggle('selected', checked);
+      if (el) {
+        el.classList.toggle('selected', checked);
+        const check = el.querySelector('.zo-check');
+        if (check) check.classList.toggle('checked', checked);
+      }
     }
 
     function selectAllSidebarChats() {
@@ -2140,7 +2297,7 @@
     async function batchDeleteSidebarChats() {
       const ids = Array.from(sidebarSelectedChats);
       if (!ids.length) return;
-      if (!confirm('Delete ' + ids.length + ' selected chat' + (ids.length === 1 ? '' : 's') + '?')) return;
+      if (!confirm(`Delete ${ids.length} selected chat${ids.length === 1 ? '' : 's'}?`)) return;
       try {
         const res = await api('/api/conversations/batch-delete', {
           method: 'POST',
@@ -2149,13 +2306,15 @@
         });
         const d = await res.json();
         if (!res.ok) throw new Error(d.detail || res.status);
+        const count = d.count || ids.length;
         sidebarSelectedChats.clear();
         toggleSidebarSelectMode(false);
         if (ids.includes(currentConversationId)) newChat();
         else await renderSidebarChatHistory();
         if (document.getElementById('content-chats').classList.contains('active')) renderChatsView();
+        notify(`${count} chat${count === 1 ? '' : 's'} moved to Recycle Bin`);
       } catch (e) {
-        notify('Could not delete chats: ' + e.message);
+        notify('Could not delete chats: ' + e.message, 'error');
       }
     }
 
@@ -2173,12 +2332,43 @@
       const q = (document.getElementById('sidebarChatSearch').value || '').trim();
       (q ? threads : threads.slice(0, SIDEBAR_CHAT_LIMIT)).forEach((c, idx) => {
         const g = chatGroupLabel(c.updated);
-        if (g !== last) { const h = document.createElement('div'); h.className = 'sb-group'; h.textContent = g; if (idx === 0 && threads.length > SIDEBAR_CHAT_LIMIT) { const a = document.createElement('button'); a.className = 'sb-viewall'; a.textContent = 'View all'; a.onclick = openChatsView; h.appendChild(a); } container.appendChild(h); last = g; }
+        if (g !== last) {
+          const h = document.createElement('div');
+          h.className = 'sb-group';
+          const labelSpan = document.createElement('span');
+          labelSpan.textContent = g;
+          h.appendChild(labelSpan);
+          if (idx === 0) {
+            const actionsWrap = document.createElement('div');
+            actionsWrap.style.display = 'flex';
+            actionsWrap.style.gap = '8px';
+            actionsWrap.style.alignItems = 'center';
+
+            const selBtn = document.createElement('button');
+            selBtn.className = 'sb-viewall';
+            selBtn.textContent = sidebarSelectMode ? 'Done' : 'Select';
+            selBtn.onclick = () => toggleSidebarSelectMode();
+            actionsWrap.appendChild(selBtn);
+
+            if (threads.length > SIDEBAR_CHAT_LIMIT) {
+              const a = document.createElement('button');
+              a.className = 'sb-viewall';
+              a.textContent = 'View all';
+              a.onclick = openChatsView;
+              actionsWrap.appendChild(a);
+            }
+            h.appendChild(actionsWrap);
+          }
+          container.appendChild(h);
+          last = g;
+        }
+
         const isSelected = sidebarSelectedChats.has(c.id);
-        const checkHtml = sidebarSelectMode ? `<input type="checkbox" class="chat-select-check" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); onSidebarChatCheck('${c.id}', this.checked)">` : '';
+        const checkHtml = sidebarSelectMode ? `<span class="zo-check${isSelected ? ' checked' : ''}"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7"/></svg></span>` : '';
         const item = document.createElement('div');
         item.className = 'chat-history-item' + (c.id === currentConversationId ? ' active' : '') + (isSelected ? ' selected' : '') + (activeRuns.some(r => r.conversation_id === c.id) ? ' running' : '');
-        item.dataset.id = c.id; item.title = c.title;
+        item.dataset.id = c.id;
+        item.title = c.title;
         item.draggable = !sidebarSelectMode;
         if (!sidebarSelectMode) item.ondragstart = (e) => dragRef(e, { type: 'chat', id: c.id, name: c.title || 'Untitled' });
         item.innerHTML = `${checkHtml}${sourceBadge(c)}<span class="chi-title">${esc(c.title)}</span><button class="chi-del" title="Delete chat" aria-label="Delete chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`;
@@ -2186,10 +2376,7 @@
           if (e.target.closest('.chi-del')) {
             deleteChat(c.id, c.title);
           } else if (sidebarSelectMode) {
-            const nextChecked = !sidebarSelectedChats.has(c.id);
-            onSidebarChatCheck(c.id, nextChecked);
-            const cb = item.querySelector('.chat-select-check');
-            if (cb) cb.checked = nextChecked;
+            onSidebarChatCheck(c.id);
           } else {
             openConversation(c.id);
           }
@@ -2220,32 +2407,43 @@
       chatsSelectMode = typeof enable === 'boolean' ? enable : !chatsSelectMode;
       if (!chatsSelectMode) chatsSelected.clear();
       const bar = document.getElementById('chatsBatchBar');
+      const toggleBtnText = document.getElementById('btnToggleChatsSelectText');
       const toggleBtn = document.getElementById('btnToggleChatsSelect');
       if (bar) bar.style.display = chatsSelectMode ? 'flex' : 'none';
-      if (toggleBtn) toggleBtn.style.display = chatsSelectMode ? 'none' : 'inline-flex';
+      if (toggleBtnText) toggleBtnText.textContent = chatsSelectMode ? 'Cancel' : 'Select';
+      if (toggleBtn) toggleBtn.classList.toggle('zo-primary', chatsSelectMode);
       updateChatsViewBatchUI();
       renderChatsView();
     }
 
     function updateChatsViewBatchUI() {
       const countEl = document.getElementById('chatsSelectedCount');
-      if (countEl) countEl.textContent = chatsSelected.size + ' selected';
+      if (countEl) countEl.textContent = `${chatsSelected.size} selected`;
       const delBtn = document.getElementById('btnDeleteSelectedChats');
       if (delBtn) {
         delBtn.disabled = chatsSelected.size === 0;
-        delBtn.textContent = 'Delete selected' + (chatsSelected.size ? ' (' + chatsSelected.size + ')' : '');
+        const delText = document.getElementById('btnDeleteSelectedChatsText');
+        if (delText) delText.textContent = chatsSelected.size ? `Delete (${chatsSelected.size})` : 'Delete';
+      }
+      const allText = document.getElementById('btnSelectAllChatsText');
+      const list = document.getElementById('chatsList');
+      if (allText && list) {
+        const rows = list.querySelectorAll('.chats-row');
+        const allAlready = rows.length > 0 && Array.from(rows).every(el => chatsSelected.has(el.dataset.id));
+        allText.textContent = allAlready ? 'Deselect all' : 'Select all';
       }
     }
 
-    function onChatsViewRowCheck(id, checked) {
+    function onChatsViewRowCheck(id, forceChecked) {
+      const checked = typeof forceChecked === 'boolean' ? forceChecked : !chatsSelected.has(id);
       if (checked) chatsSelected.add(id);
       else chatsSelected.delete(id);
       updateChatsViewBatchUI();
       const row = document.querySelector(`.chats-row[data-id="${id}"]`);
       if (row) {
         row.classList.toggle('selected', checked);
-        const cb = row.querySelector('.chat-select-check');
-        if (cb) cb.checked = checked;
+        const check = row.querySelector('.zo-check');
+        if (check) check.classList.toggle('checked', checked);
       }
     }
 
@@ -2266,7 +2464,7 @@
     async function deleteSelectedChatsView() {
       const ids = Array.from(chatsSelected);
       if (!ids.length) return;
-      if (!confirm('Delete ' + ids.length + ' selected chat' + (ids.length === 1 ? '' : 's') + '?')) return;
+      if (!confirm(`Delete ${ids.length} selected chat${ids.length === 1 ? '' : 's'}?`)) return;
       try {
         const res = await api('/api/conversations/batch-delete', {
           method: 'POST',
@@ -2275,13 +2473,15 @@
         });
         const d = await res.json();
         if (!res.ok) throw new Error(d.detail || res.status);
+        const count = d.count || ids.length;
         chatsSelected.clear();
         toggleChatsSelectMode(false);
         if (ids.includes(currentConversationId)) newChat();
         await renderSidebarChatHistory();
         renderChatsView();
+        notify(`${count} chat${count === 1 ? '' : 's'} moved to Recycle Bin`);
       } catch (e) {
-        notify('Could not delete chats: ' + e.message);
+        notify('Could not delete chats: ' + e.message, 'error');
       }
     }
 
@@ -2299,16 +2499,21 @@
         const g = chatGroupLabel(c.updated);
         if (g !== last) { const h = document.createElement('div'); h.className = 'chats-group'; h.textContent = g; list.appendChild(h); last = g; }
         const isSelected = chatsSelected.has(c.id);
-        const checkHtml = chatsSelectMode ? `<input type="checkbox" class="chat-select-check" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); onChatsViewRowCheck('${c.id}', this.checked)">` : '';
-        const row = document.createElement('div'); row.className = 'chats-row' + (c.id === currentConversationId ? ' active' : '') + (isSelected ? ' selected' : '') + (activeRuns.some(r => r.conversation_id === c.id) ? ' running' : ''); row.dataset.id = c.id; row.setAttribute('role', 'button'); row.tabIndex = 0;
-        const when = new Date(c.updated); const time = isNaN(when) ? '' : when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
+        const checkHtml = chatsSelectMode ? `<span class="zo-check${isSelected ? ' checked' : ''}"><svg viewBox="0 0 24 24" fill="none"><path d="M5 12l5 5L20 7"/></svg></span>` : '';
+        const row = document.createElement('div');
+        row.className = 'chats-row' + (c.id === currentConversationId ? ' active' : '') + (isSelected ? ' selected' : '') + (activeRuns.some(r => r.conversation_id === c.id) ? ' running' : '');
+        row.dataset.id = c.id;
+        row.setAttribute('role', 'button');
+        row.tabIndex = 0;
+        const when = new Date(c.updated);
+        const time = isNaN(when) ? '' : when.toLocaleTimeString(undefined, { hour: 'numeric', minute: '2-digit' });
         row.innerHTML = `${checkHtml}<span class="chats-title">${esc(c.title || 'Untitled chat')}</span>${badge}<span class="chats-time">${esc(time)}</span><button class="chi-del zo-iconbtn" title="Delete chat" aria-label="Delete chat"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg></button>`;
         const open = () => { openConversation(c.id); toggleChatPanel(false); };
         row.onclick = (e) => {
           if (e.target.closest('.chi-del')) {
             deleteChat(c.id, c.title);
           } else if (chatsSelectMode) {
-            onChatsViewRowCheck(c.id, !chatsSelected.has(c.id));
+            onChatsViewRowCheck(c.id);
           } else {
             open();
           }
@@ -2316,7 +2521,7 @@
         row.onkeydown = (e) => {
           if (e.key === 'Enter' || e.key === ' ') {
             e.preventDefault();
-            if (chatsSelectMode) onChatsViewRowCheck(c.id, !chatsSelected.has(c.id));
+            if (chatsSelectMode) onChatsViewRowCheck(c.id);
             else open();
           }
         };
