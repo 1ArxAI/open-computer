@@ -33,6 +33,7 @@ from pydantic import BaseModel
 import httpx
 
 app = FastAPI(title="Open Computer", version="3.0.0")
+ENV_PATH = agent.HOME / ".env"
 SU_TOKEN = agent.env().get("SU_TOKEN", "").strip()
 _DEFAULT_ORIGINS = ",".join(o for o in ("http://localhost:8000", "http://127.0.0.1:8000", agent.env().get("SU_PUBLIC_URL", "").rstrip("/")) if o)
 LOGIN_USER = agent.env().get("SU_LOGIN_USER", getpass.getuser())  # the Linux user the gateway runs as
@@ -42,11 +43,70 @@ _session_secret = agent.env().get("SU_SESSION_SECRET") or ""
 if not _session_secret:
     _session_secret = _secrets.token_urlsafe(32)
     try:  # persist so sessions survive restarts
-        with open(agent.HOME / ".env", "a", encoding="utf-8") as _f:
+        with open(ENV_PATH, "a", encoding="utf-8") as _f:
             _f.write(f"SU_SESSION_SECRET={_session_secret}\n")
     except Exception:
         pass
 _failed_logins: Dict[str, List[float]] = {}
+
+
+def _env_value(key: str) -> Optional[str]:
+    if not ENV_PATH.exists():
+        return None
+    for line in ENV_PATH.read_text(encoding="utf-8").splitlines():
+        s = line.strip()
+        if s and not s.startswith("#") and "=" in s and s.split("=", 1)[0].strip() == key:
+            return s.split("=", 1)[1].strip().strip('"').strip("'")
+    return None
+
+
+def _get_allowed_users() -> set:
+    raw = _env_value("SU_ALLOWED_USERS")
+    if raw is None:
+        raw = agent.env().get("SU_ALLOWED_USERS", "")
+    users = {u.strip() for u in raw.split(",") if u.strip()}
+    if LOGIN_USER:
+        users.add(LOGIN_USER)
+    return users
+
+
+def _save_allowed_users(users: List[str]):
+    additional = [u.strip() for u in users if u.strip() and u.strip() != LOGIN_USER]
+    val = ",".join(sorted(set(additional)))
+    lines = []
+    updated = False
+    if ENV_PATH.exists():
+        with open(ENV_PATH, "r", encoding="utf-8") as f:
+            for line in f:
+                stripped = line.strip()
+                if stripped and not stripped.startswith("#") and "=" in stripped:
+                    existing_key = stripped.split("=", 1)[0].strip()
+                    if existing_key == "SU_ALLOWED_USERS":
+                        lines.append(f"SU_ALLOWED_USERS={val}\n")
+                        updated = True
+                        continue
+                lines.append(line)
+    if not updated:
+        lines.append(f"SU_ALLOWED_USERS={val}\n")
+    with open(ENV_PATH, "w", encoding="utf-8") as f:
+        f.writelines(lines)
+
+
+def _get_detected_system_users() -> List[Dict[str, Any]]:
+    system_users = []
+    try:
+        for p in pwd.getpwall():
+            if 1000 <= p.pw_uid < 65534 and not (p.pw_shell.endswith("nologin") or p.pw_shell.endswith("false")):
+                system_users.append({
+                    "username": p.pw_name,
+                    "uid": p.pw_uid,
+                    "shell": p.pw_shell,
+                    "gecos": (p.pw_gecos or "").split(",")[0],
+                })
+        system_users.sort(key=lambda u: u["username"])
+    except Exception:
+        pass
+    return system_users
 
 
 def _client_ip(request: Request) -> str:
@@ -95,7 +155,10 @@ def _set_session_cookie(resp, request: Request, value: str, max_age: int):
 def is_authed(request: Request) -> bool:
     if SU_TOKEN and hmac.compare_digest(request.headers.get("authorization", ""), f"Bearer {SU_TOKEN}"):
         return True
-    return bool(verify_session(request.cookies.get("su_session")))
+    user = verify_session(request.cookies.get("su_session"))
+    if not user:
+        return False
+    return user in _get_allowed_users()
 
 
 LOGIN_HTML = """<!doctype html><html lang=en><head><meta charset=utf-8><meta name=viewport content="width=device-width,initial-scale=1"><title>Sign in · Open Computer</title>
@@ -165,7 +228,8 @@ async def auth_login(body: LoginBody, request: Request):
     if _pam is None:
         raise HTTPException(503, "Password login unavailable on this server (python-pam missing).")
     user = body.username.strip()
-    ok = user == LOGIN_USER and _pam.pam().authenticate(user, body.password, service="login")
+    allowed = _get_allowed_users()
+    ok = (user in allowed) and _pam.pam().authenticate(user, body.password, service="login")
     if not ok:
         _failed_logins[ip].append(now)
         await asyncio.sleep(1)
@@ -201,6 +265,65 @@ async def auth_ping(request: Request):
     if not is_authed(request):
         raise HTTPException(status_code=401, detail="Unauthorized")
     return {"ok": True, "idle_timeout": SESSION_IDLE}
+
+
+class UserRequest(BaseModel):
+    username: str
+
+
+@app.get("/api/users")
+async def get_users(request: Request):
+    if not is_authed(request):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    current_u = verify_session(request.cookies.get("su_session")) or ("token" if is_authed(request) else "unknown")
+    allowed = _get_allowed_users()
+    addl = sorted(list(allowed - {LOGIN_USER}))
+    all_allowed = sorted(list(allowed))
+    sys_users = _get_detected_system_users()
+    return {
+        "owner": LOGIN_USER,
+        "allowed_users": addl,
+        "all_allowed": all_allowed,
+        "system_users": sys_users,
+        "current_user": current_u,
+    }
+
+
+@app.post("/api/users")
+async def add_user(body: UserRequest, request: Request):
+    if not is_authed(request):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    u = body.username.strip()
+    if not u:
+        raise HTTPException(status_code=400, detail="Username is required")
+    if not re.match(r"^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*\$?$", u):
+        raise HTTPException(status_code=400, detail="Invalid username format")
+    try:
+        pwd.getpwnam(u)
+    except KeyError:
+        raise HTTPException(status_code=400, detail=f"User '{u}' does not exist on this Ubuntu system")
+    allowed = _get_allowed_users()
+    if u in allowed:
+        return {"ok": True, "message": f"User '{u}' is already allowed", "allowed_users": sorted(list(allowed - {LOGIN_USER}))}
+    addl = list(allowed - {LOGIN_USER})
+    addl.append(u)
+    _save_allowed_users(addl)
+    return {"ok": True, "message": f"User '{u}' granted access", "allowed_users": sorted(addl)}
+
+
+@app.post("/api/users/delete")
+async def revoke_user(body: UserRequest, request: Request):
+    if not is_authed(request):
+        raise HTTPException(status_code=401, detail="Unauthorized")
+    u = body.username.strip()
+    if not u:
+        raise HTTPException(status_code=400, detail="Username is required")
+    if u == LOGIN_USER:
+        raise HTTPException(status_code=400, detail=f"Cannot revoke access for primary gateway owner '{LOGIN_USER}'")
+    allowed = _get_allowed_users()
+    addl = [user for user in (allowed - {LOGIN_USER}) if user != u]
+    _save_allowed_users(addl)
+    return {"ok": True, "message": f"Revoked access for '{u}'", "allowed_users": sorted(addl)}
 
 
 def _channel_run(conv, kind, coro_factory):
@@ -1276,15 +1399,6 @@ def parse_env_file() -> List[Dict[str, str]]:
                 })
     return secrets
 
-
-def _env_value(key: str) -> Optional[str]:
-    if not ENV_PATH.exists():
-        return None
-    for line in ENV_PATH.read_text(encoding="utf-8").splitlines():
-        s = line.strip()
-        if s and not s.startswith("#") and "=" in s and s.split("=", 1)[0].strip() == key:
-            return s.split("=", 1)[1].strip().strip('"').strip("'")
-    return None
 
 @app.get("/api/secrets")
 async def get_secrets():

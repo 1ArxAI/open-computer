@@ -2747,6 +2747,7 @@
             <button class="settings-nav-item" id="snav-agent" onclick="switchSettingsSubTab('agent')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg><span>Agent</span></button>
             <button class="settings-nav-item" id="snav-keys" onclick="switchSettingsSubTab('keys')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.85 12.15 19 4l2 2-3 3-2-2-2 2 2 2-1.5 1.5"/></svg><span>Keys</span></button>
             <button class="settings-nav-item" id="snav-system" onclick="switchSettingsSubTab('system')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M12 20h9"/><path d="M4 4h16v10H4z"/><path d="M8 20l4-6 4 6"/></svg><span>System</span></button>
+            <button class="settings-nav-item" id="snav-users" onclick="switchSettingsSubTab('users')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Users</span></button>
           </div>
         </div>
 
@@ -2937,6 +2938,33 @@
           <div class="settings-section-subtitle" style="font-weight: 600; color: var(--zo-fg);">Inbound channels</div>
           <div class="settings-section-subtitle">Inbound channels: email __AGENT_NAME__ or call it while you are away. Automations with Notify use email.</div>
           <div id="channelsList" class="chan-list"><div class="pg-empty">Loading…</div></div>
+        </div>
+
+        <div class="settings-subtab-pane" id="spane-users">
+          <div class="settings-section-title"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="18" height="18" aria-hidden="true"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg><span>Users &amp; Access</span></div>
+          <div class="settings-section-subtitle">Manage which Linux system accounts can sign into this Open Computer instance. Users authenticate with their Ubuntu username and password via PAM.</div>
+
+          <div class="int-notice" style="margin-bottom: 20px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 8v4"/><path d="M12 16h.01"/></svg>
+            <div><strong>Shared Instance Model:</strong> Allowed users log in using their own Ubuntu system credentials. All users share the same workspace, conversation history, and tools. Shell operations execute under the gateway service account.</div>
+          </div>
+
+          <div class="settings-section-subtitle" style="font-weight: 600; color: var(--zo-fg); margin-bottom: 8px;">Allowed Users</div>
+          <div id="usersListContainer" class="zo-list" style="margin-bottom: 24px;">
+            <div class="pg-empty">Loading users…</div>
+          </div>
+
+          <div class="settings-section-subtitle" style="font-weight: 600; color: var(--zo-fg); margin-bottom: 8px;">Grant Access to an Ubuntu User</div>
+          <div style="background: color-mix(in oklab, var(--zo-muted) 40%, transparent); border: 1px solid var(--border); border-radius: 10px; padding: 14px; margin-bottom: 20px;">
+            <div style="display: flex; gap: 10px; width: 100%; align-items: center;">
+              <input type="text" id="newUsernameInput" class="zo-input" placeholder="Ubuntu username (e.g. adminuser)" style="flex: 1; height: 36px;" onkeydown="if(event.key==='Enter') grantUserAccess()">
+              <button type="button" class="zo-btn-primary" onclick="grantUserAccess()" style="white-space: nowrap; height: 36px; padding: 0 16px; cursor: pointer;">Allow User</button>
+            </div>
+            <div id="detectedUsersContainer" style="display: none; align-items: center; gap: 8px; flex-wrap: wrap; font-size: 12px; color: var(--zo-fg-muted); margin-top: 10px;">
+              <span>Detected Ubuntu users on host:</span>
+              <span id="detectedUserChips" style="display: inline-flex; gap: 6px; flex-wrap: wrap;"></span>
+            </div>
+          </div>
         </div>
 
       </div>
@@ -4427,10 +4455,10 @@
       switchSettingsSubTab(subtab);
     }
 
-    const SETTINGS_TAB_ALIAS = { profile: 'system', ai: 'models', channels: 'system', tools: 'keys', ux: 'system', advanced: 'keys' };  // older links still land somewhere sensible
+    const SETTINGS_TAB_ALIAS = { profile: 'system', ai: 'models', channels: 'system', tools: 'keys', ux: 'system', advanced: 'keys', users: 'users', access: 'users' };  // older links still land somewhere sensible
     function switchSettingsSubTab(sub) {
       sub = SETTINGS_TAB_ALIAS[sub] || sub;
-      const tabs = ['models', 'agent', 'keys', 'system'];
+      const tabs = ['models', 'agent', 'keys', 'system', 'users'];
       if (!tabs.includes(sub)) sub = 'models';
       tabs.forEach(t => {
         const btn = document.getElementById('snav-' + t);
@@ -4442,6 +4470,7 @@
       if (sub === 'agent') { loadRules(); loadRuleItems(); loadMemory(); }
       if (sub === 'keys') loadAdvSecrets();
       if (sub === 'system') { checkSystemUpdates(false); loadChannels(); renderAppearance(); }
+      if (sub === 'users') loadAllowedUsers();
     }
     async function loadSearchStatus() {
       const st = document.getElementById('searchStatus'); if (!st) return;
@@ -4531,6 +4560,154 @@
           <div class="chan-keys">${keyChips}</div>`;
         el.appendChild(card);
       });
+    }
+
+    // ------------------------------------------------ Users & Access
+    let _usersData = { owner: '', allowed_users: [], all_allowed: [], system_users: [], current_user: '' };
+
+    async function loadAllowedUsers() {
+      const container = document.getElementById('usersListContainer');
+      const detContainer = document.getElementById('detectedUsersContainer');
+      const detChips = document.getElementById('detectedUserChips');
+      if (!container) return;
+
+      try {
+        const data = await fetchJson('/api/users');
+        _usersData = data;
+        renderAllowedUsersList(data);
+      } catch (err) {
+        container.innerHTML = `<div class="pg-empty" style="color:var(--accent-red);">Failed to load users: ${esc(err.message)}</div>`;
+      }
+    }
+
+    function renderAllowedUsersList(data) {
+      const container = document.getElementById('usersListContainer');
+      const detContainer = document.getElementById('detectedUsersContainer');
+      const detChips = document.getElementById('detectedUserChips');
+      if (!container) return;
+
+      let html = '';
+
+      // 1. Primary Owner Row
+      const isCurrentOwner = data.current_user === data.owner;
+      html += `
+        <div class="zo-list-row">
+          <div style="display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--zo-muted); color:var(--zo-fg-muted); flex:none;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+          </div>
+          <div class="zo-list-label">
+            <div style="display:flex; align-items:center; gap:6px;">
+              <span style="font-weight:600; color:var(--zo-fg);">${esc(data.owner)}</span>
+              <span class="prov-badge" style="background:var(--zo-primary); color:#fff; font-weight:500;">Owner</span>
+              ${isCurrentOwner ? '<span class="prov-badge" style="background:var(--zo-muted); color:var(--zo-fg-muted);">You</span>' : ''}
+            </div>
+            <div class="zo-list-sub">Primary gateway owner &amp; host service account (permanent)</div>
+          </div>
+          <div style="font-size:12px; color:var(--zo-fg-muted); display:flex; align-items:center; gap:4px; padding-right:4px;">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+            Permanent
+          </div>
+        </div>
+      `;
+
+      // 2. Additional Allowed Users
+      const allowed = data.allowed_users || [];
+      if (allowed.length === 0) {
+        html += `
+          <div style="padding:16px; font-size:13px; color:var(--zo-fg-muted); text-align:center;">
+            No additional users configured. Only <strong>${esc(data.owner)}</strong> currently has access.
+          </div>
+        `;
+      } else {
+        allowed.forEach(u => {
+          const isYou = data.current_user === u;
+          const sys = (data.system_users || []).find(s => s.username === u);
+          const detail = sys ? `Ubuntu user (UID ${sys.uid}${sys.gecos ? ' · ' + sys.gecos : ''})` : 'Linux PAM user';
+          html += `
+            <div class="zo-list-row">
+              <div style="display:flex; align-items:center; justify-content:center; width:32px; height:32px; border-radius:50%; background:var(--zo-muted); color:var(--zo-fg-muted); flex:none;">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="16" height="16"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+              </div>
+              <div class="zo-list-label">
+                <div style="display:flex; align-items:center; gap:6px;">
+                  <span style="font-weight:600; color:var(--zo-fg);">${esc(u)}</span>
+                  <span class="prov-badge" style="background:var(--accent-green); color:#fff; font-weight:500;">Allowed</span>
+                  ${isYou ? '<span class="prov-badge" style="background:var(--zo-muted); color:var(--zo-fg-muted);">You</span>' : ''}
+                </div>
+                <div class="zo-list-sub">${esc(detail)}</div>
+              </div>
+              <div>
+                <button type="button" class="zo-pill zo-danger" onclick="revokeUserAccess(${jsq(u)})" title="Revoke access for ${esc(u)}">Revoke</button>
+              </div>
+            </div>
+          `;
+        });
+      }
+      container.innerHTML = html;
+
+      // 3. Render detected host candidates not yet allowed
+      if (detContainer && detChips) {
+        const allAllowedSet = new Set(data.all_allowed || [data.owner]);
+        const candidates = (data.system_users || []).filter(s => !allAllowedSet.has(s.username));
+        if (candidates.length > 0) {
+          detContainer.style.display = 'flex';
+          detChips.innerHTML = candidates.map(c => `
+            <button type="button" class="zo-pill" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; font-size:12px; padding:3px 10px;" onclick="selectCandidateUser(${jsq(c.username)})" title="Allow ${esc(c.username)} (UID ${c.uid})">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="12" height="12"><path d="M12 5v14M5 12h14"/></svg>
+              + ${esc(c.username)}
+            </button>
+          `).join('');
+        } else {
+          detContainer.style.display = 'none';
+        }
+      }
+    }
+
+    function selectCandidateUser(uname) {
+      const inp = document.getElementById('newUsernameInput');
+      if (inp) {
+        inp.value = uname;
+        grantUserAccess();
+      }
+    }
+
+    async function grantUserAccess() {
+      const inp = document.getElementById('newUsernameInput');
+      if (!inp) return;
+      const uname = inp.value.trim();
+      if (!uname) {
+        notify('Please enter an Ubuntu username', 'error');
+        return;
+      }
+      try {
+        const res = await fetchJson('/api/users', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: uname })
+        });
+        inp.value = '';
+        notify(res.message || ('User ' + uname + ' granted access'));
+        loadAllowedUsers();
+      } catch (err) {
+        notify(err.message || 'Failed to grant access', 'error');
+      }
+    }
+
+    async function revokeUserAccess(uname) {
+      if (!confirm('Revoke access for user "' + uname + '"? They will be signed out and cannot log in.')) {
+        return;
+      }
+      try {
+        const res = await fetchJson('/api/users/delete', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ username: uname })
+        });
+        notify(res.message || ('Revoked access for ' + uname));
+        loadAllowedUsers();
+      } catch (err) {
+        notify(err.message || 'Failed to revoke access', 'error');
+      }
     }
 
     function handleSecretPaste(event) {
